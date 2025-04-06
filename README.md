@@ -34,7 +34,55 @@ There are lots of reports on the Internet regarding failures happening with thes
 This section collects my improvements to the original printer configuration.
 
 
-## Initialization script provided by OrcaSlicer
+## Nozzle Wipe and Purge Line Fix
+
+To fix the problem described above, you should edit the Artillery Machine Profile, on the **Machine G-Code** tab - **Machine start G-Code** and replace the third line `S{temperature_vitrification[0]}` by `S{nozzle_temperature_range_low[0]}`
+
+Here is the complete contents (**for X4-Pro only!!!**):
+
+```
+M104 S140
+M190 S[first_layer_bed_temperature]
+M109 S{nozzle_temperature_range_low[0]}
+G28;
+G1 X180 Y247 Z10 F5000
+SET_KINEMATIC_POSITION Y=0
+G1 Y11 F4000
+G1 X180 F4000
+G1 Z-1 F600 
+G1 X230 F4000
+G1 Y15 F4000
+G1 X180 F4000
+G92 E0
+G1 Z10 F1200
+G1 Y0 F5000
+G1 E-1 F3000
+M400
+SET_KINEMATIC_POSITION Y=247
+G92 E-1
+M140 S[first_layer_bed_temperature];
+M104 S[first_layer_temperature];
+G1 X0 Y0.8 Z0.8 F18000
+G92 E0
+G1 X0 Y0.8 Z0.3 E8 F600
+G92 E0
+G1 X170 Y0.8 Z0.3 F1800.0 E17.0;draw line
+G92 E0
+G1 X170 Y0 Z0.3 F1800.0 E0.08;draw line
+G92 E0
+G1 X70 Y0 Z0.3 F1800.0 E10.0;draw line
+G92 E0
+G1 X70 Y1.6 Z0.3 F1800.0 E0.16;draw line
+G92 E0
+G1 X150 Y1.6 Z0.3 F1800.0 E8;draw line
+G92 E0
+G1 X150 Y0 Z0.3 F1800.0 E0.16;draw line
+G92 E0
+G1 E-1 Z5 F18000
+G92 E0
+```
+
+> I reviewed the `X4 Plus` configuration and the problem also exists there. In this case you should modify the 3rd line only. The complete contents listed here refer to the 240x240 bed size and will fail on a model with a bigger heat bed.
 
 
 ### Background
@@ -189,61 +237,115 @@ There are of couple of comments and issues in respect of this script:
 - After wiping the nozzle it sets the correct temperature and starts to draw a purge line, which cannot work, because nozzle is not hot enough. I fear that this also forces filament, which will get *milled* by the extruder and possibly cause initial flow variations.
 
 
-## Nozzle Wipe and Purge Line Fix
+## Improved Beb Mesh Calibration
 
-To fix the problem described above, you should edit the Artillery Machine Profile, on the **Machine G-Code** tab - **Machine start G-Code** and replace the third line `S{temperature_vitrification[0]}` by `S{nozzle_temperature_range_low[0]}`
+In the current firmware, calibration settings is adjusted to a 36 point matrix. This is what you get when using the control panel on the printer.
 
-Here is the complete contents (**for X4-Pro only!!!**):
+Some of the marketing sheets talk about 9x9 mesh and probably an overkill for this bed size. But if you want to use a finer grained bed mesh you can change a simple line to activate the feature.
 
-```
-M104 S140
-M190 S[first_layer_bed_temperature]
-M109 S{nozzle_temperature_range_low[0]}
-G28;
-G1 X180 Y247 Z10 F5000
-SET_KINEMATIC_POSITION Y=0
-G1 Y11 F4000
-G1 X180 F4000
-G1 Z-1 F600 
-G1 X230 F4000
-G1 Y15 F4000
-G1 X180 F4000
-G92 E0
-G1 Z10 F1200
-G1 Y0 F5000
-G1 E-1 F3000
-M400
-SET_KINEMATIC_POSITION Y=247
-G92 E-1
-M140 S[first_layer_bed_temperature];
-M104 S[first_layer_temperature];
-G1 X0 Y0.8 Z0.8 F18000
-G92 E0
-G1 X0 Y0.8 Z0.3 E8 F600
-G92 E0
-G1 X170 Y0.8 Z0.3 F1800.0 E17.0;draw line
-G92 E0
-G1 X170 Y0 Z0.3 F1800.0 E0.08;draw line
-G92 E0
-G1 X70 Y0 Z0.3 F1800.0 E10.0;draw line
-G92 E0
-G1 X70 Y1.6 Z0.3 F1800.0 E0.16;draw line
-G92 E0
-G1 X150 Y1.6 Z0.3 F1800.0 E8;draw line
-G92 E0
-G1 X150 Y0 Z0.3 F1800.0 E0.16;draw line
-G92 E0
-G1 E-1 Z5 F18000
-G92 E0
+### Procedure
+
+To Change this option do the following:
+- Open the *fluidd* web interface 
+- Select the edit file configuration
+- Select and edit the `printer.cfg` file
+- Search the `[bed_mesh]` section
+- A couple of lines below, the modify the value of the `probe_count` key to 9,9
+- Reboot Klipper
+
+The file should look like this:
+```ini
+[bed_mesh]
+speed:120
+horizontal_move_z:10
+mesh_min:20,20
+mesh_max:220,220
+probe_count:9,9
+algorithm:bicubic
+bicubic_tension:0.2
+mesh_pps: 2, 2
 ```
 
-> I reviewed the `X4 Plus` configuration and the problem also exists there. In this case you should modify the 3rd line only. The complete contents listed here does not refer to the bigger bed size and will fail.
+## X Homing For pause
 
+When filament runs out, printer runs the `PAUSE` macro. The problem is that it just raises the gantry a bit (Z-axis). Ideally, it should move the X axis to the purge area, since we don't want to load filament and throw purged plastic over the printed object.
+
+To accomplish this, modify the `[gcode_macro PAUSE]` section of your `printer.cfg` file and add the line `G1 X-5 F6000` after the line `G90`.
+
+It should look like this:
+
+```ini
+[gcode_macro PAUSE]
+rename_existing: BASE_PAUSE
+gcode: 
+    {% set z = params.Z|default(20)|int %}                                                   
+    {% set e = params.E|default(2.5) %} 
+    SET_GCODE_VARIABLE MACRO=RESUME VARIABLE=zhop VALUE={z}                             
+    SET_GCODE_VARIABLE MACRO=RESUME VARIABLE=etemp VALUE={printer['extruder'].target}                                              
+    SAVE_GCODE_STATE NAME=PAUSE                                                                  
+    M25                                                                              
+    {% if (printer.gcode_move.position.z + z) < printer.toolhead.axis_maximum.z %}       
+      G91
+	    M83
+	    G1 E-{e} F2100
+      G1 Z{z} F900                                                                     
+    {% else %}
+      SET_GCODE_VARIABLE MACRO=RESUME VARIABLE=zhop VALUE=0
+    {% endif %}
+    SAVE_GCODE_STATE NAME=PAUSEPARK
+    G90
+    G1 X-5 F6000
+    #G1 X0 Y0 F6000
+	  #G1 E{e} F2100	
+    SET_IDLE_TIMEOUT TIMEOUT=43200                                                       
+```
 
 # Filament Tips
 
-## SunLu Pla Meta Blue
+These are key filament settings for my printer.
 
-Pressure Advance: 0.044
+
+## SunLu PLA Meta Blue
+
+| Parameter            | Value     |
+|----------------------|-----------|
+| Flow Ratio           | 0.98      |
+| Pressure Advance     | 0.044     |
+| Nozzle Temps         | 220 / 215 |
+| Bed Temps            | 55 / 50   |
+| Max Volumetric Speed | 26        |
+
+
+## SunLu PLA Meta Magenta
+
+| Parameter            | Value     |
+|----------------------|-----------|
+| Flow Ratio           | 0.98      |
+| Pressure Advance     | 0.054     |
+| Nozzle Temps         | 220 / 215 |
+| Bed Temps            | 55 / 50   |
+| Max Volumetric Speed | 21        |
+
+
+## SunLu PETG Grey
+
+| Parameter            | Value     |
+|----------------------|-----------|
+| Flow Ratio           | 0.95      |
+| Pressure Advance     | 0.055     |
+| Nozzle Temps         | 250 / 245 |
+| Bed Temps            | 70 / 70   |
+| Max Volumetric Speed | 21        |
+
+
+## SunLu PETG Black
+
+| Parameter            | Value     |
+|----------------------|-----------|
+| Flow Ratio           | 0.95      |
+| Pressure Advance     | 0.055     |
+| Nozzle Temps         | 250 / 245 |
+| Bed Temps            | 70 / 70   |
+| Max Volumetric Speed | 21        |
 
 
