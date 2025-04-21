@@ -1,0 +1,235 @@
+Probe Accuracy: Standard
+
+Start Condition:
+- Bed Temperature: 27.7
+- Nozzle Temperature: 28.2
+
+Stats for Moving Window of 10 Consecutive Elements:
+- Total Diff/StdDev: 29.09 µm / 8.71 µm
+- Phase 1 Diff/StdDev: 30.62 µm / 9.19 µm
+- Phase 2 Diff/StdDev: 29.64 µm / 8.88 µm
+- Phase 3 Diff/StdDev: 28.21 µm / 8.42 µm
+- Phase 4 Diff/StdDev: 27.58 µm / 8.30 µm
+
+Offset Shift for Power Supply Load:
+- Bed Power On: -9.62
+- Nozzle Power On: 6.12
+
+Offset Shift By Test Duration:
+- Reference (2 min): 0.33 µm
+- dZ @12 min: -43.25 µm
+- dZ @35 min: 19.00 µm
+- dZ @41 min: 2.83 µm
+- dZ @54 min: -11.17 µm
+
+
+For tab:
+27.7
+28.2
+30.62
+29.64
+28.21
+27.58
+29.09
+9.19
+8.88
+8.42
+8.30
+8.71
+-9.62
+6.12
+0.33
+-43.25
+19.00
+2.83
+-11.17
+
+
+Probe Accuracy: Rotation
+
+Start Condition:
+- Bed Temperature: 28.4
+- Nozzle Temperature: 28.7
+
+Stats for Moving Window of 10 Consecutive Elements:
+- Total Diff/StdDev: 14.86 µm / 4.56 µm
+- Phase 1 Diff/StdDev: 13.23 µm / 4.06 µm
+- Phase 2 Diff/StdDev: 15.31 µm / 4.67 µm
+- Phase 3 Diff/StdDev: 13.96 µm / 4.33 µm
+- Phase 4 Diff/StdDev: 15.39 µm / 4.71 µm
+
+Offset Shift for Power Supply Load:
+- Bed Power On: -5.00
+- Nozzle Power On: 8.63
+
+Offset Shift By Test Duration:
+- Reference (2 min): 0.83 µm
+- dZ @12 min: -19.58 µm
+- dZ @35 min: -4.17 µm
+- dZ @41 min: 14.25 µm
+- dZ @54 min: -24.92 µm
+
+
+For tab:
+28.4
+28.7
+13.23
+15.31
+13.96
+15.39
+14.86
+4.06
+4.67
+4.33
+4.71
+4.56
+-5.00
+8.63
+0.83
+-19.58
+-4.17
+14.25
+-24.92
+
+
+Probe Accuracy: Rotation + Slow Motion
+
+Start Condition:
+- Bed Temperature: 35.2
+- Nozzle Temperature: 34.0
+
+Stats for Moving Window of 10 Consecutive Elements:
+- Total Diff/StdDev: 12.59 µm / 3.85 µm
+- Phase 1 Diff/StdDev: 9.77 µm / 3.03 µm
+- Phase 2 Diff/StdDev: 13.12 µm / 4.03 µm
+- Phase 3 Diff/StdDev: 12.29 µm / 3.73 µm
+- Phase 4 Diff/StdDev: 12.36 µm / 3.71 µm
+
+Offset Shift for Power Supply Load:
+- Bed Power On: -10.75
+- Nozzle Power On: 9.25
+
+Offset Shift By Test Duration:
+- Reference (2 min): 2.58 µm
+- dZ @12 min: -17.33 µm
+- dZ @35 min: -0.67 µm
+- dZ @41 min: 9.50 µm
+- dZ @54 min: -12.92 µm
+
+
+For tab:
+35.2
+34.0
+9.77
+13.12
+12.29
+12.36
+12.59
+3.03
+4.03
+3.73
+3.71
+3.85
+-10.75
+9.25
+2.58
+-17.33
+-0.67
+9.50
+-12.92
+
+
+Probe Accuracy: Rotation + Slow Motion + Filter
+
+Start Condition:
+- Bed Temperature: 29.0
+- Nozzle Temperature: 29.0
+
+Stats for Moving Window of 10 Consecutive Elements:
+- Total Diff/StdDev: 12.10 µm / 3.73 µm
+- Phase 1 Diff/StdDev: 10.99 µm / 3.39 µm
+- Phase 2 Diff/StdDev: 12.63 µm / 3.89 µm
+- Phase 3 Diff/StdDev: 11.32 µm / 3.48 µm
+- Phase 4 Diff/StdDev: 11.91 µm / 3.72 µm
+
+Offset Shift for Power Supply Load:
+- Bed Power On: -10.88
+- Nozzle Power On: 8.75
+
+Offset Shift By Test Duration:
+- Reference (2 min): -16.33 µm
+- dZ @12 min: -46.08 µm
+- dZ @35 min: 20.17 µm
+- dZ @41 min: 12.08 µm
+- dZ @54 min: -8.33 µm
+
+
+For tab:
+29.0
+29.0
+10.99
+12.63
+11.32
+11.91
+12.10
+3.39
+3.89
+3.48
+3.72
+3.73
+-10.88
+8.75
+-16.33
+-46.08
+20.17
+12.08
+-8.33
+
+
+Probe Accuracy: Rotation + Slow Motion + Filter + Filament
+
+Start Condition:
+- Bed Temperature: 30.3
+- Nozzle Temperature: 31.2
+
+Stats for Moving Window of 10 Consecutive Elements:
+- Total Diff/StdDev: 14.73 µm / 4.49 µm
+- Phase 1 Diff/StdDev: 41.04 µm / 12.64 µm
+- Phase 2 Diff/StdDev: 12.99 µm / 3.96 µm
+- Phase 3 Diff/StdDev: 12.14 µm / 3.67 µm
+- Phase 4 Diff/StdDev: 11.66 µm / 3.53 µm
+
+Offset Shift for Power Supply Load:
+- Bed Power On: 5.00
+- Nozzle Power On: 10.00
+
+Offset Shift By Test Duration:
+- Reference (2 min): 54.25 µm
+- dZ @12 min: -10.17 µm
+- dZ @35 min: -7.50 µm
+- dZ @41 min: 7.67 µm
+- dZ @54 min: -11.50 µm
+
+
+For tab:
+30.3
+31.2
+41.04
+12.99
+12.14
+11.66
+14.73
+12.64
+3.96
+3.67
+3.53
+4.49
+5.00
+10.00
+54.25
+-10.17
+-7.50
+7.67
+-11.50
+
+
