@@ -21,6 +21,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--data', default='./data/probe_accuracy_0.json')
 parser.add_argument('--out', default='./data/probe_accuracy_0.jpg')
 parser.add_argument('--title', default='Probe Accuracy: Standard')
+parser.add_argument('--alt', action='store_true')
 
 
 def load_data(data_file: str) -> list:
@@ -30,7 +31,7 @@ def load_data(data_file: str) -> list:
 		return [json.loads(line) for line in f]
 
 
-def write_chart(data: list, output_file: str, chart_title: str):
+def write_chart(data: list, output_file: str, chart_title: str, alt : bool):
 
 	if not os.path.isabs(output_file):
 		output_file = os.path.normpath(os.path.join(SCRIPT_DIR, output_file))
@@ -132,6 +133,11 @@ def write_chart(data: list, output_file: str, chart_title: str):
 		)
 		fig.add_trace(trace)
 
+	if alt:
+		zrange = [0.0,0.1]
+	else:
+		zrange = [-0.07,0.03]
+
 	fig.update_layout(
 		title=dict(
 			text=chart_title
@@ -152,7 +158,7 @@ def write_chart(data: list, output_file: str, chart_title: str):
 			overlaying='y',
 			side='right',
 			position=0.9,
-			range=[-0.07,0.03]
+			range=zrange
 		),
 		yaxis3=dict(
 			title='Z stddev = {:.2f} µm'.format(final),
@@ -314,7 +320,7 @@ def main():
 
 	data = load_data(args.data)
 
-	write_chart(data, args.out, args.title)
+	write_chart(data, args.out, args.title, args.alt)
 	print_stats(data, args.title)
 
 
