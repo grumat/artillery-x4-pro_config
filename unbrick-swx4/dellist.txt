@@ -1,0 +1,60 @@
+DEL FILES:
+==========
++	/home/mks/.bash_history
++	/home/mks/.gitconfig
++	/home/mks/.viminfo
++	/home/mks/auto-webcam-id.sh
++	/home/mks/moonraker-obico-master.zip
++	/home/mks/moonraker-timelapse-main.zip
++	/home/mks/plrtmpA.1606
++	/home/mks/update_3b3bdc8.deb
++	/home/mks/update_50701cc.deb
++	/home/mks/update_f263f3d.deb
++	/home/mks/webcam.txt
+
++	/home/mks/Desktop/myfile/database.db
++	/home/mks/Desktop/myfile/ws/debug_log.txt
++	/home/mks/Desktop/myfile/ws/build/src/database.db
++	/home/mks/Desktop/myfile/ws.bak/build/mksclient
+
++	/home/mks/gcode_files/*
++	/home/mks/klipper_logs/*
+ 	/home/mks/klipper_logs/timelapse/*
++	/home/mks/simage_space/*
+
+
+DEL FOLDERS:
+============
++	/home/mks/moonraker-timelapse-main
++	/home/mks/gcode_files/.thumbs
+
+
+DIFFERENCES:
+============
+	/home/mks/Desktop/myfile/others/1.2.14.tft (keep as is)
+	/home/mks/Desktop/myfile/others/artillery_X4_max.cfg (use pro)
+	/home/mks/Desktop/myfile/others/artillery_X4_plus.cfg (use pro)
+	/home/mks/Desktop/myfile/others/artillery_X4_pro.cfg (use pro)
+	/home/mks/Desktop/myfile/ws/build/database.db (keep as is)
+	/home/mks/Desktop/myfile/ws/build/mksclient (keep as is)
+	/home/mks/Desktop/myfile/ws/start.sh (use plus)
+	/home/mks/Desktop/myfile/ws/yuntu_plr_dataA.ini (keep as is)
+	/home/mks/Desktop/myfile/ws/yuntu_plr_dataB.ini (keep as is)
+	/home/mks/klipper_config/moonraker.conf (use pro)
+	/home/mks/klipper_config/moonraker_obico_macros.cfg (use plus)
+	/home/mks/klipper_config/moonraker-obico.cfg (keep as is)
+	/home/mks/klipper_config/printer.cfg (keep as is)
+	/home/mks/klipper_config/timelapse.cfg (use pro)
+	/home/mks/klipper_config/webcam.txt (use pro)
+
+
+BOOT MESSAGES SHOWING ISSUES:
+=============================
+[    4.957992] systemd[1]: Configuration file /usr/lib/systemd/system/systemd-journald.service.d/override.conf is marked executable. Please remove executable permission bits. Proceeding anyway.
+[    4.960883] systemd[1]: Configuration file /lib/systemd/system/armbian-ramlog.service is marked executable. Please remove executable permission bits. Proceeding anyway.
+[    4.966646] systemd[1]: Configuration file /lib/systemd/system/armbian-zram-config.service is marked executable. Please remove executable permission bits. Proceeding anyway.
+[    5.017030] systemd[1]: Configuration file /lib/systemd/system/armbian-hardware-optimize.service is marked executable. Please remove executable permission bits. Proceeding anyway.
+[    5.021087] systemd[1]: Configuration file /lib/systemd/system/armbian-hardware-monitor.service is marked executable. Please remove executable permission bits. Proceeding anyway.
+[    5.056817] systemd[1]: Configuration file /etc/systemd/system/logrotate.service is marked executable. Please remove executable permission bits. Proceeding anyway.
+[    5.111398] systemd[1]: Configuration file /lib/systemd/system/bootsplash-hide-when-booted.service is marked executable. Please remove executable permission bits. Proceeding anyway.
+
