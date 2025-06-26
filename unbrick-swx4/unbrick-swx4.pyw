@@ -1,5 +1,8 @@
 #!py -3
 # -*- coding: UTF-8 -*-
+"""
+This scripts automates the unbricking of Artillery Sidewinder X4 printers.
+"""
 
 import locale
 import re
@@ -12,6 +15,7 @@ from tkinter import messagebox
 
 LOG = None
 
+# These are the chars used to mark the completion list
 CHECKMARK_CHAR = "\u2714"
 ERROR_CHAR = "\u2716"
 EMPTYMARK_CHAR = "\u274F"
@@ -19,17 +23,35 @@ SKIP_CHAR = "\u26d2"
 
 
 def Log(msg):
+	"""
+	This function writes a message to the log file. In the case the message is a byte stream, it 
+	provides automatic conversion.
+	It is expected that the `LOG` file instance exists.
+	"""
+	# Converts non-string input to string
 	if type(msg) != str:
 		msg = str(msg, "utf-8", errors="replace")
 	LOG.write(msg)
 	LOG.flush()
 
 def ShowError(msg : str):
+	"""
+	This function writes the given error message to the log and also displays in a messagebox.
+	"""
 	Log(msg)
 	messagebox.showerror("Error", msg)
 	
 
 def FindSerialPort():
+	"""
+	The pySerial Library allows one to list the serial ports. It also collects the VID/PID values for each instance. 
+	This is used to filter only serial ports having PID=1A86 and PID=7523, which matches the hardware provided by 
+	Artillery. This way other devices are not considered.
+
+	Error conditions are:
+		- No port having this PID/VID found
+		- More than one instance was found. user have to disconnect unnecessary USB connections hardware to continue.
+	"""
 	ports = serial.tools.list_ports.comports()
 	res = []
 	for port, desc, hwid in sorted(ports):
@@ -48,13 +70,48 @@ def FindSerialPort():
 
 
 class Conn(object):
+	"""
+	A dedicated class was created to handle the serial connection. The class is called `Conn` and the main challenge here 
+	is to handle serial port echo received by the Linux terminal.
+	Interestingly, this terminal also performs CR+LF expansion.
+
+	I noticed during tests that the 1,500,000 bauds were very instable. Some USB ports have better results using a 
+	1,497,600 baud. It was not conclusive, because even a USB hub connected between produced different results.
+
+	I read in some MKSPI forum that the Armbian Linux has a 115,200 baud fallback if you like. And this was the way to go. 
+	With this speed we are quite slower, but error rates are nearly inexistent.
+
+	Regarding 115,200 rate, I could notice the following:
+		- The first response bytes are trash and can be completely discarded.
+		- Once Armbian switches to 115,200 bauds, it never switches back. You cannot reconnect with high rates and a 
+		reboot is necessary.
+	"""
 	def __init__(self, port : str):
 		self.port = port
 		self.valid = False
+		# Stores the resizing bug state
 		self.resizing_issue = False
 		self.reboot_on_exit = False
 
 	def __enter__(self):
+		"""
+		Considering the 115,000 baud issues described above, the connection is established on class construction time, an 
+		the following is done:
+			- A loop tries 10 times to receive the Linux login prompt and start connection, before giving up.
+			- The case were a session is still open, rare, but happens, is detected when the bash prompt is received. 
+			In this case an `exit` command is issued, so that a new login session starts.
+			- As soon as the *password prompt* is received, the connection sends the standard `makerbase` password.
+			- When the login starts, the connection class continuously reads lines discarding them, which is the 
+			*welcome message* of Armbian.
+
+		The first problem that I noticed is that the **Artillery SW-X4 Plus** firmware has a bug that happens in this 
+		*welcome message*, where the following message happens:
+		
+				Warning: a reboot is needed to finish resizing the filesystem
+				Please reboot the system as soon as possible
+
+		This issue, when present, a `True` value is stored on the `self.resizing_issue` member. 
+		"""
 		try:
 			# We use a fallback speed of 115,200 to avoid communication errors, typical on 1.5 MBAUDS
 			self.com = serial.Serial(self.port, baudrate=115200, timeout=3, xonxoff=True, exclusive=True)
@@ -107,6 +164,16 @@ class Conn(object):
 		return self
 
 	def __exit__(self, exc_type, exc_value, traceback):
+		"""
+		Another feature that this class implements is the automatic logout at the end of the connection.
+
+		There are two ways to make this, which is controlled by the `self.reboot_on_exit` flag. On a normal situation 
+		where the complete recovery steps are done, this flag is set to `True`, which issues a `reboot` command. The 
+		other option is to simply execute the `exit` command, which is the usual way when the process interrupts for 
+		whatever reason.
+
+		Regardless of the way it ends, the connection breaks here and we free all devices.
+		"""
 		if self.com:
 			if self.reboot_on_exit:
 				self.Write("reboot\n")
@@ -118,28 +185,53 @@ class Conn(object):
 			self.port = None
 
 	def IsValid(self):
+		"""Returns true if a valid connection was established"""
 		return self.valid
 	
 	@staticmethod
 	def IsPrompt(msg : str):
+		"""Check if the current contents is a recognized terminal prompt"""
 		return msg.startswith('root@mkspi') or msg.startswith('mks@mkspi')
 	
 	@staticmethod
 	def IsLoginPrompt(msg : str):
+		"""Check if the current contents is a recognized terminal login prompt"""
 		return msg.startswith('mkspi login:')
 
 	def Write(self, msg : str):
+		"""
+		This is an important that sends messages to the printer. Messages are received as argument for that method, which 
+		uses internal Python String representation. It has to be decoded to bytes format before sending to the printer 
+		(this is essentially a formality of Python, since it is a UTF-8 to UTF-8 conversion).
+
+		Data is written to the serial port and a flush command is issued so that the transmission can complete. Just after 
+		that, the same amount of bytes are read, considering that CR+LF expansion happens on this connection. This is 
+		required to clear the echo caused by the terminal service of Linux.
+
+		Transmitted information is also sent to the log file.
+		"""
 		Log(msg)
 		b = msg.encode("UTF-8", errors='ignore')
 		self.com.write(b)
 		self.com.flush()
 		l = len(b)
 		# for CR+LF expansion
-		if 0:
+		if 1:
 			l += (b'\n' in b)
 		Log(self.com.read(l))	# kill echo
 
 	def ReadLine(self):
+		"""
+		The input queue is tested and a 200 ms sleep is issued if no information is present. This is required, since 
+		commands may have a delay to return a response.
+
+		The routine fetches byte by byte until the `\n` is received, indicating the end of a line.
+
+		When a line is complete, it is decoded to the internal Python string representation. Before exiting, `CR+LF` 
+		sequences are converted to simple Unix form.
+
+		Received information is also sent to the log file.
+		"""
 		if self.com.in_waiting == 0:
 			time.sleep(0.2)
 		buf = b''
@@ -154,6 +246,9 @@ class Conn(object):
 		return str
 
 	def ReadLineEx(self):
+		"""
+		Reads a line that has a contents. Empty lines are ignored.
+		"""
 		cnt = 30
 		line = self.ReadLine()
 		while (cnt != 0) and (line == '\n'):
@@ -162,6 +257,9 @@ class Conn(object):
 		return line
 	
 	def CaptureLines(self):
+		"""
+		This routine captures all lines until a prompt is encountered.
+		"""
 		lines = []
 		line = self.ReadLine()
 		while not self.IsPrompt(line):
@@ -170,6 +268,9 @@ class Conn(object):
 		return lines
 	
 	def WaitPrompt(self):
+		"""
+		Read lines and discards them until the terminal prompt is received
+		"""
 		cnt = 30
 		line = self.ReadLine()
 		while (cnt != 0) and (not self.IsPrompt(line)):
@@ -179,6 +280,9 @@ class Conn(object):
 
 
 class DiskUsage:
+	"""
+	A record to store disk size information.
+	"""
 	def __init__(self):
 		self.total = 0
 		self.boot_size = 0
@@ -189,6 +293,9 @@ class DiskUsage:
 
 	
 class Repair(object):
+	"""
+	The class that has the collection of repair steps
+	"""
 	def __init__(self, conn : Conn):
 		self.conn = conn
 		self.curdir = self.GetCurDir()
@@ -293,7 +400,7 @@ class Repair(object):
 class Gui(object):
 	def __init__(self):
 		self.root = Tk()
-		self.root.title("Artillery SideWinder X4 Unbrick Tool v0.1")
+		self.root.title("Artillery SideWinder X4 Unbrick Tool v0.2")
 		self.frm = ttk.Frame(self.root, padding=10)
 		self.frm.grid()
 		self.frm.grid_columnconfigure(1, minsize=180)
