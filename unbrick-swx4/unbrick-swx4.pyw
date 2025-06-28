@@ -1,4 +1,4 @@
-#!py -3
+#
 # -*- coding: UTF-8 -*-
 """
 This scripts automates the unbricking of Artillery Sidewinder X4 printers.
@@ -15,7 +15,6 @@ from tkinter import messagebox
 
 LOG = None
 
-# These are the chars used to mark the completion list
 CHECKMARK_CHAR = "\u2714"
 ERROR_CHAR = "\u2716"
 EMPTYMARK_CHAR = "\u274F"
@@ -355,13 +354,20 @@ class Repair(object):
 		self.conn.WaitPrompt()
 
 	def FixPermission(self):
-		self.ChMod("a-x", "/usr/lib/systemd/system/systemd-journald.service.d/override.conf")
-		self.ChMod("a-x", "/lib/systemd/system/armbian-ramlog.service")
-		self.ChMod("a-x", "/lib/systemd/system/armbian-zram-config.service")
+		self.ChMod("a-x", "/etc/systemd/system/logrotate.service")
+		self.ChMod("a-x", "/lib/systemd/system/armbian-firstrun-config.service")
 		self.ChMod("a-x", "/lib/systemd/system/armbian-hardware-optimize.service")
 		self.ChMod("a-x", "/lib/systemd/system/armbian-hardware-monitor.service")
-		self.ChMod("a-x", "/etc/systemd/system/logrotate.service")
+		self.ChMod("a-x", "/lib/systemd/system/armbian-ramlog.service")
+		self.ChMod("a-x", "/lib/systemd/system/armbian-zram-config.service")
 		self.ChMod("a-x", "/lib/systemd/system/bootsplash-hide-when-booted.service")
+		self.ChMod("a-x", "/lib/systemd/system/gpio-monitor.service")
+		self.ChMod("a-x", "/lib/systemd/system/makerbase-webcam.service")
+		self.ChMod("a-x", "/lib/systemd/system/makerbase-byid.service")
+		self.ChMod("a-x", "/usr/lib/systemd/system/getty@tty1.service.d/10-noclear.conf")
+		self.ChMod("a-x", "/usr/lib/systemd/system/serial-getty@.service.d/10-term.conf")
+		self.ChMod("a-x", "/usr/lib/systemd/system/systemd-journald.service.d/override.conf")
+		self.ChMod("a-x", "/usr/lib/systemd/system/systemd-modules-load.service.d/10-timeout.conf")
 
 	def DelGcodeFiles(self):
 		self.DelFile("/home/mks/gcode_files/*")
@@ -369,6 +375,11 @@ class Repair(object):
 	def DelMiniatureFiles(self):
 		self.DelFile("/home/mks/simage_space/*")
 		self.DelTree("/home/mks/gcode_files/.thumbs")
+		self.DelFile("/home/mks/Videos/*")
+
+	def DelOldCfgFiles(self):
+		self.DelFile("/home/mks/klipper_config/.moonraker.conf.bkp")
+		self.DelFile("/home/mks/klipper_config/printer-2*.cfg")
 
 	def DelLogFiles(self):
 		self.DelFile("/home/mks/klipper_logs/timelapse/*")
@@ -394,6 +405,11 @@ class Repair(object):
 		# Entire Folders
 		self.DelTree("/home/mks/moonraker-timelapse-main")
 
+	def TrimDisk(self):
+		# eMMC supports trim
+		self.conn.Write("fstrim /\n")
+		self.conn.WaitPrompt()
+
 
 
 
@@ -415,10 +431,12 @@ class Gui(object):
 			( "Available Disk Space", "free_start", None, None),
 			( "Erase .gcode files", "gcode_files", EMPTYMARK_CHAR, 'p'),
 			( "Erase miniature files", "miniature_files", EMPTYMARK_CHAR, None),
+			( "Erase old configuration files", "old_cfg_files", EMPTYMARK_CHAR, None),
 			( "Erase log files", "log_files", EMPTYMARK_CHAR, None),
 			( "Erase Artillery clutter files", "clutter_files", EMPTYMARK_CHAR, None),
 			( "Fix file permission", "fix_permission", EMPTYMARK_CHAR, None),
 			( "Fix for card resize bug", "resize_bug", SKIP_CHAR, None),
+			( "Trimming eMMC disk", "trim_emmc", EMPTYMARK_CHAR, None),
 			( "Enabling Client Service", "enable_client", EMPTYMARK_CHAR, 'p'),
 			( "Enabling WebCam Service", "enable_webcam", EMPTYMARK_CHAR, None),
 			( "Enabling Moonraker Service", "enable_moonraker", EMPTYMARK_CHAR, None),
@@ -503,6 +521,11 @@ class Gui(object):
 		self.resize_bug.set(CHECKMARK_CHAR)
 		self.root.update_idletasks()
 
+	def _TrimDisk(self, repair : Repair):
+		repair.TrimDisk()
+		self.trim_emmc.set(CHECKMARK_CHAR)
+		self.root.update_idletasks()
+
 	def _EnableClientService(self, repair : Repair):
 		repair.EnableService("makerbase-client")
 		self.enable_client.set(CHECKMARK_CHAR)
@@ -553,6 +576,11 @@ class Gui(object):
 		self.miniature_files.set(CHECKMARK_CHAR)
 		self.root.update_idletasks()
 
+	def _DelOldCfgFiles(self, repair : Repair):
+		repair.DelOldCfgFiles()
+		self.old_cfg_files.set(CHECKMARK_CHAR)
+		self.root.update_idletasks()
+
 	def _DelLogFiles(self, repair : Repair):
 		repair.DelLogFiles()
 		self.log_files.set(CHECKMARK_CHAR)
@@ -595,6 +623,7 @@ class Gui(object):
 					self._FixPermission(repair)
 					if conn.resizing_issue:
 						self._FixResizeMessage(repair)
+					self._TrimDisk(repair)
 
 					self._EnableClientService(repair)
 					self._EnableWebCamService(repair)
