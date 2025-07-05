@@ -2,6 +2,8 @@
 # -*- coding: UTF-8 -*-
 """
 This scripts automates the unbricking of Artillery Sidewinder X4 printers.
+
+REMARK: echo -n "base64==" | base64 -d | bunzip2 > file.dat
 """
 
 import locale
@@ -12,6 +14,7 @@ import time
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
+import threading
 
 LOG = None
 
@@ -411,59 +414,119 @@ class Repair(object):
 		self.conn.WaitPrompt()
 
 
+class FillCtrl(object):
+	def __init__(self, root : Tk):
+		self.frame = ttk.Frame(root, padding=10)
+		self.frame.grid(sticky="nsew")
+		self.frame.grid_columnconfigure(0, weight=1)
+		self.frame.grid_columnconfigure(1, minsize=180)
+		self.frame.grid_columnconfigure(2, weight=1)
+		self.frame.grid_columnconfigure(3, minsize=180)
+		self.row = -1
+		self.rowmax = -1
+		self.col0 = 0
+		self.col1 = 1
+		self.section = -1
+	def NextRow(self):
+		self.row += 1
+		if self.row > self.rowmax:
+			self.rowmax = self.row
+	def NewColumn(self):
+		self.row = self.section
+		self.col0 = 2
+		self.col1 = 3
+	def EmptyLine(self):
+		self.NextRow()
+		ttk.Label(self.frame, text="", state="disabled").grid(column=self.col0, row=self.row)
+	def AddLine(self, t : str, var):
+		st = None
+		if t.startswith('\t'):
+			st = 'e'
+			t = t[1:]
+		elif t.startswith('\b'):
+			st = 'w'
+			t = t[1:]
+		self.NextRow()
+		ttk.Label(self.frame, text=t, state="disabled").grid(column=self.col0, row=self.row, sticky=st)
+		ttk.Label(self.frame, textvariable=var, state="disabled").grid(column=self.col1, row=self.row)
+	def NewSection(self):
+		self.row = self.rowmax
+		self.col0 = 0
+		self.col1 = 1
+		self.EmptyLine()
+		self.section = self.row
+
 
 
 class Gui(object):
 	def __init__(self):
 		self.root = Tk()
 		self.root.title("Artillery SideWinder X4 Unbrick Tool v0.2")
-		self.frm = ttk.Frame(self.root, padding=10)
-		self.frm.grid()
-		self.frm.grid_columnconfigure(1, minsize=180)
+		self.root.resizable(False, False)
+
+		self.tests = FillCtrl(self.root)
+
 		data = [
 			( "Detecting Serial Port of OS system", "serial_port", EMPTYMARK_CHAR, None),
 			( "Check if Artillery Sidewinder X4 Printer Connected", "connected", EMPTYMARK_CHAR, None),
-			( "Stopping Client Service", "stop_client", EMPTYMARK_CHAR, "p"),
-			( "Stopping WebCam Service", "stop_webcam", EMPTYMARK_CHAR, None),
-			( "Stopping Moonraker Service", "stop_moonraker", EMPTYMARK_CHAR, None),
-			( "Stopping Klipper Service", "stop_klipper", EMPTYMARK_CHAR, None),
-			( "Total Disk Size", "total_size", None, 'p'),
-			( "Available Disk Space", "free_start", None, None),
-			( "Erase .gcode files", "gcode_files", EMPTYMARK_CHAR, 'p'),
-			( "Erase miniature files", "miniature_files", EMPTYMARK_CHAR, None),
-			( "Erase old configuration files", "old_cfg_files", EMPTYMARK_CHAR, None),
-			( "Erase log files", "log_files", EMPTYMARK_CHAR, None),
-			( "Erase Artillery clutter files", "clutter_files", EMPTYMARK_CHAR, None),
-			( "Fix file permission", "fix_permission", EMPTYMARK_CHAR, None),
-			( "Fix for card resize bug", "resize_bug", SKIP_CHAR, None),
-			( "Trimming eMMC disk", "trim_emmc", EMPTYMARK_CHAR, None),
-			( "Enabling Client Service", "enable_client", EMPTYMARK_CHAR, 'p'),
-			( "Enabling WebCam Service", "enable_webcam", EMPTYMARK_CHAR, None),
-			( "Enabling Moonraker Service", "enable_moonraker", EMPTYMARK_CHAR, None),
-			( "Enabling Klipper Service", "enable_klipper", EMPTYMARK_CHAR, None),
-			( "Available Disk Space After Cleanup", "free_after", None, 'p'),
-			( "Starting Klipper Service", "start_klipper", EMPTYMARK_CHAR, 'p'),
-			( "Starting Moonraker Service", "start_moonraker", EMPTYMARK_CHAR, None),
-			( "Starting WebCam Service", "start_webcam", EMPTYMARK_CHAR, None),
-			( "Starting Client Service", "start_client", EMPTYMARK_CHAR, None),
+			( None, None, "e", None),
+			( "Stopping Client Service", "stop_client", EMPTYMARK_CHAR, 		self._StopClientService),
+			( "Stopping WebCam Service", "stop_webcam", EMPTYMARK_CHAR, 		self._StopWebCamService),
+			( "Stopping Moonraker Service", "stop_moonraker", EMPTYMARK_CHAR, 	self._StopMoonrakerService),
+			( "Stopping Klipper Service", "stop_klipper", EMPTYMARK_CHAR, 		self._StopKlipperService),
+			( None, None, "e", 													self._GetStartFreeSize),
+			( "Erase .gcode files", "gcode_files", EMPTYMARK_CHAR, 				self._DelGcodeFiles),
+			( "Erase miniature files", "miniature_files", EMPTYMARK_CHAR, 		self._DelMiniatureFiles),
+			( "Erase old configuration files", "old_cfg_files", EMPTYMARK_CHAR, self._DelOldCfgFiles),
+			( "Erase log files", "log_files", EMPTYMARK_CHAR, 					self._DelLogFiles),
+			( "Erase Artillery clutter files", "clutter_files", EMPTYMARK_CHAR, self._DelClutterFiles),
+			( None, None, "P", None),
+			( "Fix file permission", "fix_permission", EMPTYMARK_CHAR, 			self._FixPermission),
+			( "Fix for card resize bug", "resize_bug", SKIP_CHAR, 				self._FixResizeMessage),
+			( "Trimming eMMC disk", "trim_emmc", EMPTYMARK_CHAR, 				self._TrimDisk),
+			( None, None, "e", None),
+			( "Enabling Client Service", "enable_client", EMPTYMARK_CHAR, 		self._EnableClientService),
+			( "Enabling WebCam Service", "enable_webcam", EMPTYMARK_CHAR, 		self._EnableWebCamService),
+			( "Enabling Moonraker Service", "enable_moonraker", EMPTYMARK_CHAR,	self._EnableMoonrakerService),
+			( "Enabling Klipper Service", "enable_klipper", EMPTYMARK_CHAR,		self._EnableKlipperService),
+			( None, None, "e", 													self._GetEndFreeSize),
+			( "Starting Klipper Service", "start_klipper", EMPTYMARK_CHAR, 		self._StartKlipperService),
+			( "Starting Moonraker Service", "start_moonraker", EMPTYMARK_CHAR,	self._StartMoonrakerService),
+			( "Starting WebCam Service", "start_webcam", EMPTYMARK_CHAR, 		self._StartWebCamService),
+			( "Starting Client Service", "start_client", EMPTYMARK_CHAR, 		self._StartClientService),
+			( None, None, "o", None),
+			( "\tTotal Disk Size:", "total_size", None, None),
+			( "\tAvailable Disk Space:", "free_start", None, None),
+			( None, None, "P", None),
+			( "\tAvailable Disk Space After Cleanup:", "free_after", None, None),
 		]
-		row = -1
-		for t, v, i, p in data:
-			row += 1
-			setattr(self, v, StringVar())
-			var = getattr(self, v)
-			if (i):
-				var.set(i)
-			pad = 0
-			if p:
-				if p == 'p':
-					pad = 10
-			ttk.Label(self.frm, text=t, state="disabled").grid(column=0, row=row, pady=(pad, 0))
-			ttk.Label(self.frm, textvariable=var, state="disabled").grid(column=1, row=row, pady=(pad, 0))
-		row += 1
-		self.run = ttk.Button(self.frm, text="Run", command=self.Run)
-		self.run.grid(column=0, row=row, pady = 10)
-		ttk.Button(self.frm, text="Quit", command=self.root.destroy).grid(column=1, row=row, pady = 10)
+		self.test_list = []
+		cur = self.tests
+		for t, v, i, m in data:
+			if m:
+				self.test_list.append(m)
+			if t is None:
+				if 'o' in i:
+					cur.NewSection()
+				if 'e' in i:
+					cur.EmptyLine()
+				if 'P' in i:
+					cur.NewColumn()
+			else:
+				setattr(self, v, StringVar())
+				var = getattr(self, v)
+				if (i):
+					var.set(i)
+				cur.AddLine(t, var)
+
+		self.buttons = ttk.Frame(self.root, padding=10)
+		self.buttons.grid(sticky="nsew")
+		self.buttons.grid_columnconfigure(0, weight=1)
+		self.buttons.grid_columnconfigure(1, weight=0)
+		self.buttons.grid_columnconfigure(2, weight=0)
+		self.run = ttk.Button(self.buttons, text="Run", command=self.Run)
+		self.run.grid(column=1, row=0, padx=5, pady=5, sticky="ew")
+		ttk.Button(self.buttons, text="Quit", command=self.root.destroy).grid(column=2, row=0, padx=5, pady=5, sticky="ew")
 		self.root.mainloop()
 
 	@staticmethod
@@ -483,113 +546,92 @@ class Gui(object):
 	def _StopClientService(self, repair : Repair):
 		repair.StopService("makerbase-client")
 		self.stop_client.set(CHECKMARK_CHAR)
-		self.root.update_idletasks()
 
 	def _StopWebCamService(self, repair : Repair):
 		repair.StopService("makerbase-webcam")
 		self.stop_webcam.set(CHECKMARK_CHAR)
-		self.root.update_idletasks()
 
 	def _StopMoonrakerService(self, repair : Repair):
 		repair.StopService("moonraker")
 		self.stop_moonraker.set(CHECKMARK_CHAR)
-		self.root.update_idletasks()
 
 	def _StopKlipperService(self, repair : Repair):
 		repair.StopService("klipper")
 		self.stop_klipper.set(CHECKMARK_CHAR)
-		self.root.update_idletasks()
 
 	def _GetStartFreeSize(self, repair : Repair):
 		u = repair.GetFreeScape()
 		self.total_size.set(Gui.FmtByteSize(u.total))
 		self.free_start.set(Gui.FmtByteSize(u.root_free))
-		self.root.update_idletasks()
 
 	def _GetEndFreeSize(self, repair : Repair):
 		u = repair.GetFreeScape()
 		self.free_after.set(Gui.FmtByteSize(u.root_free))
-		self.root.update_idletasks()
 
 	def _FixPermission(self, repair : Repair):
 		repair.FixPermission()
 		self.fix_permission.set(CHECKMARK_CHAR)
-		self.root.update_idletasks()
 
 	def _FixResizeMessage(self, repair : Repair):
-		repair.DisableService("armbian-resize-filesystem")
-		self.resize_bug.set(CHECKMARK_CHAR)
-		self.root.update_idletasks()
+		if repair.conn.resizing_issue:
+			repair.DisableService("armbian-resize-filesystem")
+			self.resize_bug.set(CHECKMARK_CHAR)
 
 	def _TrimDisk(self, repair : Repair):
 		repair.TrimDisk()
 		self.trim_emmc.set(CHECKMARK_CHAR)
-		self.root.update_idletasks()
 
 	def _EnableClientService(self, repair : Repair):
 		repair.EnableService("makerbase-client")
 		self.enable_client.set(CHECKMARK_CHAR)
-		self.root.update_idletasks()
 
 	def _EnableWebCamService(self, repair : Repair):
 		repair.EnableService("makerbase-webcam")
 		self.enable_webcam.set(CHECKMARK_CHAR)
-		self.root.update_idletasks()
 
 	def _EnableMoonrakerService(self, repair : Repair):
 		repair.EnableService("moonraker")
 		self.enable_moonraker.set(CHECKMARK_CHAR)
-		self.root.update_idletasks()
 
 	def _EnableKlipperService(self, repair : Repair):
 		repair.EnableService("klipper")
 		self.enable_klipper.set(CHECKMARK_CHAR)
-		self.root.update_idletasks()
 
 	def _StartClientService(self, repair : Repair):
 		repair.StartService("makerbase-client")
 		self.start_client.set(CHECKMARK_CHAR)
-		self.root.update_idletasks()
 
 	def _StartWebCamService(self, repair : Repair):
 		repair.StartService("makerbase-webcam")
 		self.start_webcam.set(CHECKMARK_CHAR)
-		self.root.update_idletasks()
 
 	def _StartMoonrakerService(self, repair : Repair):
 		repair.StartService("moonraker")
 		self.start_moonraker.set(CHECKMARK_CHAR)
-		self.root.update_idletasks()
 
 	def _StartKlipperService(self, repair : Repair):
 		repair.StartService("klipper")
 		self.start_klipper.set(CHECKMARK_CHAR)
-		self.root.update_idletasks()
 
 	def _DelGcodeFiles(self, repair : Repair):
 		repair.DelGcodeFiles()
 		self.gcode_files.set(CHECKMARK_CHAR)
-		self.root.update_idletasks()
 
 	def _DelMiniatureFiles(self, repair : Repair):
 		repair.DelMiniatureFiles()
 		self.miniature_files.set(CHECKMARK_CHAR)
-		self.root.update_idletasks()
 
 	def _DelOldCfgFiles(self, repair : Repair):
 		repair.DelOldCfgFiles()
 		self.old_cfg_files.set(CHECKMARK_CHAR)
-		self.root.update_idletasks()
 
 	def _DelLogFiles(self, repair : Repair):
 		repair.DelLogFiles()
 		self.log_files.set(CHECKMARK_CHAR)
-		self.root.update_idletasks()
 
 	def _DelClutterFiles(self, repair : Repair):
 		repair.DelClutterFiles()
 		self.clutter_files.set(CHECKMARK_CHAR)
-		self.root.update_idletasks()
 	
 
 	def Run(self):
@@ -608,34 +650,11 @@ class Gui(object):
 					self.root.update_idletasks()
 					repair = Repair(conn)
 
-					self._StopClientService(repair)
-					self._StopWebCamService(repair)
-					self._StopMoonrakerService(repair)
-					self._StopKlipperService(repair)
 
-					self._GetStartFreeSize(repair)
+					for t in self.test_list:
+						t(repair)
 
-					self._DelGcodeFiles(repair)
-					self._DelMiniatureFiles(repair)
-					self._DelLogFiles(repair)
-					self._DelClutterFiles(repair)
 
-					self._FixPermission(repair)
-					if conn.resizing_issue:
-						self._FixResizeMessage(repair)
-					self._TrimDisk(repair)
-
-					self._EnableClientService(repair)
-					self._EnableWebCamService(repair)
-					self._EnableMoonrakerService(repair)
-					self._EnableKlipperService(repair)
-
-					self._GetEndFreeSize(repair)
-
-					self._StartKlipperService(repair)
-					self._StartMoonrakerService(repair)
-					self._StartWebCamService(repair)
-					self._StartClientService(repair)
 					# Disable a second attempt
 					self.run.config(state="disabled")
 					# Force a reboot
