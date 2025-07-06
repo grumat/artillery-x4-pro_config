@@ -10,13 +10,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "justMyCode": true,
-            "args": [
-                "DelKey",
-                "homing_override",
-                "gcode",
-                "D:\\TEMP\\yuntu\\ref\\artillery_X4_plus.000.cfg"
-            ]
+            "justMyCode": true
         }
     ]
 }
