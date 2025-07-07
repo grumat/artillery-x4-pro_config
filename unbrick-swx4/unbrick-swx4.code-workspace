@@ -5,7 +5,17 @@
 		},
 		{
 			"path": "assets"
+		},
+		{
+			"path": "mk-assets"
+		},
+		{
+			"path": "tests"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"python.analysis.extraPaths": [
+			"../assets"
+		]
+	}
 }

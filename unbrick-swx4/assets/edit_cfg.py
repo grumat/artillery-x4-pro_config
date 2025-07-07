@@ -72,6 +72,8 @@ class Res(object):
 # General success result
 OK = Res('.', "OK")
 # Error returned when an argument is missing
+NO_FN = Res('!', "FN")
+# Error returned when an argument is missing
 MISSING_ARG = Res('!', "ARG")
 # Error returned when too many arguments are given
 EXTRA_ARGS = Res('!', "ARG+")
@@ -200,7 +202,7 @@ class SecLabel(object):
 			# Convert label into a list, splitting it on whitespaces
 			# Because every `gcode_macro` is converted to uppercase in Klipper, we repeat this also
 			for k in label.split():
-				self.labels.append((r and (r[0] == "gcode_macro")) and k.strip().upper() or k.strip())
+				self.labels.append((self.labels and (self.labels[0] == "gcode_macro")) and k.strip().upper() or k.strip())
 	def __bool__(self):
 		return bool(self.labels)
 	def MatchesAll(self):
@@ -346,7 +348,7 @@ class Section(object):
 		if len(key) > 1:
 			return MULT_KEY(self.GetLoc())
 		key : Key = key[0]
-		return ('k', key, key.GetLoc())
+		return Res('k', key, key.GetLoc())
 
 
 class CfgIterator(object):
@@ -412,7 +414,7 @@ class CfgIterator(object):
 						blank = self.IsLineEmpty()
 					else:
 						if blank:
-							key.idx_n -= 1
+							key.loc.idx_n -= 1
 						break
 				else:
 					blank = True
@@ -459,12 +461,15 @@ class Contents(object):
 							self.sections.append(sect)
 							sect = None
 							break
+				else:
+					it.NextLine()
 			except StopIteration:
 				# Just don't forget to add remainder instances
 				if sect:
 					if key:
 						sect.keys.append(key)
 					self.sections.append(sect)
+				break
 	def MatchSections(self, pat :SecLabel) -> list[Section]:
 		"""Returns a list of sections matching the section pattern"""
 		return [s for s in self.sections if s.name.Match(pat)]
@@ -762,24 +767,19 @@ def DelSec(ctx : Context) -> Res:
 		return res
 	return MISSING_ARG
 
-def main(args : list[str]):
-	global ARGS
-	ARGS = args
-	code = '!'
-	val = "ARG"
-	range = NO_LOC
+def main(args : list[str]) -> Res:
+	ctx = Context(args)
+	res = NO_FN
 	try:
-		fn = GetArg()
+		fn = ctx.GetArg()
 		if fn:
 			if hasattr(MODULE, fn):
-				code, val, range = getattr(MODULE, fn)()
-			else:
-				val = "FN"
+				res = getattr(MODULE, fn)(ctx)
 	except Exception as e:
-		val = "XCP"
-		if 0:
+		res = Res('!', "XCP")
+		if 1:
 			print(e)
-	print(f"{code}{val}")
+	return res
 
 if __name__ == "__main__":
-	main(sys.argv[1:])
+	print(main(sys.argv[1:]))
