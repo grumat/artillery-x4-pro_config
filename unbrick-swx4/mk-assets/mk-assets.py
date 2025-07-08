@@ -17,23 +17,23 @@ import edit_cfg
 
 MODULAR_CONFIG = os.path.normpath(os.path.join(current_dir, "..", "..", "modular-config"))
 
-def GetKey(fh, var : str, fn : str, sec : str, key : str):
+def GetKeyML(fh, var : str, fn : str, sec : str, key : str):
 	"Use for encoded multiline keys"
-	edit_cfg.ARGS = [sec, key, fn]
-	code, val, pos = edit_cfg.GetKey()
-	if code != '*':
-		raise Exception(f"{code}{val}")
-	fh.write(f"{var} = '{val}'\r\n")
+	ctx = edit_cfg.Context([sec, key, fn])
+	res = edit_cfg.GetKey(ctx)
+	if res.code != '*':
+		raise Exception(f"{res}")
+	fh.write(f"{var} = '{res.value}'\r\n")
 
 def main():
 	fn = os.path.join(assets_dir, "encoded_data.py")
 	with open(fn, 'wt', encoding="utf-8") as fh:
-		fh.write("#!/usr/bin/python3\r\n")
-		fh.write("# -*- coding: UTF-8 -*-\r\n")
-		fh.write("# This file is auto-generated: DO NOT EDIT!\r\n")
-		fh.write("\r\n")
+		fh.write("#!/usr/bin/python3\n")
+		fh.write("# -*- coding: UTF-8 -*-\n")
+		fh.write("# This file is auto-generated: DO NOT EDIT!\n")
+		fh.write("\n")
 		fn = os.path.join(MODULAR_CONFIG, "modules", "sw-x4-plus", "gcode.cfg")
-		GetKey(fh, "M600", fn, "gcode_macro M600", "gcode")
+		GetKeyML(fh, "M600", fn, "gcode_macro M600", "gcode")
 
 if __name__ == "__main__":
 	main()

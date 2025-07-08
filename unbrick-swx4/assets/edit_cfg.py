@@ -22,6 +22,10 @@ class Loc(object):
 		self.idx_n = i_n
 	def __bool__(self):
 		return self.idx_0 is not None
+	def __str__(self):
+		if self.idx_0:
+			return self.idx_n and f"[{self.idx_0}:{self.idx_n}]" or f"[{self.idx_0}]"
+		return "[]"
 	def IsNoLoc(self):
 		"""Test for empty location"""
 		return self.idx_0 is None
@@ -65,9 +69,9 @@ class Res(object):
 		return self.code == '*'
 	def IsObject(self):
 		"""By convention a alpha codes are reserved for objects"""
-		return not self.code.isalpha()
+		return self.code.isalpha()
 	def IsKindOf(self, o : 'Res') -> bool:
-		return (self.code == o.code) and (self.value == o.value)
+		return (self.code == o.code) and (type(self.value) == type(o.value) and (self.value == o.value))
 
 # General success result
 OK = Res('.', "OK")
@@ -77,6 +81,8 @@ NO_FN = Res('!', "FN")
 MISSING_ARG = Res('!', "ARG")
 # Error returned when too many arguments are given
 EXTRA_ARGS = Res('!', "ARG+")
+# Data encoding invalid (Base64)
+INV_ENC = Res('!', "ENC")
 # Specified file does not exists
 NO_FILE = Res('!', "FILE")
 # You shall load the configuration file before writing
@@ -95,6 +101,71 @@ MULT_SECTION = Res('!', "SEC+")
 NO_KEY = lambda loc : Res('!', "KEY", loc)
 # More than one key matches your request (section has duplicates)
 MULT_KEY = lambda loc : Res('!', "KEY+", loc)
+
+
+def UncommentLine(l : str) -> str:
+	"""This removes line comments from the given line"""
+	# Blanks at the right side are ignored
+	l = l.rstrip()
+	# Skip empty lines
+	if l:
+		# Locate line comment symbol
+		pos = l.find('#')
+		# not found?
+		if pos < 0:
+			# Alternative line comment
+			pos = l.find(';')
+		# Clear the command, if found
+		if pos >= 0:
+			l = l[:pos].rstrip()
+	# Returns only 'clean' lines
+	return l
+
+def EncodeMultiLine(ml : str) -> str:
+	"""Long stuff is compressed and converted to base64 so that we can transmit over the serial line"""
+	# MLines's: extract text only
+	if isinstance(ml[0], MLine):
+		ml : 'list[MLine]'
+		# Scan for trailing blank lines
+		last = len(ml)
+		while last > 0:
+			last -= 1
+			if not ml[last].is_empty:
+				break
+		# Be sure to preserve last blank line
+		last += 2
+		if last < len(ml):
+			ml = ml[:last]
+		ml = "".join([l.line for l in ml])
+	# Any other list is considered having string
+	elif isinstance(ml, list):
+		ml = "".join(ml)
+	# BZ2 compressor...
+	pk = bz2.compress(ml.encode('utf-8'))
+	# ...then BASE64 encoder
+	enc = base64.b64encode(pk)
+	# Finally, back to internal string representation
+	return enc.decode('utf-8')
+
+def DecodeMultiLine(b64 : str) -> list:
+	"""Get BASE64 payload and convert to string list"""
+	# Decode BASE64
+	ba = base64.b64decode(b64.encode('utf-8'))
+	# Decompress BZ2
+	ml = bz2.decompress(ba).decode('utf-8')
+	# Split lines into a list
+	res = []
+	t = ""
+	for ch in ml:
+		t += ch
+		# Every entry stores a line
+		if ch == '\n':
+			res.append(t)
+			t = ""
+	# Don't forget the trailing line
+	if t:
+		res.append(t)
+	return res
 
 
 class Context(object):
@@ -162,12 +233,14 @@ class Context(object):
 		ins = loc.idx_n or loc.idx_0
 		if ins > 0:
 			ins -= 1
+			blank = False
 			# Search for non-empty
 			while ins > loc.idx_0:
 				if self.lines[ins].strip():
-					ins += 1
 					break
 				ins -= 1
+				blank = True
+			ins += (1 + blank)
 		else:
 			ins = 0
 		for l in lines:
@@ -194,6 +267,10 @@ class Context(object):
 				break
 		i_0 += 1
 		del self.lines[i_0:i_n]
+	def IsLastFileArg(self, val : str):
+		if len(self.args) or (not isinstance(val, str)):
+			return False
+		return val and os.path.exists(val)
 
 class SecLabel(object):
 	def __init__(self, label : str):
@@ -205,6 +282,10 @@ class SecLabel(object):
 				self.labels.append((self.labels and (self.labels[0] == "gcode_macro")) and k.strip().upper() or k.strip())
 	def __bool__(self):
 		return bool(self.labels)
+	def __str__(self):
+		return ' '.join(self.labels)
+	def __repr__(self):
+		return '[' + ' '.join(self.labels) + ']'
 	def MatchesAll(self):
 		# The '*' wildcard matches all patterns
 		return self.labels and self.labels[0] == '*'
@@ -232,59 +313,6 @@ class SecLabel(object):
 		# Success
 		return True
 
-def UncommentLine(l : str) -> str:
-	"""This removes line comments from the given line"""
-	# Blanks at the right side are ignored
-	l = l.rstrip()
-	# Skip empty lines
-	if l:
-		# Locate line comment symbol
-		pos = l.find('#')
-		# not found?
-		if pos < 0:
-			# Alternative line comment
-			pos = l.find(';')
-		# Clear the command, if found
-		if pos >= 0:
-			l = l[:pos].rstrip()
-	# Returns only 'clean' lines
-	return l
-
-def EncodeMultiLine(ml : str) -> str:
-	"""Long stuff is compressed and converted to base64 so that we can transmit over the serial line"""
-	# MLines's: extract text only
-	if isinstance(ml[0], MLine):
-		ml = "".join([l.line for l in ml])
-	# Any other list is considered having string
-	elif isinstance(ml, list):
-		ml = "".join(ml)
-	# BZ2 compressor...
-	pk = bz2.compress(ml.encode('utf-8'))
-	# ...then BASE64 encoder
-	enc = base64.b64encode(pk)
-	# Finally, back to internal string representation
-	return enc.decode('utf-8')
-
-def DecodeMultiLine(b64 : str) -> list:
-	"""Get BASE64 payload and convert to string list"""
-	# Decode BASE64
-	ba = base64.b64decode(b64.encode('utf-8'))
-	# Decompress BZ2
-	ml = bz2.decompress(ba).decode('utf-8')
-	# Split lines into a list
-	res = []
-	t = ""
-	for ch in ml:
-		t += ch
-		# Every entry stores a line
-		if ch == '\n':
-			res.append(t)
-			t = ""
-	# Don't forget the trailing line
-	if t:
-		res.append(t)
-	return res
-
 class MLine(object):
 	"""Store the valuable part of a line"""
 	def __init__(self, line : str, lno : int):
@@ -293,6 +321,7 @@ class MLine(object):
 		# line content is part of a comment, if any
 		self.valn = len(line)
 		self.loc = Loc(lno)
+		self.is_empty = not line.strip()
 	def GetLoc(self):
 		"""Return the position in the file"""
 		return (self.idx,None)
@@ -309,6 +338,8 @@ class Key(object):
 		# Multi lines entries don't have an argument on the same line, so convert
 		if not self.value:
 			self.value = []
+	def __str__(self):
+		return f"{self.name}:{str(self.value)}"
 	def IsMultiLine(self):
 		"""Indicates we are storing multiple lines"""
 		return isinstance(self.value, list)
@@ -338,7 +369,7 @@ class Section(object):
 		return self.loc
 	def GetLabel(self) -> str:
 		"""Well formatted label, without brackets"""
-		return ' '.join(self.name)
+		return str(self.name)
 	def GetKey(self, k : str) -> list[Key]:
 		return [i for i in self.keys if i.name == k]
 	def GetSingleKey(self, k : str) -> Res:
@@ -361,14 +392,19 @@ class CfgIterator(object):
 		self.l = None
 		self.m = None
 		self.pat = re.compile(r"\[(.+)\]")
+		self.save = False
 	def NextLine(self):
 		"""Moves one line further"""
 		self.lno += 1
 		self.rl = next(self.it)
+		self.save = self.rl.startswith("#*#")
 		self.l = UncommentLine(self.rl)
 		self.m = (self.l and (self.l[0] == '[')) and self.pat.match(self.l) or None
 		if self.callback:
 			self.callback(self.lno)
+	def IsPersistenceBlock(self) -> bool:
+		"""Klipper stores persistence on the bottom of the file"""
+		return self.save
 	def IsLineEmpty(self) -> bool:
 		"""Checks if a line is empty. Empty lines are most of the times ignored"""
 		return not self.l
@@ -395,30 +431,11 @@ class CfgIterator(object):
 	def CreateSection(self) -> Section:
 		"""Create a Section instance, assuming that 'MatchesSection()' is true. At exit it moves to the next line"""
 		s = Section(self.GetSectionLabel(), self.GetValiantLen(), self.lno)
-		self.NextLine()
 		return s
 	def CreateKey(self) -> Key:
 		"""Create a Section instance, assuming that 'HasKeyPattern()' is true"""
 		k, v = self.l.split(':', 1)
 		key = Key(k, self.GetValiantLen(), self.lno, v)
-		# Move to next line
-		self.NextLine()
-		# If the key is multi-line mode, we have to fetch all lines
-		if key.IsMultiLine():
-			# This flag marks True if the last line that was seen is blank
-			blank = False
-			while True:
-				if self.rl:
-					if self.rl[0].isspace():
-						key.value.append(MLine(self.l, self.lno))
-						blank = self.IsLineEmpty()
-					else:
-						if blank:
-							key.loc.idx_n -= 1
-						break
-				else:
-					blank = True
-				self.NextLine()
 		return key
 	
 class Contents(object):
@@ -426,49 +443,86 @@ class Contents(object):
 	def __init__(self, ctx : Context):
 		self.ctx = ctx
 		self.sections : list[Section] = []
+		self.save = Loc()
+		self.cur_sect = None
+		self.cur_key = None
+	def UpdLineNo_(self, lno : int):
+		"""This callback updates line counters of section/keys being parsed"""
+		if self.cur_sect:
+			self.cur_sect.loc.idx_n = lno
+		if self.cur_key:
+			self.cur_key.loc.idx_n = lno
+		if self.save.idx_0 is not None:
+			self.save.idx_n = lno
+	def CloseData_(self, it : CfgIterator):
+		# Just don't forget to add remainder instances
+		if self.cur_sect:
+			if self.cur_key:
+				self.cur_sect.keys.append(self.cur_key)
+				self.cur_key = None
+			self.sections.append(self.cur_sect)
+			self.cur_sect = None
+		# Read until the end
+		while True:
+			it.NextLine()
 	def Load(self) -> None:
 		"""Identifies the contents of the configuration file and populate itself"""
-		sect = None
-		key = None
-		def UpdLineNo(lno : int):
-			"""This callback updates line counters of section/keys being parsed"""
-			if sect:
-				sect.idx_n = lno
-			if key:
-				key.idx_n = lno
 		# Configuration iterator
-		it = CfgIterator(self.ctx.lines, UpdLineNo)
+		it = CfgIterator(self.ctx.lines, self.UpdLineNo_)
 		# First line
 		it.NextLine()
 		while True:
 			try:
+				# Persistence block?
+				if it.IsPersistenceBlock():
+					self.save.idx_0 = it.lno
+					self.CloseData_(it)
 				# Ignore empty lines, on the file scope
-				if it.IsLineEmpty():
+				elif it.IsLineEmpty():
 					it.NextLine()
 				elif it.MatchesSection():
 					# A section was found. Now gathers all lines belonging to this section
-					sect = it.CreateSection()
+					self.cur_sect = it.CreateSection()
+					it.NextLine()
 					while(True):
+						# Persistence block?
+						if it.IsPersistenceBlock():
+							self.save.idx_0 = it.lno
+							self.CloseData_(it)
 						# Ignore 'non-key' patterns (or a syntax error?)
-						if it.IsLineEmpty() or it.HasLeadingBlanks():
+						elif it.IsLineEmpty() or it.HasLeadingBlanks():
 							it.NextLine()
 						elif it.HasKeyPattern():
 							# Found a "key:..." pattern
-							key = it.CreateKey()
-							sect.keys.append(key)
-							key = None
+							self.cur_key = it.CreateKey()
+							it.NextLine()
+							# If the key is multi-line mode, we have to fetch all lines
+							if self.cur_key.IsMultiLine():
+								# This flag marks True if the last line that was seen is blank
+								blank = False
+								while True:
+									if it.rl:
+										if it.rl[0].isspace():
+											# This collect even commented out lines
+											self.cur_key.value.append(MLine(it.l+'\n', it.lno))
+											blank = it.IsLineEmpty()
+										else:
+											# Skip the last empty line on transition
+											if blank:
+												self.cur_key.loc.idx_n -= 1
+											break
+									else:
+										blank = True
+									it.NextLine()
+							self.cur_sect.keys.append(self.cur_key)
+							self.cur_key = None
 						else:
-							self.sections.append(sect)
-							sect = None
+							self.sections.append(self.cur_sect)
+							self.cur_sect = None
 							break
 				else:
 					it.NextLine()
 			except StopIteration:
-				# Just don't forget to add remainder instances
-				if sect:
-					if key:
-						sect.keys.append(key)
-					self.sections.append(sect)
 				break
 	def MatchSections(self, pat :SecLabel) -> list[Section]:
 		"""Returns a list of sections matching the section pattern"""
@@ -488,6 +542,36 @@ class Contents(object):
 				return Res('s', s)
 		return NO_SECTION
 
+def ListSec(ctx : Context) -> Res:
+	"""
+	High level command to list keys:
+		- arg0: section or pattern
+		- arg1: configuration file name (optional)
+	"""
+	# Get section
+	sec = ctx.GetArg()
+	if sec and not ctx.IsLastFileArg(sec):
+		sec = SecLabel(sec)
+		# Load configuration file
+		res = ctx.ReadLines()
+		if not res:
+			return res
+		# Load contents
+		c = Contents(ctx)
+		c.Load()
+		# Filter results
+		hits = c.MatchSections(sec)
+		if len(hits) > 1:
+			# Handle multi-line responses
+			res = "".join([f"{s.GetLabel()} @{s.GetLoc().idx_0}\n" for s in hits])
+			return Res('*', EncodeMultiLine(res), NO_LOC)
+		elif len(hits) == 1:
+			# Handle single line responses
+			s = hits[0]
+			return Res('=', f"{s.GetLabel()} @{s.GetLoc().idx_0}\n", s.GetLoc())
+		return NO_SECTION
+	return MISSING_ARG
+	
 def GetKey(ctx : Context) -> Res:
 	"""
 	High level command to return the value of a key:
@@ -497,11 +581,12 @@ def GetKey(ctx : Context) -> Res:
 	The value is returned either as simple string or base64 for multi-line keys
 	"""
 	# Get section
-	sec = SecLabel(ctx.GetArg())
-	if sec:
+	sec = ctx.GetArg()
+	if sec and not ctx.IsLastFileArg(sec):
+		sec = SecLabel(sec)
 		# Get key
 		k = ctx.GetArg()
-		if k:
+		if k and not ctx.IsLastFileArg(k):
 			# Load configuration file
 			res = ctx.ReadLines()
 			if not res:
@@ -536,16 +621,18 @@ def EditKey(ctx : Context) -> Res:
 		- arg1: key
 		- arg2: New value
 		- arg3: configuration file name (optional)
+	This command also adds a new key value if it does not exists.
 	"""
 	# Get section
-	sec = SecLabel(ctx.GetArg())
-	if sec:
+	sec = ctx.GetArg()
+	if sec and not ctx.IsLastFileArg(sec):
+		sec = SecLabel(sec)
 		# Get key
 		k = ctx.GetArg()
-		if k:
+		if k and not ctx.IsLastFileArg(k):
 			# Data to be updated
 			data = ctx.GetArg()
-			if data:
+			if data and not ctx.IsLastFileArg(data):
 				# Load configuration file
 				res = ctx.ReadLines()
 				if not res:
@@ -561,9 +648,9 @@ def EditKey(ctx : Context) -> Res:
 				# Search for key
 				res = sec.GetSingleKey(k)
 				# Found a key?
-				if res.IsKindOf(NO_KEY):
+				if res.IsKindOf(NO_KEY(NO_LOC)):
 					# Append entry
-					ctx.AddLines(sec.GetLoc(), data)
+					ctx.AddLines(sec.GetLoc(), [f"{k}:{data}\n"])
 					# Writes results
 					res = ctx.WriteLines()
 				elif res.IsObject():
@@ -587,17 +674,22 @@ def EditKeyML(ctx : Context) -> Res:
 		- arg1: key
 		- arg2: base64 encoded and encrypted data
 		- arg3: configuration file name (optional)
+	This command also adds a new key value if it does not exists.
 	"""
 	# Get section
-	sec = SecLabel(ctx.GetArg())
-	if sec:
+	sec = ctx.GetArg()
+	if sec and not ctx.IsLastFileArg(sec):
+		sec = SecLabel(sec)
 		# Get key
 		k = ctx.GetArg()
-		if k:
+		if k and not ctx.IsLastFileArg(k):
 			# Data to be updated
-			data = GetArg()
-			if data:
-				data = DecodeMultiLine(data)
+			data = ctx.GetArg()
+			if data and not ctx.IsLastFileArg(data):
+				try:
+					data = DecodeMultiLine(data)
+				except:
+					return INV_ENC
 				# Load configuration file
 				res = ctx.ReadLines()
 				if not res:
@@ -613,13 +705,7 @@ def EditKeyML(ctx : Context) -> Res:
 				# Search for key
 				res = sec.GetSingleKey(k)
 				# Found a key?
-				if res.IsKindOf(NO_KEY):
-					# Append entry
-					data.insert(0, f"{k}:")
-					ctx.AddLines(sec.GetLoc(), data)
-					# Writes results
-					res = ctx.WriteLines()
-				elif res.IsObject():
+				if res.IsObject():
 					# Modify existing line
 					key : Key = res.value
 					if not key.IsMultiLine():
@@ -637,6 +723,12 @@ def EditKeyML(ctx : Context) -> Res:
 					ctx.AddLines(loc, data)
 					# Writes results
 					res = ctx.WriteLines()
+				elif res.IsKindOf(NO_KEY(NO_LOC)):
+					# Append entry
+					data.insert(0, f"{k}:\n")
+					ctx.AddLines(sec.GetLoc(), data)
+					# Writes results
+					res = ctx.WriteLines()
 				return res
 	return MISSING_ARG
 
@@ -648,11 +740,12 @@ def DelKey(ctx : Context) -> Res:
 		- arg2: configuration file name (optional)
 	"""
 	# Get section
-	sec = SecLabel(ctx.GetArg())
-	if sec:
+	sec = ctx.GetArg()
+	if sec and not ctx.IsLastFileArg(sec):
+		sec = SecLabel(sec)
 		# Get key
 		k = ctx.GetArg()
-		if k:
+		if k and not ctx.IsLastFileArg(k):
 			# Load configuration file
 			res = ctx.ReadLines()
 			if not res:
@@ -676,35 +769,6 @@ def DelKey(ctx : Context) -> Res:
 			return res
 	return MISSING_ARG
 
-def ListSec(ctx : Context) -> Res:
-	"""
-	High level command to list keys:
-		- arg0: section or pattern
-		- arg1: configuration file name (optional)
-	"""
-	# Get section
-	sec = SecLabel(ctx.GetArg())
-	if sec:
-		# Load configuration file
-		res = ctx.ReadLines()
-		if not res:
-			return res
-		# Load contents
-		c = Contents(ctx)
-		c.Load()
-		# Filter results
-		hits = c.MatchSections(sec)
-		if len(hits) > 1:
-			# Handle multi-line responses
-			res = "".join([f"{s.GetLabel()} @{s.GetLoc().idx_0}\n" for s in hits])
-			return Res('*', EncodeMultiLine(res), NO_LOC)
-		elif len(hits) == 1:
-			# Hnadle single line reponses
-			s = hits[0]
-			return Res('=', f"{s.GetLabel()} @{s.GetLoc().idx_0}\n", s.GetLoc())
-		return NO_SECTION
-	return MISSING_ARG
-	
 def RenSec(ctx : Context) -> Res:
 	"""
 	High level command to rename a section:
@@ -713,11 +777,13 @@ def RenSec(ctx : Context) -> Res:
 		- arg2: configuration file name (optional)
 	"""
 	# Get old section name
-	old = SecLabel(ctx.GetArg())
-	if old:
+	old = ctx.GetArg()
+	if old and not ctx.IsLastFileArg(old):
+		old = SecLabel(old)
 		# Get new section name
-		sec = SecLabel(ctx.GetArg())
-		if sec:
+		sec = ctx.GetArg()
+		if sec and not ctx.IsLastFileArg(sec):
+			sec = SecLabel(sec)
 			# Load configuration file
 			res = ctx.ReadLines()
 			if not res:
@@ -742,7 +808,7 @@ def DelSec(ctx : Context) -> Res:
 	"""
 	# Get section or number
 	sec = ctx.GetArg()
-	if sec:
+	if sec and not ctx.IsLastFileArg(sec):
 		# Load configuration file
 		res = ctx.ReadLines()
 		if not res:
@@ -776,9 +842,7 @@ def main(args : list[str]) -> Res:
 			if hasattr(MODULE, fn):
 				res = getattr(MODULE, fn)(ctx)
 	except Exception as e:
-		res = Res('!', "XCP")
-		if 1:
-			print(e)
+		res = Res('!', "XCP: " + str(e))
 	return res
 
 if __name__ == "__main__":

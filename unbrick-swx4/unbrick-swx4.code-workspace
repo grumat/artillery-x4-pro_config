@@ -14,8 +14,19 @@
 		}
 	],
 	"settings": {
+		"editor.insertSpaces": false,
+		"editor.tabSize": 4,
 		"python.analysis.extraPaths": [
-			"../assets"
-		]
+			"${workspaceFolder:assets}"
+		],
+		"python.analysis.include": [
+			"${workspaceFolder:assets}"
+		],
+		"python.formatting.provider": "none",
+		"[python]": {
+        "editor.insertSpaces": false,
+        "editor.tabSize": 4,
+        "editor.defaultFormatter": "ms-python.python"
+    },
 	}
 }
