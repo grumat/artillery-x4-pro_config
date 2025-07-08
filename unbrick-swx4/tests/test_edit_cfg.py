@@ -139,6 +139,8 @@ def Test_GetKey():
 	Run(['GetKey', 'gcode_macro G29', 'gcode'], lambda res : str(res).endswith("+LuSKcKEhiJ8GKA"))
 	Run(['GetKey', 'gcode_macro M600', 'gcode'], lambda res : str(res).endswith("uSKcKEgn29ApA=="))
 
+	Run(['GetKey', 'stepper_?', 'step_pin'], "!SEC+")
+
 	Test_Close_()
 
 def Test_EditKey():
@@ -158,6 +160,8 @@ def Test_EditKey():
 	Run(['EditKey', 'stepper_z', 'new_key', '999'], ".OK")
 	Run(['GetKey', 'stepper_z', 'new_key'], "=999")
 
+	Run(['EditKey', 'stepper_?', 'new_key', '999'], "!SEC+")
+
 	Test_Close_()
 
 def Test_EditKeyML():
@@ -174,6 +178,8 @@ def Test_EditKeyML():
 	Run(['GetKey', 'gcode_macro M600', 'new_key'], "!KEY")
 	Run(['EditKeyML', 'gcode_macro M600', 'new_key', encoded_data.M600], ".OK")
 	Run(['GetKey', 'gcode_macro M600', 'new_key'], lambda res : str(res).endswith("DDUncXckU4UJBkMhnJA=="))
+
+	Run(['EditKeyML', 'gcode_macro *', 'new_key', encoded_data.M600], "!SEC+")
 
 	Test_Close_()
 
@@ -192,6 +198,8 @@ def Test_DelKey():
 	Run(['DelKey', 'gcode_macro M600', 'new_key'], ".OK")
 	Run(['GetKey', 'gcode_macro M600', 'new_key'], "!KEY")
 
+	Run(['GetKey', 'stepper_?', 'position_max'], "!SEC+")
+
 	Test_Close_()
 
 def Test_RenSec():
@@ -200,7 +208,29 @@ def Test_RenSec():
 	Run(['RenSec', 'abcdefg'], "!ARG")
 	Run(['RenSec', 'abcdefg', 'defgh'], "!SEC")
 
+	Run(['ListSec', 'controller_fan mainboard_fan'], "=controller_fan mainboard_fan @242")
 	Run(['RenSec', 'controller_fan mainboard_fan', 'controller_fan motherboard_fan'], ".OK")
+	Run(['ListSec', 'controller_fan mainboard_fan'], "!SEC")
+	Run(['ListSec', 'controller_fan motherboard_fan'], "=controller_fan motherboard_fan @242")
+
+	Run(['RenSec', 'stepper_?', 'abcdefgh'], "!SEC+")
+
+	Test_Close_()
+
+def Test_DelSec():
+	Test_Begin_("DelSec Test")
+	Run(['DelSec'], "!ARG")
+	Run(['DelSec', 'abcdefg'], "!SEC")
+
+	Run(['ListSec', 'neopixel my_neopixel'], "=neopixel my_neopixel @648")
+	Run(['DelSec', 'neopixel my_neopixel'], ".OK")
+	Run(['ListSec', 'neopixel my_neopixel'], "!SEC")
+
+	Run(['DelSec', 'stepper_?'], "!SEC+")
+
+	Run(['ListSec', 'probe'], "=probe @166")
+	Run(['DelSec', '@166'], ".OK")
+	Run(['ListSec', 'probe'], "!SEC")
 
 	Test_Close_()
 
@@ -214,6 +244,7 @@ def main():
 	Test_EditKeyML()
 	Test_DelKey()
 	Test_RenSec()
+	Test_DelSec()
 	sys.stdout = original_stdout
 
 if __name__ == "__main__":

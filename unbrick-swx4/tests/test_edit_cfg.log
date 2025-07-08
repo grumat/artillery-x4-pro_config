@@ -193,6 +193,9 @@ Expands to:
 	{% endif %}
 
 -------------------------
+Q: GetKey 'stepper_?' step_pin
+PASSED: !SEC+
+-------------------------
 
                               NO ERRORS                               
 |____________________________________________________________________|
@@ -238,6 +241,9 @@ PASSED: .OK
 -------------------------
 Q: GetKey stepper_z new_key
 PASSED: =999
+-------------------------
+Q: EditKey 'stepper_?' new_key 999
+PASSED: !SEC+
 -------------------------
 
                               NO ERRORS                               
@@ -327,6 +333,9 @@ Expands to:
 	{% endif %}
 
 -------------------------
+Q: EditKeyML 'gcode_macro *' new_key QlpoOTFBWSZTWWQyGckAABPfgAAwQmFaAjICSnAnJ94OMAD6rYIoohpo0A0aAB6QR6qaaZAAAAAaBVT1KntSaNGBGbSQG1HpBBFIokRENAiUY3kkyZkmN+msK+JGeZln66kMxZfbEEFYWYo7EZDQ32tKnPlzsVXJrPVtcDIwMepiPg6lrRG4mSCJJSZCi0WjgHV/BY4uDD4WoahPEGAwgIBo+oULHInoKGonwwFg+OBYtGFNldRgbixyop+jQveuWhmZlitDDUncXckU4UJBkMhnJA==
+PASSED: !SEC+
+-------------------------
 
                               NO ERRORS                               
 |____________________________________________________________________|
@@ -367,6 +376,9 @@ PASSED: .OK
 Q: GetKey 'gcode_macro M600' new_key
 PASSED: !KEY
 -------------------------
+Q: GetKey 'stepper_?' position_max
+PASSED: !SEC+
+-------------------------
 
                               NO ERRORS                               
 |____________________________________________________________________|
@@ -386,11 +398,64 @@ PASSED: !ARG
 Q: RenSec abcdefg defgh
 PASSED: !SEC
 -------------------------
+Q: ListSec 'controller_fan mainboard_fan'
+PASSED: =controller_fan mainboard_fan @242
+
+-------------------------
 Q: RenSec 'controller_fan mainboard_fan' 'controller_fan motherboard_fan'
-FAILED: .OK
+PASSED: .OK
+-------------------------
+Q: ListSec 'controller_fan mainboard_fan'
+PASSED: !SEC
+-------------------------
+Q: ListSec 'controller_fan motherboard_fan'
+PASSED: =controller_fan motherboard_fan @242
+
+-------------------------
+Q: RenSec 'stepper_?' abcdefgh
+PASSED: !SEC+
 -------------------------
 
-                ######## TOTAL ERROR COUNT: 1 ########                
+                              NO ERRORS                               
+|____________________________________________________________________|
+
+
+ ____________________________________________________________________ 
+|                                                                    |
+                         === DelSec Test ===                          
+
+
+Q: DelSec
+PASSED: !ARG
+-------------------------
+Q: DelSec abcdefg
+PASSED: !SEC
+-------------------------
+Q: ListSec 'neopixel my_neopixel'
+PASSED: =neopixel my_neopixel @648
+
+-------------------------
+Q: DelSec 'neopixel my_neopixel'
+PASSED: .OK
+-------------------------
+Q: ListSec 'neopixel my_neopixel'
+PASSED: !SEC
+-------------------------
+Q: DelSec 'stepper_?'
+PASSED: !SEC+
+-------------------------
+Q: ListSec probe
+PASSED: =probe @166
+
+-------------------------
+Q: DelSec @166
+PASSED: .OK
+-------------------------
+Q: ListSec probe
+PASSED: !SEC
+-------------------------
+
+                              NO ERRORS                               
 |____________________________________________________________________|
 
 

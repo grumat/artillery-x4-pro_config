@@ -819,7 +819,7 @@ def DelSec(ctx : Context) -> Res:
 		loc = None
 		if sec.startswith('@'):
 			# Locate section by line number
-			res = c.GetSectionOfLine(sec[1:])
+			res = c.GetSectionOfLine(int(sec[1:]))
 		else:
 			# locate section
 			res = c.GetSingleSection(SecLabel(sec))
@@ -832,6 +832,7 @@ def DelSec(ctx : Context) -> Res:
 			res = ctx.WriteLines()
 		return res
 	return MISSING_ARG
+
 
 def main(args : list[str]) -> Res:
 	ctx = Context(args)
