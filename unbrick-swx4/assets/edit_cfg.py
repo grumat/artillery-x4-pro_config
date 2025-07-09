@@ -375,7 +375,7 @@ def StringEssence(s : str) -> bytes:
 	return res.rstrip().encode()
 
 def StringCRC(s : str, seed : int) -> int:
-	return zlib.crc32(StringEssence(str), seed)
+	return zlib.crc32(StringEssence(s), seed)
 
 class MLine(object):
 	"""Store the valuable part of a line"""
@@ -460,14 +460,14 @@ class Section(object):
 			return MULT_KEY(self.GetLoc())
 		key : Key = key[0]
 		return Res('k', key, key.GetLoc())
-	def GetCRC(self, seed : int = 0):
+	def GetCRC(self):
 		# Use label to start byte-stream
-		ba = StringCRC(self.name)
+		ba = StringEssence(str(self.name))
 		# Accumulate each CRC value into stream
 		for k in self.keys:
-			# CRC of lines are independent of section
-			crc = k.GetCRC(0)
-			ba += int.to_bytes(crc, byteorder='little')
+			# CRC of lines
+			crc = k.GetCRC()
+			ba += (crc & 0xFFFFFFFF).to_bytes(4, byteorder='little')
 		# Now that stream is ready, compute CRC
 		return zlib.crc32(ba)
 
@@ -652,12 +652,12 @@ def ListSec(ctx : Context) -> Res:
 		hits = c.MatchSections(sec)
 		if len(hits) > 1:
 			# Handle multi-line responses
-			res = "".join([f"{s.GetLabel()} @{s.GetLoc().idx_0}\n" for s in hits])
+			res = "".join([f"{s.GetLabel()} @{s.GetLoc().idx_0} :{s.GetCRC():08X}\n" for s in hits])
 			return Res('*', EncodeMultiLine(res), NO_LOC)
 		elif len(hits) == 1:
 			# Handle single line responses
 			s = hits[0]
-			return Res('=', f"{s.GetLabel()} @{s.GetLoc().idx_0}\n", s.GetLoc())
+			return Res('=', f"{s.GetLabel()} @{s.GetLoc().idx_0} :{s.GetCRC():08X}\n", s.GetLoc())
 		return NO_SECTION
 	return MISSING_ARG
 	

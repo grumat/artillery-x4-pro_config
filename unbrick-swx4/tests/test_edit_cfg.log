@@ -10,23 +10,23 @@ Q: ListSec abcdefg
 PASSED: !SEC
 -------------------------
 Q: ListSec printer
-PASSED: =printer @264
+PASSED: =printer @264 :2098A795
 
 -------------------------
 Q: ListSec 'include *'
-PASSED: *QlpoOTFBWSZTWSpyayoAACLfgAAQQAF4AEwiAgC/r94AIABISqHqNBkGjQHkgJVNGEyAGJiNNErc6QbA0JpAHhnnFNIs9aVSQMC8/Aoa4TYKhW3wOlZgR1igOUpv0etr3dNxyYsPxdyRThQkCpyayoA=
+PASSED: *QlpoOTFBWSZTWf3RPOAAADbfgAAQQAF/8F8iAgC/r94AIABkJVTZE8npCNPSehNMgPFNBqmjTJkaNDTTIA0AVuY0Y1ewahLCa3pBT3qVY9b8IY38bqKr0d0bdbikAGVZ5o6wt0r56SyjRFewSCPrcIh5ScgmE9/wJL44DaWkAsKWNTDIYm1E05zAfi7kinChIfuiecA=
 Expands to:
-include plr.cfg @0
-include MCU_ID.cfg @1
-include moonraker_obico_macros.cfg @2
-include timelapse.cfg @3
+include plr.cfg @0 :7802D9D6
+include MCU_ID.cfg @1 :E0927B98
+include moonraker_obico_macros.cfg @2 :F55F8C53
+include timelapse.cfg @3 :43891572
 -------------------------
 Q: ListSec 'stepper_?'
-PASSED: *QlpoOTFBWSZTWQZTxZ0AABBfgAAQQAAaIEAAAACCAFxwIAAxTAATQj1QaGg2o73lK0EQeESxLHhCPi7kinChIAynizo=
+PASSED: *QlpoOTFBWSZTWZf5u8gAAB9fgAAQQAB/8H8AAACCAFxwIABBGqGhhAemSGyhQADQAAR56nvJndIFKqHjlgZrAliqz1QhY9K2pQrhwxBiFw4cfi7kinChIS/zd5A=
 Expands to:
-stepper_x @5
-stepper_y @22
-stepper_z @39
+stepper_x @5 :66645A8B
+stepper_y @22 :FA26D0CC
+stepper_z @39 :E6218736
 -------------------------
 
                               NO ERRORS                               
@@ -399,7 +399,7 @@ Q: RenSec abcdefg defgh
 PASSED: !SEC
 -------------------------
 Q: ListSec 'controller_fan mainboard_fan'
-PASSED: =controller_fan mainboard_fan @242
+PASSED: =controller_fan mainboard_fan @242 :9971A484
 
 -------------------------
 Q: RenSec 'controller_fan mainboard_fan' 'controller_fan motherboard_fan'
@@ -409,7 +409,7 @@ Q: ListSec 'controller_fan mainboard_fan'
 PASSED: !SEC
 -------------------------
 Q: ListSec 'controller_fan motherboard_fan'
-PASSED: =controller_fan motherboard_fan @242
+PASSED: =controller_fan motherboard_fan @242 :97664E5B
 
 -------------------------
 Q: RenSec 'stepper_?' abcdefgh
@@ -432,7 +432,7 @@ Q: DelSec abcdefg
 PASSED: !SEC
 -------------------------
 Q: ListSec 'neopixel my_neopixel'
-PASSED: =neopixel my_neopixel @648
+PASSED: =neopixel my_neopixel @648 :60C51F9E
 
 -------------------------
 Q: DelSec 'neopixel my_neopixel'
@@ -445,7 +445,7 @@ Q: DelSec 'stepper_?'
 PASSED: !SEC+
 -------------------------
 Q: ListSec probe
-PASSED: =probe @166
+PASSED: =probe @166 :014F644B
 
 -------------------------
 Q: DelSec @166

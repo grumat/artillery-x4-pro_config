@@ -115,9 +115,9 @@ def Test_ListSec():
 	Run(['ListSec'], "!ARG")
 	Run(['ListSec', 'abcdefg'], "!SEC")
 
-	Run(['ListSec', 'printer'], "=printer @264")
-	Run(['ListSec', 'include *'], lambda res : str(res).endswith("xdyRThQkCpyayoA="))
-	Run(['ListSec', 'stepper_?'], lambda res : str(res).endswith("i7kinChIAynizo="))
+	Run(['ListSec', 'printer'], "=printer @264 :2098A795")
+	Run(['ListSec', 'include *'], lambda res : str(res).endswith("fi7kinChIfuiecA="))
+	Run(['ListSec', 'stepper_?'], lambda res : str(res).endswith("fi7kinChIS/zd5A="))
 
 	Test_Close_()
 
@@ -208,10 +208,10 @@ def Test_RenSec():
 	Run(['RenSec', 'abcdefg'], "!ARG")
 	Run(['RenSec', 'abcdefg', 'defgh'], "!SEC")
 
-	Run(['ListSec', 'controller_fan mainboard_fan'], "=controller_fan mainboard_fan @242")
+	Run(['ListSec', 'controller_fan mainboard_fan'], "=controller_fan mainboard_fan @242 :9971A484")
 	Run(['RenSec', 'controller_fan mainboard_fan', 'controller_fan motherboard_fan'], ".OK")
 	Run(['ListSec', 'controller_fan mainboard_fan'], "!SEC")
-	Run(['ListSec', 'controller_fan motherboard_fan'], "=controller_fan motherboard_fan @242")
+	Run(['ListSec', 'controller_fan motherboard_fan'], "=controller_fan motherboard_fan @242 :97664E5B")
 
 	Run(['RenSec', 'stepper_?', 'abcdefgh'], "!SEC+")
 
@@ -222,13 +222,13 @@ def Test_DelSec():
 	Run(['DelSec'], "!ARG")
 	Run(['DelSec', 'abcdefg'], "!SEC")
 
-	Run(['ListSec', 'neopixel my_neopixel'], "=neopixel my_neopixel @648")
+	Run(['ListSec', 'neopixel my_neopixel'], "=neopixel my_neopixel @648 :60C51F9E")
 	Run(['DelSec', 'neopixel my_neopixel'], ".OK")
 	Run(['ListSec', 'neopixel my_neopixel'], "!SEC")
 
 	Run(['DelSec', 'stepper_?'], "!SEC+")
 
-	Run(['ListSec', 'probe'], "=probe @166")
+	Run(['ListSec', 'probe'], "=probe @166 :014F644B")
 	Run(['DelSec', '@166'], ".OK")
 	Run(['ListSec', 'probe'], "!SEC")
 
