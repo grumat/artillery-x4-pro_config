@@ -121,6 +121,18 @@ def Test_ListSec():
 
 	Test_Close_()
 
+def Test_ListKeys():
+	Test_Begin_("ListKeys Test")
+	Run(['ListKeys'], "!ARG")
+	Run(['ListKeys', 'abcdefg'], "!SEC")
+
+	Run(['ListKeys', 'pause_resume'], "!KEY")
+	Run(['ListKeys', 'idle_timeout'], "=timeout @284 :58D59594")
+	Run(['ListKeys', 'gcode_macro nozzle_wipe'], "=gcode @408 :B77EDF4D")
+	Run(['ListKeys', 'printer'], lambda res : str(res).endswith("IpwoSAtX0ksA=="))
+
+	Test_Close_()
+
 def Test_GetKey():
 	Test_Begin_("GetKey Test")
 	Run(['GetKey'], "!ARG")
@@ -239,6 +251,7 @@ def main():
 	original_stdout = sys.stdout
 	sys.stdout = Tee(os.path.join(current_dir, 'test_edit_cfg.log'))
 	Test_ListSec()
+	Test_ListKeys()
 	Test_GetKey()
 	Test_EditKey()
 	Test_EditKeyML()

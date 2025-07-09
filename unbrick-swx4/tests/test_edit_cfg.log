@@ -35,6 +35,41 @@ stepper_z @39 :E6218736
 
  ____________________________________________________________________ 
 |                                                                    |
+                        === ListKeys Test ===                         
+
+
+Q: ListKeys
+PASSED: !ARG
+-------------------------
+Q: ListKeys abcdefg
+PASSED: !SEC
+-------------------------
+Q: ListKeys pause_resume
+PASSED: !KEY
+-------------------------
+Q: ListKeys idle_timeout
+PASSED: =timeout @284 :58D59594
+-------------------------
+Q: ListKeys 'gcode_macro nozzle_wipe'
+PASSED: =gcode @408 :B77EDF4D
+-------------------------
+Q: ListKeys printer
+PASSED: *QlpoOTFBWSZTWRavpJYAAENfgAAQQAB/8H8AAACqL79wIABkNRkaDRR6mjygaAPUDKjEeoNAAAAyQnaElfKVKP851a1p2bfdXZoGI6yVwdRtBk+bItVxCF76YcaG8kwAyN4zFFUzNIopXjn9qRfCHUZ9MHccj0s7RYefg9yy6kGABE+LHRNatFIX0FQE5hH4u5IpwoSAtX0ksA==
+Expands to:
+kinematics @265 :032E315C
+max_velocity @266 :B7A7E158
+max_accel @267 :D82F5DF4
+max_z_velocity @269 :AFD8AC22
+max_z_accel @270 :6884A877
+square_corner_velocity @271 :29FB8E65
+-------------------------
+
+                              NO ERRORS                               
+|____________________________________________________________________|
+
+
+ ____________________________________________________________________ 
+|                                                                    |
                          === GetKey Test ===                          
 
 

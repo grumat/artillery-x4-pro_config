@@ -660,6 +660,42 @@ def ListSec(ctx : Context) -> Res:
 			return Res('=', f"{s.GetLabel()} @{s.GetLoc().idx_0} :{s.GetCRC():08X}\n", s.GetLoc())
 		return NO_SECTION
 	return MISSING_ARG
+
+def ListKeys(ctx : Context) -> Res:
+	"""
+	High level command to return the list of keys, line numbers and CRC of a given section.
+		- arg0: section name or line number. For line number use `@nnn` format
+		- arg1: configuration file name (optional)
+	"""
+	# Get section
+	sec = ctx.GetArg()
+	if sec and not ctx.IsLastFileArg(sec):
+		# Load configuration file
+		res = ctx.ReadLines()
+		if not res:
+			return res
+		# Load contents
+		c = Contents(ctx)
+		c.Load()
+		# Section by number?
+		if sec.startswith('@'):
+			res = c.GetSectionOfLine(int(sec[1:]))
+		else:
+			# Search for section
+			res = c.GetSingleSection(SecLabel(sec))
+		# Object was found?
+		if res.IsObject():
+			s : Section = res.value
+			if len(s.keys) == 0:
+				res = NO_KEY(s.GetLoc())
+			elif len(s.keys) == 1:
+				k = s.keys[0]
+				res = Res('=', f"{k.name} @{k.GetLoc().idx_0} :{k.GetCRC():08X}", k.GetLoc())
+			else:
+				t = "".join(f"{k.name} @{k.GetLoc().idx_0} :{k.GetCRC():08X}\n" for k in s.keys)
+				res = Res('*', EncodeMultiLine(t), NO_LOC)
+		return res
+	return MISSING_ARG
 	
 def GetKey(ctx : Context) -> Res:
 	"""
