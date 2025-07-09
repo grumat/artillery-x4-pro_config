@@ -7,6 +7,7 @@
 import sys
 import os
 import re
+import zlib
 import bz2
 import base64
 import fnmatch
@@ -313,6 +314,69 @@ class SecLabel(object):
 		# Success
 		return True
 
+def StringEssence(s : str) -> bytes:
+	"""Reduces a string having identifiers and values to its essence"""
+	res = ""
+	is_token = False
+	try:
+		# Takes first char to begin
+		it = iter(s)
+		ch = next(it)
+		# Loop until end of string
+		while True:
+			# scan identifiers
+			if ch.isalpha() or (ch == '_'):
+				# Identifier following a generic token needs a space separator
+				if is_token:
+					res += ' '
+				# Identifier is also a token
+				is_token = True
+				# Save first char of the identifier
+				res += ch
+				# Now collect the complete identifier
+				ch = next(it)
+				while ch.isalnum() or (ch == '_'):
+					res += ch
+					ch = next(it)
+				# evaluation of current char continues on the next iteration
+			elif ch.isnumeric():
+				# Values following a generic token needs a space separator
+				if is_token:
+					res += ' '
+				# A values is also a token
+				is_token = True
+				# Save first char of the value
+				res += ch
+				# Now collect the complete value
+				ch = next(it)
+				while ch.isnumeric() or (ch == '.'):
+					res += ch
+					ch = next(it)
+				# evaluation of current char continues on the next iteration
+			elif ch.isspace():
+				# Any space alike (TAB, LF, CR...) is converted to space
+				res += ' '
+				# Non token element
+				is_token = False
+				# Ignore all following spaces
+				ch = next(it)
+				while ch.isspace():
+					ch = next(it)
+				# evaluation of current char continues on the next iteration
+			else:
+				# everything else is separator, etc
+				is_token = False
+				res += ch
+				# continue on the next iteration
+				ch = next(it)
+	except StopIteration:
+		pass
+	# no trailing spaces
+	return res.rstrip().encode()
+
+def StringCRC(s : str, seed : int) -> int:
+	return zlib.crc32(StringEssence(str), seed)
+
 class MLine(object):
 	"""Store the valuable part of a line"""
 	def __init__(self, line : str, lno : int):
@@ -325,6 +389,10 @@ class MLine(object):
 	def GetLoc(self):
 		"""Return the position in the file"""
 		return (self.idx,None)
+	def GetEssence(self) -> bytes:
+		return StringEssence(self.line)
+	def GetCRC(self, seed : int) -> int:
+		return StringCRC(self.line, seed)
 
 class Key(object):
 	"""Sections are composed of keys. Keys can have a single line of a multiple lines"""
@@ -356,6 +424,18 @@ class Key(object):
 			i : MLine
 			ret.append(i.line)
 		return ret
+	def GetCRC():
+		"""Evaluate contents and produces a CRC for it."""
+		pass
+	def GetCRC(self) -> int:
+		seed = StringCRC(self.name + ':', 0)
+		if self.IsMultiLine():
+			for ml in self.value:
+				ml : MLine
+				seed = ml.GetCRC(seed)
+		else:
+			seed = StringCRC(self.value, seed)
+		return seed
 
 class Section(object):
 	"""Sections are groups of keys"""
@@ -363,7 +443,7 @@ class Section(object):
 		self.name = isinstance(label, str) and SecLabel(label) or label
 		self.valn = valn
 		self.loc = Loc(lno, lno)
-		self.keys = []
+		self.keys : list[Key] = []
 	def GetLoc(self) -> Loc:
 		"""Returns the location inside the list of lines"""
 		return self.loc
@@ -380,7 +460,16 @@ class Section(object):
 			return MULT_KEY(self.GetLoc())
 		key : Key = key[0]
 		return Res('k', key, key.GetLoc())
-
+	def GetCRC(self, seed : int = 0):
+		# Use label to start byte-stream
+		ba = StringCRC(self.name)
+		# Accumulate each CRC value into stream
+		for k in self.keys:
+			# CRC of lines are independent of section
+			crc = k.GetCRC(0)
+			ba += int.to_bytes(crc, byteorder='little')
+		# Now that stream is ready, compute CRC
+		return zlib.crc32(ba)
 
 class CfgIterator(object):
 	"""Allows to iterate over the configurarion lines for contents detection"""
