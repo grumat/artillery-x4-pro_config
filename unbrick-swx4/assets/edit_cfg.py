@@ -104,24 +104,6 @@ NO_KEY = lambda loc : Res('!', "KEY", loc)
 MULT_KEY = lambda loc : Res('!', "KEY+", loc)
 
 
-def UncommentLine(l : str) -> str:
-	"""This removes line comments from the given line"""
-	# Blanks at the right side are ignored
-	l = l.rstrip()
-	# Skip empty lines
-	if l:
-		# Locate line comment symbol
-		pos = l.find('#')
-		# not found?
-		if pos < 0:
-			# Alternative line comment
-			pos = l.find(';')
-		# Clear the command, if found
-		if pos >= 0:
-			l = l[:pos].rstrip()
-	# Returns only 'clean' lines
-	return l
-
 def EncodeMultiLine(ml : str) -> str:
 	"""Long stuff is compressed and converted to base64 so that we can transmit over the serial line"""
 	# MLines's: extract text only
@@ -169,12 +151,35 @@ def DecodeMultiLine(b64 : str) -> list:
 	return res
 
 
+class Line(object):
+	def __init__(self, l : str):
+		self.raw = l
+		self.unc = Line.UncommentLine(l)
+	@staticmethod
+	def UncommentLine(l : str) -> str:
+		"""This removes line comments from the given line"""
+		# Blanks at the right side are ignored
+		l = l.rstrip()
+		# Skip empty lines
+		if l:
+			# Locate line comment symbol
+			pos = l.find('#')
+			# not found?
+			if pos < 0:
+				# Alternative line comment
+				pos = l.find(';')
+			# Clear the command, if found
+			if pos >= 0:
+				l = l[:pos].rstrip()
+		# Returns only 'clean' lines
+		return l
+
 class Context(object):
 	"""Stores the context of the operation"""
 	def __init__(self, args : list[str]):
 		self.args = args
 		self.cfg_file = None
-		self.lines = []
+		self.raw_lines : list[Line] = []
 	def GetArg(self) -> str:
 		"""Retrieves the next argument of the argument list"""
 		if len(self.args):
@@ -197,7 +202,8 @@ class Context(object):
 				return NO_FILE
 			# Now read all lines into buffer
 			with open(self.cfg_file, "rt", encoding="UTF-8") as fh:
-				self.lines = fh.readlines()
+				for l in fh:
+					self.raw_lines = Line(l)
 		# Good!
 		return OK
 	def WriteLines(self) -> Res:
@@ -206,7 +212,7 @@ class Context(object):
 		if not self.cfg_file:
 			return NO_READ
 		# No contents (weird!)
-		if not self.lines:
+		if not self.raw_lines:
 			return EMPTY
 		# Removes file extension
 		tpl, _ = os.path.splitext(self.cfg_file)
@@ -219,17 +225,18 @@ class Context(object):
 				break
 		# Write the entire buffer into the temporary file
 		with open(fn, "wt", encoding="UTF-8", newline='\n') as fh:
-			fh.writelines(self.lines)
+			fh.writelines(self.raw_lines)
 		# Success! Now delete old instance and replace file
 		os.remove(self.cfg_file)
 		os.rename(fn, self.cfg_file)
 		# Success
 		return OK
-	def EditLine(self, loc : Loc, valn : int, upt : str):
+	def EditLine(self, loc : Loc, upt : str):
 		"""Replaces old contents by new contents, preserving existing comments"""
-		old = self.lines[loc.idx_0]
-		rem = (valn >= 0) and (len(old) > valn) and old[valn:] or ""
-		self.lines[loc.idx_0] = upt + rem
+		old : Line = self.raw_lines[loc.idx_0]
+		valn = len(old.unc)
+		rem = (valn >= 0) and (len(old.raw) > valn) and old.raw[valn:] or "\n"
+		self.raw_lines[loc.idx_0] = Line(upt + rem)
 	def AddLines(self, loc : Loc, lines : list[str]) -> None:
 		ins = loc.idx_n or loc.idx_0
 		if ins > 0:
@@ -237,7 +244,7 @@ class Context(object):
 			blank = False
 			# Search for non-empty
 			while ins > loc.idx_0:
-				if self.lines[ins].strip():
+				if self.raw_lines[ins].strip():
 					break
 				ins -= 1
 				blank = True
@@ -245,13 +252,16 @@ class Context(object):
 		else:
 			ins = 0
 		for l in lines:
-			self.lines.insert(ins, l)
+			self.raw_lines.insert(ins, l)
+			self.lines.insert(ins, UncommentLine(l))
 			ins += 1
 	def DeleteRange(self, loc : Loc) -> None:
 		"""Delete a range of lines"""
 		if loc.idx_n is None:
+			del self.raw_lines[loc.idx_0]
 			del self.lines[loc.idx_0]
 		else:
+			del self.raw_lines[loc.idx_0:loc.idx_n]
 			del self.lines[loc.idx_0:loc.idx_n]
 	def DeleteRangeWithComments(self, loc : Loc) -> None:
 		"""Similar to `DeleteRange()`, but includes prepending comment lines"""
@@ -261,12 +271,13 @@ class Context(object):
 			i_0 -= 1
 			if i_0 < 0:
 				break
-			l = self.lines[i_0].strip()
+			l = self.raw_lines[i_0].strip()
 			if not l:
 				break
 			if l[0] not in "#;":
 				break
 		i_0 += 1
+		del self.raw_lines[i_0:i_n]
 		del self.lines[i_0:i_n]
 	def IsLastFileArg(self, val : str):
 		if len(self.args) or (not isinstance(val, str)):
@@ -315,7 +326,7 @@ class SecLabel(object):
 		return True
 
 def StringEssence(s : str) -> bytes:
-	"""Reduces a string having identifiers and values to its essence"""
+	"""Reduces a string having identifiers and values to its essence. This normalizes strings with minor changes."""
 	res = ""
 	is_token = False
 	try:
@@ -375,6 +386,7 @@ def StringEssence(s : str) -> bytes:
 	return res.rstrip().encode()
 
 def StringCRC(s : str, seed : int) -> int:
+	"""Computes CRC of a string normalizing it with the `StringEssence` method"""
 	return zlib.crc32(StringEssence(s), seed)
 
 class MLine(object):
@@ -383,7 +395,6 @@ class MLine(object):
 		self.line = line
 		# The valuable part has the size of the string, assuming that every other 
 		# line content is part of a comment, if any
-		self.valn = len(line)
 		self.loc = Loc(lno)
 		self.is_empty = not line.strip()
 	def GetLoc(self):
@@ -396,11 +407,10 @@ class MLine(object):
 
 class Key(object):
 	"""Sections are composed of keys. Keys can have a single line of a multiple lines"""
-	def __init__(self, label : str, valn : int, lno : int, value):
+	def __init__(self, label : str, lno : int, value):
 		# Key name is given on construction
 		self.name = label.strip()
 		# And the valuable part line part
-		self.valn = valn
 		self.loc = Loc(lno, lno)
 		self.value = value.strip()
 		# Multi lines entries don't have an argument on the same line, so convert
@@ -439,9 +449,8 @@ class Key(object):
 
 class Section(object):
 	"""Sections are groups of keys"""
-	def __init__(self, label : SecLabel, valn : int, lno : int):
+	def __init__(self, label : SecLabel, lno : int):
 		self.name = isinstance(label, str) and SecLabel(label) or label
-		self.valn = valn
 		self.loc = Loc(lno, lno)
 		self.keys : list[Key] = []
 	def GetLoc(self) -> Loc:
@@ -451,8 +460,13 @@ class Section(object):
 		"""Well formatted label, without brackets"""
 		return str(self.name)
 	def GetKey(self, k : str) -> list[Key]:
+		"""
+		Returns the key with the given name. Although not directly allowed, multiple 
+		results is possible on a malformed configuration file.
+		"""
 		return [i for i in self.keys if i.name == k]
 	def GetSingleKey(self, k : str) -> Res:
+		"""Makes sure that only a single key is selected."""
 		key = self.GetKey(k)
 		if not key:
 			return NO_KEY(self.GetLoc())
@@ -461,6 +475,7 @@ class Section(object):
 		key : Key = key[0]
 		return Res('k', key, key.GetLoc())
 	def GetCRC(self):
+		"""Compute CRC of contents using `StringEssence()` method"""
 		# Use label to start byte-stream
 		ba = StringEssence(str(self.name))
 		# Accumulate each CRC value into stream
@@ -510,6 +525,7 @@ class CfgIterator(object):
 		"""The length of the valuable part of the line"""
 		return len(self.l)
 	def HasLeadingBlanks(self):
+		"""True if line has contents but starts with a leading space (multi-line values)"""
 		return self.l and self.l[0].isspace()
 	def HasKeyPattern(self):
 		"""Does this line looks like a section key?"""
@@ -557,7 +573,7 @@ class Contents(object):
 	def Load(self) -> None:
 		"""Identifies the contents of the configuration file and populate itself"""
 		# Configuration iterator
-		it = CfgIterator(self.ctx.lines, self.UpdLineNo_)
+		it = CfgIterator(self.ctx.raw_lines, self.UpdLineNo_)
 		# First line
 		it.NextLine()
 		while True:
@@ -786,7 +802,7 @@ def EditKey(ctx : Context) -> Res:
 					if key.value == data:
 						return OK
 					# This method preserves comments
-					ctx.EditLine(key.GetLoc(), key.valn, f"{k}:{data}")
+					ctx.EditLine(key.GetLoc(), f"{k}:{data}")
 					# Writes results
 					res = ctx.WriteLines()
 				return res
@@ -797,7 +813,7 @@ def EditKeyML(ctx : Context) -> Res:
 	High level command to edit a multiline key:
 		- arg0: section
 		- arg1: key
-		- arg2: base64 encoded and encrypted data
+		- arg2: base64 encoded and encrypted data (use `EncodeMultiLine`)
 		- arg3: configuration file name (optional)
 	This command also adds a new key value if it does not exists.
 	"""
@@ -920,7 +936,7 @@ def RenSec(ctx : Context) -> Res:
 			res = c.GetSingleSection(old)
 			if res.IsObject():
 				s : Section = res.value
-				ctx.EditLine(s.GetLoc(), s.valn, f"[{sec}]")
+				ctx.EditLine(s.GetLoc(), f"[{sec}]")
 				res = ctx.WriteLines()
 			return res
 	return MISSING_ARG
@@ -941,7 +957,6 @@ def DelSec(ctx : Context) -> Res:
 		# Load contents
 		c = Contents(ctx)
 		c.Load()
-		loc = None
 		if sec.startswith('@'):
 			# Locate section by line number
 			res = c.GetSectionOfLine(int(sec[1:]))
@@ -958,6 +973,105 @@ def DelSec(ctx : Context) -> Res:
 		return res
 	return MISSING_ARG
 
+def ReadSec(ctx : Context) -> Res:
+	"""
+	This high level method reads all lines of a section, including its header line 
+	and comments. 
+		- arg0: section name or line number. For line number use `@nnn` format
+		- arg1: configuration file name (optional)
+	"""
+	# Get section or number
+	sec = ctx.GetArg()
+	if sec and not ctx.IsLastFileArg(sec):
+		# Load configuration file
+		res = ctx.ReadLines()
+		if not res:
+			return res
+		# Load contents
+		c = Contents(ctx)
+		c.Load()
+		if sec.startswith('@'):
+			# Locate section by line number
+			res = c.GetSectionOfLine(int(sec[1:]))
+		else:
+			# locate section
+			res = c.GetSingleSection(SecLabel(sec))
+
+def AddSec(ctx : Context) -> Res:
+	"""
+	This high level method adds an entire section after the position of the given section.
+		- arg0: can be:
+			- A section name.
+			- A line number that indicates the section. For line number use `@nnn` format.
+			- `@top` to insert before the first section.
+			- `@bottom` to insert after the last section but before the persistence block
+		- arg1: base64 encoded data (use `EncodeMultiLine`)
+		- arg1: configuration file name (optional)
+	"""
+	# Get section or number
+	sec = ctx.GetArg()
+	if sec and not ctx.IsLastFileArg(sec):
+		# Load configuration file
+		res = ctx.ReadLines()
+		if not res:
+			return res
+		# Load contents
+		c = Contents(ctx)
+		c.Load()
+		loc : Loc = None
+		if sec.startswith('@top'):
+			if c.sections:
+				loc.idx_0 = c.sections[0].GetLoc().idx_0
+				if loc.idx_0 > 0:
+					loc.idx_0 -= 1
+			res = OK
+		elif sec.startswith('@bottom'):
+			if c.sections:
+				res = Res('s', c.sections[-1], c.sections[-1].GetLoc())
+			res = OK
+		elif sec.startswith('@'):
+			# Locate section by line number
+			res = c.GetSectionOfLine(int(sec[1:]))
+		else:
+			# locate section
+			res = c.GetSingleSection(SecLabel(sec))
+		# Get location
+		if loc:
+			pass
+		if res.IsObject():
+			# Objects results are of Section type
+			s : Section = res.value
+			# Insert at the bottom
+			loc.idx_0 = s.GetLoc().idx_n
+		# Execute only if no errors found
+		if not res.IsError():
+			pass
+
+def OvrSec(ctx : Context) -> Res:
+	"""
+	This high level method replaces an entire section, including its header line, 
+	with the given base64 encoded contents. The content of the base64 is not validated
+	and written as is.
+		- arg0: section name or line number. For line number use `@nnn` format
+		- arg1: base64 encoded data (use `EncodeMultiLine`)
+		- arg1: configuration file name (optional)
+	"""
+	# Get section or number
+	sec = ctx.GetArg()
+	if sec and not ctx.IsLastFileArg(sec):
+		# Load configuration file
+		res = ctx.ReadLines()
+		if not res:
+			return res
+		# Load contents
+		c = Contents(ctx)
+		c.Load()
+		if sec.startswith('@'):
+			# Locate section by line number
+			res = c.GetSectionOfLine(int(sec[1:]))
+		else:
+			# locate section
+			res = c.GetSingleSection(SecLabel(sec))
 
 def main(args : list[str]) -> Res:
 	ctx = Context(args)
