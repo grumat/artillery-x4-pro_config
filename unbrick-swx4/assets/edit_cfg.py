@@ -173,6 +173,21 @@ class Line(object):
 				l = l[:pos].rstrip()
 		# Returns only 'clean' lines
 		return l
+	def GetLen(self):
+		"""Total length of a raw line"""
+		return len(self.raw)
+	def IsLineEmpty(self) -> bool:
+		"""Checks if a line is empty. Empty lines are most of the times ignored"""
+		return not self.unc
+	def HasLeadingBlanks(self):
+		"""True if line has contents but starts with a leading space (multi-line values)"""
+		return self.unc and self.unc[0].isspace()
+	def HasKeyPattern(self):
+		"""Does this line looks like a section key?"""
+		return (not self.raw.startswith('[')) \
+			and self.raw \
+			and (self.raw[0].isalnum() or (self.raw[0] == '_')) \
+			and (':' in self.unc)
 
 class Context(object):
 	"""Stores the context of the operation"""
@@ -203,7 +218,7 @@ class Context(object):
 			# Now read all lines into buffer
 			with open(self.cfg_file, "rt", encoding="UTF-8") as fh:
 				for l in fh:
-					self.raw_lines = Line(l)
+					self.raw_lines.append(Line(l))
 		# Good!
 		return OK
 	def WriteLines(self) -> Res:
@@ -225,7 +240,7 @@ class Context(object):
 				break
 		# Write the entire buffer into the temporary file
 		with open(fn, "wt", encoding="UTF-8", newline='\n') as fh:
-			fh.writelines(self.raw_lines)
+			fh.writelines([l.raw for l in self.raw_lines])
 		# Success! Now delete old instance and replace file
 		os.remove(self.cfg_file)
 		os.rename(fn, self.cfg_file)
@@ -235,34 +250,37 @@ class Context(object):
 		"""Replaces old contents by new contents, preserving existing comments"""
 		old : Line = self.raw_lines[loc.idx_0]
 		valn = len(old.unc)
-		rem = (valn >= 0) and (len(old.raw) > valn) and old.raw[valn:] or "\n"
-		self.raw_lines[loc.idx_0] = Line(upt + rem)
+		rem = (valn >= 0) and (len(old.raw) > valn) and old.raw[valn:] or ""
+		l = upt + rem
+		if not l.endswith('\n'):
+			l += '\n'
+		self.raw_lines[loc.idx_0] = Line(l)
 	def AddLines(self, loc : Loc, lines : list[str]) -> None:
+		"""Lines have to be complete including LF"""
+		# Locate neutral position
 		ins = loc.idx_n or loc.idx_0
 		if ins > 0:
 			ins -= 1
 			blank = False
 			# Search for non-empty
 			while ins > loc.idx_0:
-				if self.raw_lines[ins].strip():
+				if self.raw_lines[ins].raw.strip():
 					break
 				ins -= 1
 				blank = True
 			ins += (1 + blank)
 		else:
 			ins = 0
+		# Now insert lines
 		for l in lines:
-			self.raw_lines.insert(ins, l)
-			self.lines.insert(ins, UncommentLine(l))
+			self.raw_lines.insert(ins, Line(l))
 			ins += 1
 	def DeleteRange(self, loc : Loc) -> None:
 		"""Delete a range of lines"""
 		if loc.idx_n is None:
 			del self.raw_lines[loc.idx_0]
-			del self.lines[loc.idx_0]
 		else:
 			del self.raw_lines[loc.idx_0:loc.idx_n]
-			del self.lines[loc.idx_0:loc.idx_n]
 	def DeleteRangeWithComments(self, loc : Loc) -> None:
 		"""Similar to `DeleteRange()`, but includes prepending comment lines"""
 		i_0 = loc.idx_0
@@ -271,14 +289,13 @@ class Context(object):
 			i_0 -= 1
 			if i_0 < 0:
 				break
-			l = self.raw_lines[i_0].strip()
+			l = self.raw_lines[i_0].raw.strip()
 			if not l:
 				break
 			if l[0] not in "#;":
 				break
 		i_0 += 1
 		del self.raw_lines[i_0:i_n]
-		del self.lines[i_0:i_n]
 	def IsLastFileArg(self, val : str):
 		if len(self.args) or (not isinstance(val, str)):
 			return False
@@ -487,13 +504,12 @@ class Section(object):
 		return zlib.crc32(ba)
 
 class CfgIterator(object):
-	"""Allows to iterate over the configurarion lines for contents detection"""
-	def __init__(self, lines : list[str], callback : Callable[[int], None] = None):
+	"""Allows to iterate over the configuration lines for contents detection"""
+	def __init__(self, lines : list[Line], callback : Callable[[int], None] = None):
 		self.it = iter(lines)
 		self.callback = callback
 		self.lno = -1
-		self.rl = None
-		self.l = None
+		self.rl : Line = None
 		self.m = None
 		self.pat = re.compile(r"\[(.+)\]")
 		self.save = False
@@ -501,9 +517,8 @@ class CfgIterator(object):
 		"""Moves one line further"""
 		self.lno += 1
 		self.rl = next(self.it)
-		self.save = self.rl.startswith("#*#")
-		self.l = UncommentLine(self.rl)
-		self.m = (self.l and (self.l[0] == '[')) and self.pat.match(self.l) or None
+		self.save = self.rl.raw.startswith("#*#")
+		self.m = (self.rl.unc and (self.rl.unc[0] == '[')) and self.pat.match(self.rl.unc) or None
 		if self.callback:
 			self.callback(self.lno)
 	def IsPersistenceBlock(self) -> bool:
@@ -511,36 +526,27 @@ class CfgIterator(object):
 		return self.save
 	def IsLineEmpty(self) -> bool:
 		"""Checks if a line is empty. Empty lines are most of the times ignored"""
-		return not self.l
+		return self.rl.IsLineEmpty()
 	def MatchesSection(self) -> bool:
 		"""Returns true if a section start is found. This should close any multiline key or previous section"""
 		return bool(self.m)
 	def GetSectionLabel(self) -> str:
 		"""The label of the detected section, in the case `MatchesSection` is true"""
 		return bool(self.m) and self.m.group(1) or None
-	def GetLen(self):
-		"""Total length of a raw line"""
-		return len(self.rl)
-	def GetValiantLen(self):
-		"""The length of the valuable part of the line"""
-		return len(self.l)
 	def HasLeadingBlanks(self):
 		"""True if line has contents but starts with a leading space (multi-line values)"""
-		return self.l and self.l[0].isspace()
+		return self.rl.HasLeadingBlanks()
 	def HasKeyPattern(self):
 		"""Does this line looks like a section key?"""
-		return (not self.m) \
-			and self.rl \
-			and (self.rl[0].isalnum() or (self.rl[0] == '_')) \
-			and (':' in self.l)
+		return (not self.m) and self.rl.HasKeyPattern()
 	def CreateSection(self) -> Section:
 		"""Create a Section instance, assuming that 'MatchesSection()' is true. At exit it moves to the next line"""
-		s = Section(self.GetSectionLabel(), self.GetValiantLen(), self.lno)
+		s = Section(self.GetSectionLabel(), self.lno)
 		return s
 	def CreateKey(self) -> Key:
 		"""Create a Section instance, assuming that 'HasKeyPattern()' is true"""
-		k, v = self.l.split(':', 1)
-		key = Key(k, self.GetValiantLen(), self.lno, v)
+		k, v = self.rl.unc.split(':', 1)
+		key = Key(k, self.lno, v)
 		return key
 	
 class Contents(object):
@@ -606,10 +612,10 @@ class Contents(object):
 								# This flag marks True if the last line that was seen is blank
 								blank = False
 								while True:
-									if it.rl:
-										if it.rl[0].isspace():
+									if it.rl.raw:
+										if it.rl.raw[0].isspace():
 											# This collect even commented out lines
-											self.cur_key.value.append(MLine(it.l+'\n', it.lno))
+											self.cur_key.value.append(MLine(it.rl.unc+'\n', it.lno))
 											blank = it.IsLineEmpty()
 										else:
 											# Skip the last empty line on transition
