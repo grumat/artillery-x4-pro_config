@@ -60,6 +60,7 @@ def MkCfgClone():
 	shutil.copyfile(src_cfg, test_file)
 
 err_count = 0
+total_err_count = 0
 def Run(args : list[str], cmp, fname : str = None) -> None:
 	global err_count
 	# Prints command line
@@ -97,13 +98,14 @@ def Test_Begin_(name : str):
 	print("|                                                                    |")
 	print(f"=== {name} ===".center(70))
 	print()
-	print()
 	err_count = 0
 
 def Test_Close_():
+	global total_err_count
 	print()
 	if err_count:
 		print(f"######## TOTAL ERROR COUNT: {err_count} ########".center(70))
+		total_err_count += err_count
 	else:
 		print("NO ERRORS".center(70))
 	print("|____________________________________________________________________|")
@@ -114,6 +116,7 @@ def Test_ListSec():
 	Test_Begin_("ListSec Test")
 	Run(['ListSec'], "!ARG")
 	Run(['ListSec', 'abcdefg'], "!SEC")
+	Run(['ListSec', 'abcdefg', 'extra-arg'], "!ARG+")
 
 	Run(['ListSec', 'printer'], "=printer @264 :2098A795")
 	Run(['ListSec', 'include *'], lambda res : str(res).endswith("fi7kinChIfuiecA="))
@@ -125,6 +128,7 @@ def Test_ListKeys():
 	Test_Begin_("ListKeys Test")
 	Run(['ListKeys'], "!ARG")
 	Run(['ListKeys', 'abcdefg'], "!SEC")
+	Run(['ListKeys', 'abcdefg', 'extra-arg'], "!ARG+")
 
 	Run(['ListKeys', 'pause_resume'], "!KEY")
 	Run(['ListKeys', 'idle_timeout'], "=timeout @284 :58D59594")
@@ -139,6 +143,7 @@ def Test_GetKey():
 	Run(['GetKey', 'stepper_x'], "!ARG")
 	Run(['GetKey', 'stepper_x', 'no_key'], "!KEY")
 	Run(['GetKey', 'no_no_no', 'no_key'], "!SEC")
+	Run(['GetKey', 'no_no_no', 'no_key', 'extra-arg'], "!ARG+")
 
 	Run(['GetKey', 'stepper_x', 'step_pin'], "=PC14")
 	Run(['GetKey', 'stepper_x', 'enable_pin'], "=!PC15")
@@ -161,6 +166,7 @@ def Test_EditKey():
 	Run(['EditKey', 'stepper_z'], "!ARG")
 	Run(['EditKey', 'stepper_z', 'endstop_pin'], "!ARG")
 	Run(['EditKey', 'no_no_no', 'no_key', '999'], "!SEC")
+	Run(['EditKey', 'no_no_no', 'no_key', '999', 'extra-arg'], "!ARG+")
 
 	Run(['EditKey', 'stepper_z', 'endstop_pin', 'PROBE:Z_VIRTUAL_ENDSTOP'], ".OK")
 	Run(['GetKey', 'stepper_z', 'endstop_pin'], "=PROBE:Z_VIRTUAL_ENDSTOP")
@@ -183,6 +189,7 @@ def Test_EditKeyML():
 	Run(['EditKeyML', 'stepper_z', 'endstop_pin'], "!ARG")
 	Run(['EditKeyML', 'no_no_no', 'no_key', '999'], "!ENC")
 	Run(['EditKeyML', 'no_no_no', 'no_key', encoded_data.M600], "!SEC")
+	Run(['EditKeyML', 'no_no_no', 'no_key', encoded_data.M600, 'extra-arg'], "!ARG+")
 
 	Run(['EditKeyML', 'gcode_macro M600', 'gcode', encoded_data.M600], ".OK")
 	Run(['GetKey', 'gcode_macro M600', 'gcode'], lambda res : str(res).endswith("DDUncXckU4UJBkMhnJA=="))
@@ -201,6 +208,7 @@ def Test_DelKey():
 	Run(['DelKey', 'gcode_macro move_to_point_3'], "!ARG")
 	Run(['DelKey', 'gcode_macro move_to_point_3', 'abcd'], "!KEY")
 	Run(['DelKey', 'abcdefg', 'abcd'], "!SEC")
+	Run(['DelKey', 'abcdefg', 'abcd', 'extra-arg'], "!ARG+")
 
 	Run(['GetKey', 'stepper_z', 'homing_speed'], "=20")
 	Run(['DelKey', 'stepper_z', 'new_key'], ".OK")
@@ -219,6 +227,7 @@ def Test_RenSec():
 	Run(['RenSec'], "!ARG")
 	Run(['RenSec', 'abcdefg'], "!ARG")
 	Run(['RenSec', 'abcdefg', 'defgh'], "!SEC")
+	Run(['RenSec', 'abcdefg', 'defgh', 'extra-arg'], "!ARG+")
 
 	Run(['ListSec', 'controller_fan mainboard_fan'], "=controller_fan mainboard_fan @242 :9971A484")
 	Run(['RenSec', 'controller_fan mainboard_fan', 'controller_fan motherboard_fan'], ".OK")
@@ -233,6 +242,8 @@ def Test_DelSec():
 	Test_Begin_("DelSec Test")
 	Run(['DelSec'], "!ARG")
 	Run(['DelSec', 'abcdefg'], "!SEC")
+	Run(['DelSec', 'abcdefg', 'extra-arg'], "!ARG+")
+	Run(['DelSec', '@9999'], "!RANGE")
 
 	Run(['ListSec', 'neopixel my_neopixel'], "=neopixel my_neopixel @648 :60C51F9E")
 	Run(['DelSec', 'neopixel my_neopixel'], ".OK")
@@ -246,7 +257,48 @@ def Test_DelSec():
 
 	Test_Close_()
 
+def Test_ReadSec():
+	Test_Begin_("ReadSec Test")
+	Run(['ReadSec'], "!ARG")
+	Run(['ReadSec', 'abcdefg'], "!SEC")
+	Run(['ReadSec', 'abcdefg', 'extra-arg'], "!ARG+")
+	Run(['ReadSec', '@9999'], "!RANGE")
+
+	Run(['ReadSec', 'pause_resume'], lambda res : str(res).endswith("7xdyRThQkEjA7v4A=="))
+	Run(['ReadSec', 'input_shaper'], lambda res : str(res).endswith("RThQkBAC6zkA=="))
+	Run(['ReadSec', 'extruder'], lambda res : str(res).endswith("4u5IpwoSD5i+UKA=="))
+
+	Run(['ReadSec', '@464'], lambda res : str(res).endswith("5IpwoSFd2ewqA="))
+
+	Test_Close_()
+
+def Test_AddSec():
+	top_section = edit_cfg.EncodeMultiLine(['[top]\n', 'success:1\n', '\n'])
+	bottom_section = edit_cfg.EncodeMultiLine(['[bottom]\n', 'success:1\n', '\n'])
+	mid_section = edit_cfg.EncodeMultiLine(['[after gcode_macro move_to_point_3]\n', 'success:1\n', '\n'])
+	Test_Begin_("AddSec Test")
+	Run(['AddSec'], "!ARG")
+	Run(['AddSec', 'abcdefg'], "!ARG")
+	Run(['AddSec', 'abcdefg', 'bad-data'], "!ENC")
+	Run(['AddSec', 'abcdefg', 'bad-data', 'extra-arg'], "!ARG+")
+	Run(['AddSec', 'abcdefg', top_section], "!SEC")
+
+	Run(['AddSec', '@top', top_section], ".OK")
+	Run(['AddSec', '@bottom', bottom_section], ".OK")
+	Run(['AddSec', 'gcode_macro move_to_point_3', mid_section], ".OK")
+
+	Test_Close_()
+
+def Test_OvrSec():
+	Test_Begin_("OvrSec Test")
+	Run(['OvrSec'], "!ARG")
+	Run(['OvrSec', 'abcdefg'], "!SEC")
+
+	Test_Close_()
+
+
 def main():
+	global total_err_count
 	MkCfgClone()
 	original_stdout = sys.stdout
 	sys.stdout = Tee(os.path.join(current_dir, 'test_edit_cfg.log'))
@@ -258,6 +310,12 @@ def main():
 	Test_DelKey()
 	Test_RenSec()
 	Test_DelSec()
+	Test_ReadSec()
+	Test_AddSec()
+	Test_OvrSec()
+
+	print(f"TOTAL ERROR COUNT: {total_err_count}")
+
 	sys.stdout = original_stdout
 
 if __name__ == "__main__":

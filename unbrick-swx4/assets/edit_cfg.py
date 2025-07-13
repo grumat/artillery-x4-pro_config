@@ -102,6 +102,8 @@ MULT_SECTION = Res('!', "SEC+")
 NO_KEY = lambda loc : Res('!', "KEY", loc)
 # More than one key matches your request (section has duplicates)
 MULT_KEY = lambda loc : Res('!', "KEY+", loc)
+# Invalid range (usually indicates an internal bug)
+INV_RANGE = lambda loc : Res('!', "RANGE", loc)
 
 
 def EncodeMultiLine(ml : str) -> str:
@@ -221,6 +223,18 @@ class Context(object):
 					self.raw_lines.append(Line(l))
 		# Good!
 		return OK
+	def IsRangeValid(self, loc : Loc):
+		if loc.idx_0 is not None:
+			if (0 <= loc.idx_0) and (loc.idx_0 < len(self.raw_lines)):
+				if loc.idx_n is None:
+					return True
+				if loc.idx_n > loc.idx_0:
+					if (0 < loc.idx_n) and (loc.idx_n <= len(self.raw_lines)):
+						return True
+		return False
+	def GetLines(self, loc : Loc):
+		"""Returns a list of raw lines on the given range"""
+		return [lr.raw for lr in self.raw_lines[loc.idx_0 : loc.idx_n]]
 	def WriteLines(self) -> Res:
 		"""Write the biffered lines into a temporary file, then replaces old instance"""
 		# You cannot save before loading a configuration file
@@ -275,6 +289,15 @@ class Context(object):
 		for l in lines:
 			self.raw_lines.insert(ins, Line(l))
 			ins += 1
+	def AddSectionLines(self, loc : Loc, lines : list[str]) -> None:
+		ins = loc.idx_n or loc.idx_0
+		if ins is None:
+			ins = 0
+		if not self.raw_lines[ins].IsLineEmpty():
+			self.raw_lines.insert(ins, Line("\n"))
+			self.raw_lines.insert(ins, Line("\n"))
+		loc = Loc(ins + 1)
+		self.AddLines(loc, lines)
 	def DeleteRange(self, loc : Loc) -> None:
 		"""Delete a range of lines"""
 		if loc.idx_n is None:
@@ -341,6 +364,8 @@ class SecLabel(object):
 				return False
 		# Success
 		return True
+	def IsInclude(self):
+		return self.labels and (self.labels[0] == 'include')
 
 def StringEssence(s : str) -> bytes:
 	"""Reduces a string having identifiers and values to its essence. This normalizes strings with minor changes."""
@@ -467,7 +492,7 @@ class Key(object):
 class Section(object):
 	"""Sections are groups of keys"""
 	def __init__(self, label : SecLabel, lno : int):
-		self.name = isinstance(label, str) and SecLabel(label) or label
+		self.name : SecLabel = isinstance(label, str) and SecLabel(label) or label
 		self.loc = Loc(lno, lno)
 		self.keys : list[Key] = []
 	def GetLoc(self) -> Loc:
@@ -648,10 +673,23 @@ class Contents(object):
 		return Res('s', sec[0])
 	def GetSectionOfLine(self, lno : int) -> Res:
 		"""Searches the section that is on the given line number"""
+		rng = Loc(lno)
+		if not self.ctx.IsRangeValid(rng):
+			return INV_RANGE(rng)
 		for s in self.sections:
 			if s.GetLoc().IsInRange(lno):
 				return Res('s', s)
 		return NO_SECTION
+	def GetFirstSection(self) -> Section:
+		for s in self.sections:
+			if not s.name.IsInclude():
+				return s
+		return None
+	def AddSectionLines(self, loc : Loc, data : list[str]) -> None:
+		if self.save.idx_0 <= loc.idx_0:
+			loc = Loc(self.save.idx_0 - 1)
+		self.ctx.AddSectionLines(loc, data)
+
 
 def ListSec(ctx : Context) -> Res:
 	"""
@@ -708,14 +746,17 @@ def ListKeys(ctx : Context) -> Res:
 		# Object was found?
 		if res.IsObject():
 			s : Section = res.value
-			if len(s.keys) == 0:
-				res = NO_KEY(s.GetLoc())
-			elif len(s.keys) == 1:
-				k = s.keys[0]
-				res = Res('=', f"{k.name} @{k.GetLoc().idx_0} :{k.GetCRC():08X}", k.GetLoc())
+			if ctx.IsRangeValid(s.GetLoc()):
+				if len(s.keys) == 0:
+					res = NO_KEY(s.GetLoc())
+				elif len(s.keys) == 1:
+					k = s.keys[0]
+					res = Res('=', f"{k.name} @{k.GetLoc().idx_0} :{k.GetCRC():08X}", k.GetLoc())
+				else:
+					t = "".join(f"{k.name} @{k.GetLoc().idx_0} :{k.GetCRC():08X}\n" for k in s.keys)
+					res = Res('*', EncodeMultiLine(t), NO_LOC)
 			else:
-				t = "".join(f"{k.name} @{k.GetLoc().idx_0} :{k.GetCRC():08X}\n" for k in s.keys)
-				res = Res('*', EncodeMultiLine(t), NO_LOC)
+				res = INV_RANGE(s.GetLoc())	# bug?
 		return res
 	return MISSING_ARG
 	
@@ -746,18 +787,21 @@ def GetKey(ctx : Context) -> Res:
 			if res.code != 's':
 				return res
 			sec : Section = res.value
-			# Search for key
-			res = sec.GetSingleKey(k)
-			if res.IsObject():
-				key : Key = res.value
-				if key.IsMultiLine():
-					# Encode multiline response
-					res.code = '*'
-					res.value = EncodeMultiLine(key.value)
-				else:
-					# Simple response for single line
-					res.code = '='
-					res.value = key.value
+			if ctx.IsRangeValid(sec.GetLoc()):
+				# Search for key
+				res = sec.GetSingleKey(k)
+				if res.IsObject():
+					key : Key = res.value
+					if key.IsMultiLine():
+						# Encode multiline response
+						res.code = '*'
+						res.value = EncodeMultiLine(key.value)
+					else:
+						# Simple response for single line
+						res.code = '='
+						res.value = key.value
+			else:
+				res = INV_RANGE(sec.GetLoc())	# bug?
 			return res
 	return MISSING_ARG
 
@@ -792,25 +836,28 @@ def EditKey(ctx : Context) -> Res:
 				if res.code != 's':
 					return res
 				sec : Section = res.value
-				# Search for key
-				res = sec.GetSingleKey(k)
-				# Found a key?
-				if res.IsKindOf(NO_KEY(NO_LOC)):
-					# Append entry
-					ctx.AddLines(sec.GetLoc(), [f"{k}:{data}\n"])
-					# Writes results
-					res = ctx.WriteLines()
-				elif res.IsObject():
-					# Modify existing line
-					key : Key = res.value
-					if key.IsMultiLine():
-						return ML_KEY(key.GetLoc())
-					if key.value == data:
-						return OK
-					# This method preserves comments
-					ctx.EditLine(key.GetLoc(), f"{k}:{data}")
-					# Writes results
-					res = ctx.WriteLines()
+				if ctx.IsRangeValid(sec.GetLoc()):
+					# Search for key
+					res = sec.GetSingleKey(k)
+					# Found a key?
+					if res.IsKindOf(NO_KEY(NO_LOC)):
+						# Append entry
+						ctx.AddLines(sec.GetLoc(), [f"{k}:{data}\n"])
+						# Writes results
+						res = ctx.WriteLines()
+					elif res.IsObject():
+						# Modify existing line
+						key : Key = res.value
+						if key.IsMultiLine():
+							return ML_KEY(key.GetLoc())
+						if key.value == data:
+							return OK
+						# This method preserves comments
+						ctx.EditLine(key.GetLoc(), f"{k}:{data}")
+						# Writes results
+						res = ctx.WriteLines()
+				else:
+					res = INV_RANGE(sec.GetLoc())	# bug?
 				return res
 	return MISSING_ARG
 
@@ -849,33 +896,36 @@ def EditKeyML(ctx : Context) -> Res:
 				if res.code != 's':
 					return res
 				sec : Section = res.value
-				# Search for key
-				res = sec.GetSingleKey(k)
-				# Found a key?
-				if res.IsObject():
-					# Modify existing line
-					key : Key = res.value
-					if not key.IsMultiLine():
-						return ML_KEY(key.GetLoc())
-					if key.value == data:
-						return OK
-					# Use section location
-					loc = key.GetLoc()
-					# But keep the key line
-					loc.idx_0 += 1
-					# Remove old contents
-					ctx.DeleteRange(loc)
-					# Insert new data
-					loc.idx_n = loc.idx_0
-					ctx.AddLines(loc, data)
-					# Writes results
-					res = ctx.WriteLines()
-				elif res.IsKindOf(NO_KEY(NO_LOC)):
-					# Append entry
-					data.insert(0, f"{k}:\n")
-					ctx.AddLines(sec.GetLoc(), data)
-					# Writes results
-					res = ctx.WriteLines()
+				if ctx.IsRangeValid(sec.GetLoc()):
+					# Search for key
+					res = sec.GetSingleKey(k)
+					# Found a key?
+					if res.IsObject():
+						# Modify existing line
+						key : Key = res.value
+						if not key.IsMultiLine():
+							return ML_KEY(key.GetLoc())
+						if key.value == data:
+							return OK
+						# Use section location
+						loc = key.GetLoc()
+						# But keep the key line
+						loc.idx_0 += 1
+						# Remove old contents
+						ctx.DeleteRange(loc)
+						# Insert new data
+						loc.idx_n = loc.idx_0
+						ctx.AddLines(loc, data)
+						# Writes results
+						res = ctx.WriteLines()
+					elif res.IsKindOf(NO_KEY(NO_LOC)):
+						# Append entry
+						data.insert(0, f"{k}:\n")
+						ctx.AddLines(sec.GetLoc(), data)
+						# Writes results
+						res = ctx.WriteLines()
+				else:
+					res = INV_RANGE(sec.GetLoc())	# bug?
 				return res
 	return MISSING_ARG
 
@@ -905,14 +955,17 @@ def DelKey(ctx : Context) -> Res:
 			if res.code != 's':
 				return res
 			sec : Section = res.value
-			# Search for key
-			res = sec.GetSingleKey(k)
-			# Found a key?
-			if res.IsObject():
-				# Modify existing line
-				key : Key = res.value
-				ctx.DeleteRange(key.GetLoc())
-				res = ctx.WriteLines()
+			if ctx.IsRangeValid(sec.GetLoc()):
+				# Search for key
+				res = sec.GetSingleKey(k)
+				# Found a key?
+				if res.IsObject():
+					# Modify existing line
+					key : Key = res.value
+					ctx.DeleteRange(key.GetLoc())
+					res = ctx.WriteLines()
+			else:
+				res = INV_RANGE(sec.GetLoc())	# bug?
 			return res
 	return MISSING_ARG
 
@@ -942,8 +995,11 @@ def RenSec(ctx : Context) -> Res:
 			res = c.GetSingleSection(old)
 			if res.IsObject():
 				s : Section = res.value
-				ctx.EditLine(s.GetLoc(), f"[{sec}]")
-				res = ctx.WriteLines()
+				if ctx.IsRangeValid(s.GetLoc()):
+					ctx.EditLine(s.GetLoc(), f"[{sec}]")
+					res = ctx.WriteLines()
+				else:
+					res = INV_RANGE(s.GetLoc())	# bug?
 			return res
 	return MISSING_ARG
 
@@ -972,10 +1028,13 @@ def DelSec(ctx : Context) -> Res:
 		# Object was found?
 		if res.IsObject():
 			s : Section = res.value
-			# Remove section, including preceding comment lines
-			ctx.DeleteRangeWithComments(s.GetLoc())
-			# Write buffer
-			res = ctx.WriteLines()
+			if ctx.IsRangeValid(s.GetLoc()):
+				# Remove section, including preceding comment lines
+				ctx.DeleteRangeWithComments(s.GetLoc())
+				# Write buffer
+				res = ctx.WriteLines()
+			else:
+				res = INV_RANGE(s.GetLoc())	# bug?
 		return res
 	return MISSING_ARG
 
@@ -1002,11 +1061,25 @@ def ReadSec(ctx : Context) -> Res:
 		else:
 			# locate section
 			res = c.GetSingleSection(SecLabel(sec))
+		if res.IsObject():
+			s : Section = res.value
+			if ctx.IsRangeValid(s.GetLoc()):
+				lines = ctx.GetLines(s.GetLoc())
+				if not lines:
+					res = EMPTY
+				elif len(lines) == 0:
+					res = Res('=', lines[0], s.GetLoc())
+				else:
+					res = Res('*', EncodeMultiLine(lines), s.GetLoc())
+			else:
+				res = INV_RANGE(s.GetLoc())	# bug?
+		return res
+	return MISSING_ARG
 
 def AddSec(ctx : Context) -> Res:
 	"""
 	This high level method adds an entire section after the position of the given section.
-		- arg0: can be:
+		- arg0: indicates location where new section has to be added. It can be:
 			- A section name.
 			- A line number that indicates the section. For line number use `@nnn` format.
 			- `@top` to insert before the first section.
@@ -1017,41 +1090,54 @@ def AddSec(ctx : Context) -> Res:
 	# Get section or number
 	sec = ctx.GetArg()
 	if sec and not ctx.IsLastFileArg(sec):
-		# Load configuration file
-		res = ctx.ReadLines()
-		if not res:
+		# Get base64 data
+		data = ctx.GetArg()
+		if data and not ctx.IsLastFileArg(data):
+			# Load configuration file
+			res = ctx.ReadLines()
+			if not res:
+				return res
+			try:
+				data = DecodeMultiLine(data)
+			except:
+				return INV_ENC
+			# Load contents
+			c = Contents(ctx)
+			c.Load()
+			loc : Loc = None
+			if sec.startswith('@top'):
+				s = c.GetFirstSection()
+				if s:
+					loc = Loc(s.GetLoc().idx_0)
+					if loc.idx_0 > 0:
+						loc.idx_0 -= 1
+				res = OK
+			elif sec.startswith('@bottom'):
+				res = OK
+				if c.sections:
+					res = Res('s', c.sections[-1], c.sections[-1].GetLoc())
+			elif sec.startswith('@'):
+				# Locate section by line number
+				res = c.GetSectionOfLine(int(sec[1:]))
+			else:
+				# locate section
+				res = c.GetSingleSection(SecLabel(sec))
+			# Get location
+			if loc:
+				pass
+			elif res.IsOk():
+				loc = Loc(c.save.idx_0)
+			if res.IsObject():
+				# Objects results are of Section type
+				s : Section = res.value
+				# Insert at the bottom
+				loc = Loc(s.GetLoc().idx_n)
+			# Execute only if no errors found
+			if not res.IsError():
+				c.AddSectionLines(loc, data)
+				res = ctx.WriteLines()
 			return res
-		# Load contents
-		c = Contents(ctx)
-		c.Load()
-		loc : Loc = None
-		if sec.startswith('@top'):
-			if c.sections:
-				loc.idx_0 = c.sections[0].GetLoc().idx_0
-				if loc.idx_0 > 0:
-					loc.idx_0 -= 1
-			res = OK
-		elif sec.startswith('@bottom'):
-			if c.sections:
-				res = Res('s', c.sections[-1], c.sections[-1].GetLoc())
-			res = OK
-		elif sec.startswith('@'):
-			# Locate section by line number
-			res = c.GetSectionOfLine(int(sec[1:]))
-		else:
-			# locate section
-			res = c.GetSingleSection(SecLabel(sec))
-		# Get location
-		if loc:
-			pass
-		if res.IsObject():
-			# Objects results are of Section type
-			s : Section = res.value
-			# Insert at the bottom
-			loc.idx_0 = s.GetLoc().idx_n
-		# Execute only if no errors found
-		if not res.IsError():
-			pass
+	return MISSING_ARG
 
 def OvrSec(ctx : Context) -> Res:
 	"""
@@ -1078,6 +1164,8 @@ def OvrSec(ctx : Context) -> Res:
 		else:
 			# locate section
 			res = c.GetSingleSection(SecLabel(sec))
+		return res
+	return MISSING_ARG
 
 def main(args : list[str]) -> Res:
 	ctx = Context(args)
