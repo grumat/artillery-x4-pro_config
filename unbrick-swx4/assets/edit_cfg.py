@@ -304,7 +304,7 @@ class Context(object):
 			del self.raw_lines[loc.idx_0]
 		else:
 			del self.raw_lines[loc.idx_0:loc.idx_n]
-	def DeleteRangeWithComments(self, loc : Loc) -> None:
+	def DeleteRangeWithComments(self, loc : Loc) -> int:
 		"""Similar to `DeleteRange()`, but includes prepending comment lines"""
 		i_0 = loc.idx_0
 		i_n = loc.idx_n or (i_0+1)
@@ -319,6 +319,10 @@ class Context(object):
 				break
 		i_0 += 1
 		del self.raw_lines[i_0:i_n]
+		return i_0
+	def OvrSectionLines(self, loc : Loc, lines : list[str]) -> None:
+		loc = Loc(self.DeleteRangeWithComments(loc))
+		self.AddSectionLines(loc, lines)
 	def IsLastFileArg(self, val : str):
 		if len(self.args) or (not isinstance(val, str)):
 			return False
@@ -1151,20 +1155,32 @@ def OvrSec(ctx : Context) -> Res:
 	# Get section or number
 	sec = ctx.GetArg()
 	if sec and not ctx.IsLastFileArg(sec):
-		# Load configuration file
-		res = ctx.ReadLines()
-		if not res:
+		# Get base64 data
+		data = ctx.GetArg()
+		if data and not ctx.IsLastFileArg(data):
+			# Load configuration file
+			res = ctx.ReadLines()
+			if not res:
+				return res
+			try:
+				data = DecodeMultiLine(data)
+			except:
+				return INV_ENC
+			# Load contents
+			c = Contents(ctx)
+			c.Load()
+			if sec.startswith('@'):
+				# Locate section by line number
+				res = c.GetSectionOfLine(int(sec[1:]))
+			else:
+				# locate section
+				res = c.GetSingleSection(SecLabel(sec))
+			# Execute only if no errors found
+			if res.IsObject():
+				s : Section = res.value
+				ctx.OvrSectionLines(s.GetLoc(), data)
+				res = ctx.WriteLines()
 			return res
-		# Load contents
-		c = Contents(ctx)
-		c.Load()
-		if sec.startswith('@'):
-			# Locate section by line number
-			res = c.GetSectionOfLine(int(sec[1:]))
-		else:
-			# locate section
-			res = c.GetSingleSection(SecLabel(sec))
-		return res
 	return MISSING_ARG
 
 def main(args : list[str]) -> Res:

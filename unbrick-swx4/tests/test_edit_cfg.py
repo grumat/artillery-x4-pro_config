@@ -290,9 +290,24 @@ def Test_AddSec():
 	Test_Close_()
 
 def Test_OvrSec():
+	section1 = edit_cfg.EncodeMultiLine(['[new-top]\n', 'success:2\n', '\n'])
+	section2 = edit_cfg.EncodeMultiLine(['[tmc2209 extruder2]\n', 'bye_bye:1\n', '\n'])
 	Test_Begin_("OvrSec Test")
 	Run(['OvrSec'], "!ARG")
-	Run(['OvrSec', 'abcdefg'], "!SEC")
+	Run(['OvrSec', 'abcdefg'], "!ARG")
+	Run(['OvrSec', 'abcdefg', 'bad-data'], "!ENC")
+	Run(['OvrSec', 'abcdefg', 'bad-data', 'extra-arg'], "!ARG+")
+	Run(['OvrSec', 'abcdefg', section1], "!SEC")
+
+	Run(['ListSec', 'gcode_arcs'], "=gcode_arcs @632 :7224E2B6")
+	Run(['OvrSec', 'gcode_arcs', section1], ".OK")
+	Run(['ListSec', 'gcode_arcs'], "!SEC")
+	Run(['ListSec', 'new-top'], "=new-top @633 :41A7D47C")
+
+	Run(['ListSec', 'tmc2209 extruder'], "=tmc2209 extruder @368 :77B0CB90")
+	Run(['OvrSec', 'tmc2209 extruder', section2], ".OK")
+	Run(['ListSec', 'tmc2209 extruder'], "!SEC")
+	Run(['ListSec', 'tmc2209 extruder2'], "=tmc2209 extruder2 @369 :A160D7EF")
 
 	Test_Close_()
 

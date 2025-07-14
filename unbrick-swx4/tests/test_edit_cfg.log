@@ -644,7 +644,44 @@ Q: OvrSec
 PASSED: !ARG
 -------------------------
 Q: OvrSec abcdefg
+PASSED: !ARG
+-------------------------
+Q: OvrSec abcdefg bad-data
+PASSED: !ENC
+-------------------------
+Q: OvrSec abcdefg bad-data extra-arg
+PASSED: !ARG+
+-------------------------
+Q: OvrSec abcdefg QlpoOTFBWSZTWfHTUc0AAANbgAAQAAIQEAAKCgHOgCAAIppiA9PVCmAAMNJKhHbLwbODv8XckU4UJDx01HNA
 PASSED: !SEC
+-------------------------
+Q: ListSec gcode_arcs
+PASSED: =gcode_arcs @632 :7224E2B6
+
+-------------------------
+Q: OvrSec gcode_arcs QlpoOTFBWSZTWfHTUc0AAANbgAAQAAIQEAAKCgHOgCAAIppiA9PVCmAAMNJKhHbLwbODv8XckU4UJDx01HNA
+PASSED: .OK
+-------------------------
+Q: ListSec gcode_arcs
+PASSED: !SEC
+-------------------------
+Q: ListSec new-top
+PASSED: =new-top @633 :41A7D47C
+
+-------------------------
+Q: ListSec 'tmc2209 extruder'
+PASSED: =tmc2209 extruder @368 :77B0CB90
+
+-------------------------
+Q: OvrSec 'tmc2209 extruder' QlpoOTFBWSZTWakZjxcAAAXbgAAQQABwMAAKngIWYCAAIiaaNPUBppoUwmmgNMRDCrY8tfgrPSM8E7eBvG6QXxdyRThQkKkZjxc=
+PASSED: .OK
+-------------------------
+Q: ListSec 'tmc2209 extruder'
+PASSED: !SEC
+-------------------------
+Q: ListSec 'tmc2209 extruder2'
+PASSED: =tmc2209 extruder2 @369 :A160D7EF
+
 -------------------------
 
                               NO ERRORS                               
