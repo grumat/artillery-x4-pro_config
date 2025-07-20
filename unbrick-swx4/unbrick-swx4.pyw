@@ -11,10 +11,12 @@ import re
 import serial.tools.list_ports
 import serial
 import time
-from tkinter import *
+import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 import threading
+from SetupDialog import SetupDialog
+from SetupDialog import UserOptions
 
 LOG = None
 
@@ -415,7 +417,7 @@ class Repair(object):
 
 
 class FillCtrl(object):
-	def __init__(self, root : Tk):
+	def __init__(self, root : tk):
 		self.frame = ttk.Frame(root, padding=10)
 		self.frame.grid(sticky="nsew")
 		self.frame.grid_columnconfigure(0, weight=1)
@@ -458,13 +460,14 @@ class FillCtrl(object):
 
 
 
-class Gui(object):
+class Gui(tk.Tk):
 	def __init__(self):
-		self.root = Tk()
-		self.root.title("Artillery SideWinder X4 Unbrick Tool v0.2")
-		self.root.resizable(False, False)
+		super().__init__()
+		self.title("Artillery SideWinder X4 Unbrick Tool v0.2")
+		self.resizable(False, False)
+		self.opts = UserOptions()
 
-		self.tests = FillCtrl(self.root)
+		self.tests = FillCtrl(self)
 
 		data = [
 			( "Detecting Serial Port of OS system", "serial_port", EMPTYMARK_CHAR, None),
@@ -513,21 +516,48 @@ class Gui(object):
 				if 'P' in i:
 					cur.NewColumn()
 			else:
-				setattr(self, v, StringVar())
+				setattr(self, v, tk.StringVar())
 				var = getattr(self, v)
 				if (i):
 					var.set(i)
 				cur.AddLine(t, var)
 
-		self.buttons = ttk.Frame(self.root, padding=10)
+		self.buttons = ttk.Frame(self, padding=10)
 		self.buttons.grid(sticky="nsew")
-		self.buttons.grid_columnconfigure(0, weight=1)
-		self.buttons.grid_columnconfigure(1, weight=0)
+		self.buttons.grid_columnconfigure(0, weight=0)
+		self.buttons.grid_columnconfigure(1, weight=1)
 		self.buttons.grid_columnconfigure(2, weight=0)
+		self.buttons.grid_columnconfigure(3, weight=0)
+		self.setup = ttk.Button(self.buttons, text="Setup", command=self.Setup)
+		self.setup.grid(column=0, row=0, padx=5, pady=5, sticky="ew")
 		self.run = ttk.Button(self.buttons, text="Run", command=self.Run)
-		self.run.grid(column=1, row=0, padx=5, pady=5, sticky="ew")
-		ttk.Button(self.buttons, text="Quit", command=self.root.destroy).grid(column=2, row=0, padx=5, pady=5, sticky="ew")
-		self.root.mainloop()
+		self.run.grid(column=2, row=0, padx=5, pady=5, sticky="ew")
+		ttk.Button(self.buttons, text="Quit", command=self.destroy).grid(column=3, row=0, padx=5, pady=5, sticky="ew")
+
+		self.center_window()
+
+		self.mainloop()
+
+	def center_window(self):
+		# Update idletasks to ensure the window's requested size is calculated
+		# without this, winfo_width/height might return 1 if the window hasn't rendered yet
+		self.update_idletasks()
+
+		# Get the screen dimensions
+		screen_width = self.winfo_screenwidth()
+		screen_height = self.winfo_screenheight()
+
+		# Get the window's current dimensions (after self.geometry() and update_idletasks)
+		window_width = self.winfo_width()
+		window_height = self.winfo_height()
+
+		# Calculate the top-left corner coordinates for centering
+		x = (screen_width // 2) - (window_width // 2)
+		y = (screen_height // 2) - (window_height // 2)
+
+		# Set the window's position using geometry method
+		# The format is "widthxheight+x+y"
+		self.geometry(f"{window_width}x{window_height}+{x}+{y}")
 
 	@staticmethod
 	def FmtByteSize(num : int) -> str:
@@ -639,7 +669,7 @@ class Gui(object):
 		if name:
 			done = False
 			self.serial_port.set(CHECKMARK_CHAR)
-			self.root.update_idletasks()
+			self.update_idletasks()
 			with Conn(name) as conn:
 				if conn.IsValid():
 					self.connected.set(CHECKMARK_CHAR)
@@ -647,7 +677,7 @@ class Gui(object):
 						self.resize_bug.set(EMPTYMARK_CHAR)
 					else:
 						self.resize_bug.set(SKIP_CHAR)
-					self.root.update_idletasks()
+					self.update_idletasks()
 					repair = Repair(conn)
 
 
@@ -667,6 +697,11 @@ class Gui(object):
 				messagebox.showinfo("Rebooting Printer", "All steps were done!\n\nWait for your printer to reboot (please be patient)...")
 		else:
 			self.serial_port.set(ERROR_CHAR)
+
+	def Setup(self):
+		# Pass both initial values to the dialog
+		dialog = SetupDialog(self, self.opts)
+
 
 
 if __name__ == "__main__":
