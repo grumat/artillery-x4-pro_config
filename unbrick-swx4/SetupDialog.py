@@ -3,7 +3,9 @@ from tkinter import ttk
 import tkinter.font as tkFont
 from Tooltip import Tooltip
 
-
+from typing import Callable
+_ : Callable[[str], str]
+N_ = lambda t : t
 
 
 class UserOptions(object):
@@ -29,132 +31,132 @@ class UserOptions(object):
 		self.pause = 3
 
 
-tt_printer = """Please select the correct printer.
+tt_printer = N_("""Please select the correct printer.
 This parameter is very critical because hardware properties of both models are very different and incompatible.
 
-Please if you fail to set the correct option, bad things will happen!"""
+Please if you fail to set the correct option, bad things will happen!""")
 
 
-tt_reset = """Configuration Reset
+tt_reset = N_("""Configuration Reset
 This option controls if your printer configuration file will be initialized to factory default.
-Usually, there is no need to reset your configuration completely (leave default). 
+Usually, there is no need to reset your configuration completely (leave default).
 
-If the tool notices that your Klipper configuration is useless it will stop and suggests the reset option.
-Then you have two options, with or without Klipper calibration data. if your printer behavior is absolutely weird, then also reset calibration."""
+If the tool notices that your Klipper configuration is broken it will stop and suggests the reset option.
+Then you have two options, with or without Klipper calibration data. If your printer behavior is absolutely weird, you should also reset calibration.""")
 
 
-tt_model_attr = """Check Model Attributes
+tt_model_attr = N_("""Check Model Attributes
 This option checks the various model specific configurations for the selected printer model, and fixes elements that doesn't match the factory settings.
 
-This may affect the following settings: stepper motors, printer homing, bed mesh, macros"""
+This may affect the following settings: stepper motors, printer homing, bed mesh, macros""")
 
 
-tt_extruder_accel = """Limits Extruder Acceleration
+tt_extruder_accel = N_("""Limits Extruder Acceleration
 Some printers have a higher extruder acceleration, that has been reduced in recent configurations, probably to avoid higher temperatures on the extruder.
-This setting can help reduce extruder temperature and avoid a potential softening of your filament, and clogs as a consequence."""
+This setting can help reduce extruder temperature and avoid a potential softening of your filament, and clogs as a consequence.""")
 
 
-tt_stepper_z_current = """Higher Stepper Z Current
-Usually the X4-Plus model runs with 800mA stepper current for the gantry and the X4-Pro model with 900mA, even is inconsistent, since the Plus model has more weight.
+tt_stepper_z_current = N_("""Higher Stepper Z Current
+Usually the X4-Plus model runs with 800mA stepper current for the gantry and the X4-Pro model with 900mA, which seems inconsistent, since the Plus model has more weight.
 
-This could fix issues with Z-Axis movement, but the steppers will consume more power."""
+This could fix issues with Z-Axis movement, but the steppers will consume more power.""")
 
 
-tt_extruder_current = """Extruder Run Current
+tt_extruder_current = N_("""Extruder Run Current
 Comparing configurations of the X4-Plus and X4-Pro has an inconsistency on the extruder current, even using the same parts.
 The following settings happens to exist:
 \t - 800mA: SW X4-Plus
 \t - 900mA: average recommendation
 \t - 1000mA: SW X4=Pro
 
-Please note that increasing the current will make your extruder stepper warmer and may cause filament softening and potential clogs. On the other side, max filament flow could benefit of it, for faster print."""
+Please note that increasing the current will make your extruder stepper warmer and may cause filament softening and potential clogs. On the other side, max filament flow could benefit of it, for faster print.""")
 
 
-tt_probe_offset = """Distance Sensor Offset
+tt_probe_offset = N_("""Distance Sensor Offset
 The offset value of the probe is slightly inconsistent on the factory settings. You can use this option to correct the offset values for the probe.
 
-Note that Artillery mount this component on the opposite orientation as stated in the data-sheet. One recommended mod is to reorient this sensor according to data-sheet.
+Note that Artillery mount this component on the opposite orientation of the data-sheet indication. One recommended mod is to reorient this sensor and follow the data-sheet.
 If your printer has this mod, then you have to select the "180° Mount" option.
 
-My repository contains series of tests, procedures on how to do this and also links to the data-sheet."""
+My repository contains series of tests, procedures on how to do this and also links to the data-sheet.""")
 
 
-tt_probe_sampling = """Improved Z-Offset sampling
+tt_probe_sampling = N_("""Improved Z-Offset sampling
 Regardless of the orientation of your distance sensor, you can improve the Z-offset sampling by using lower approximation speeds and more samples.
 
-By using a more accurate sampling method, the overall Z-offset errors are reduced and first layer of your prints should be more consistent."""
+By using a more accurate sampling method, the overall Z-offset errors are reduced and first layer of your prints should be more consistent.""")
 
 
-tt_probe_validation = """Improved Z-Offset validation
-Besides to better sampling conditions you can reduce the acceptance margin of the sampled data.
+tt_probe_validation = N_("""Improved Z-Offset validation
+Besides improving sampling conditions you can reduce the acceptance margin of the sampled data.
 This means that after performing the samples all values have to fit a lower error margin to be accepted.
 
-Note that error margins are on the limit. If you activate this option with an unmodified printer it may happen that you printer stops with errors during Z-offset calibration and also during bed-mesh calibration."""
+Note that error margins are on the limit. If you activate this option with an unmodified printer it may happen that you printer stops with errors during Z-offset calibration and also during bed-mesh calibration.""")
 
 
-tt_screws_tilt_adjust = """Activate Manual Leveling Feature
+tt_screws_tilt_adjust = N_("""Activate Manual Leveling Feature
 Klipper offers you a tool that helps adjusting the screws of your print bed. This option install the necessary configuration.
 
 When activating this option the 'fluidd' interface will show an new "BED_SCREWS_ADJUST" button to perform the calibration. Please check guides on the web on how to use this command.
 
-If you uncheck this option and your configuration already contains screws information, it will be left untouched."""
+If you uncheck this option and your configuration already contains screws information, it will be left untouched.""")
 
-tt_fan_rename = """Rename Fans
+tt_fan_rename = N_("""Rename Fans
 This option renames printer fans to nice names. This is used on the 'fluidd' interface.
 
 The 'Fan 0' is renamed to 'Heatbreak Cooling Fan';
-The 'Fan 2' is renamed to 'Mainboard Fan'"""
+The 'Fan 2' is renamed to 'Mainboard Fan'""")
 
 
-tt_mb_fan_fix = """Improve Mainboard Fan
-On the original configuration main-board fan is only activated by the print nozzle. This configuration is OK if you are doing oly printing.
+tt_mb_fan_fix = N_("""Improve Mainboard Fan
+On the original configuration main-board fan is only activated by the print nozzle. This configuration is OK if you are doing only printing.
 
 But it's main function is to cool stepper motor drivers. This means that, if you activate steppers but keep the nozzle off, then perform lots of motion operations, you will overheat your stepper drivers and get errors.
 
 By applying this option, your main-board fan will turn on as soon as any of the following elements are active: heat bed, print nozzle or any of your stepper drivers. So, I strongly recommend you set this option.
 
-In the case you already have this modification the routine will not modify it, regardless if its 'on' or 'off'."""
+In the case you already have this modification the routine will not modify it, regardless if its 'on' or 'off'.""")
 
 
-tt_mb_fan_speed = """Main-board Fan Speed
+tt_mb_fan_speed = N_("""Main-board Fan Speed
 This option allows you to reduce the speed of the main-board fan. The main goal is to lower noise levels.
 
 You should note that the main function of this fan is to cool down the stepper motor drivers, which may get hot depending on the intensity of acceleration and speed values. If cooling is insufficient a thermal protection of the stepper driver may occur and the motion for the affected axis stops.
 
-In my repository I suggest the mount of a 'fan duct' that concentrates more air flow to the steppers and allows you to safely reduce the fan speed."""
+In my repository I suggest the mount of a 'fan duct' that concentrates more air flow to the steppers drivers and allows you to safely reduce the fan speed.""")
 
 
-tt_hb_fan_speed = """Heatbreak Fan Speed
+tt_hb_fan_speed = N_("""Heatbreak Fan Speed
 This option allows you to reduce the speed of the heatbreak fan. This should reduce the noise levels.
 
 You should consider the following: the main function of this fan is to protect the filament smoothing near the entry of the hot-end, which would easily deform when the extruder pushes. As a consequence you increase the chance of causing clogs if you reduce the cooling fan.
 
 But notice that this was designed for very high temperatures. If your max temperature never goes above 250°C you can reduce this value. This is my case and I use 90%, which already does a good job in noise levels.
 
-Speculative Note: Artillery launched recently a new hot-end, which seems to have less heatsink mass, probably because less weight reduces vibration. On the other side, this could indicate that the old hot-end heatsink is an overkill."""
+Speculative Note: Artillery launched recently a new hot-end, which seems to have less heatsink mass, probably because less weight reduces vibration. On the other side, this could indicate that the old hot-end heatsink is an overkill.""")
 
 
-tt_temp_mcu = """Temperature Reading for Host and MCU
+tt_temp_mcu = N_("""Temperature Reading for Host and MCU
 If you se the 'fluidd' interface you will like this option. It activates the temperature sensors for the Host and the motion MCU.
 
-Note that this option does not modify your settings if this sensors are already active."""
+Note that this option does not modify your settings if this sensors are already active.""")
 
 
-tt_nozzle_wipe = """Nozzle Wipe
-This macro controls how it will be drawn and Artillery published two different versions of it.
+tt_nozzle_wipe = N_("""Nozzle Wipe
+This macro controls how the nozzle will be cleaned and "Artillery" published two different versions of it.
 The use of this g-code macro depends on your slicer software configuration.
 
-The legacy version wipes the nozzle many times at a slower speed, but it tends to wear the wipe pad prematurely out. The new version wipes less times but at a faster speed."""
+The legacy version wipes the nozzle many times at a slower speed, but it tends to wear the wipe pad prematurely out. The new version wipes less times but at a faster speed.""")
 
 
-tt_purge_line = """Purge Line
+tt_purge_line = N_("""Purge Line
 This macro controls how the purge line is drawn and Artillery published two different versions of it.
 The use of this g-code macro depends on your slicer software configuration.
 
-The legacy version draws lines in layers and because it causes more adhesion a newer version was developed that is very easy to be removed."""
+The legacy version draws lines in layers and because it causes more adhesion a newer version was developed that is very easy to be removed.""")
 
 
-tt_enable_m600 = """Enable M600
+tt_enable_m600 = N_("""Enable M600
 This option adds the new published macros to support the M600 filament change feature.
 
 The following changes will be done:
@@ -163,10 +165,10 @@ The following changes will be done:
 	- M600 g-code (Filament Change)
 	- T600 g-code (Artillery custom: Resume Print)
 	
-Note that if these settings are already installed the tool will not modify, neither remove them."""
+Note that if these settings are already installed the tool will not modify, neither remove them.""")
 
 
-tt_pause ="""Pause Macro
+tt_pause = N_("""Pause Macro
 The pause macro controls the behavior your printer when you press the pause button on the control panel.
 
 The following options are offered:
@@ -176,7 +178,7 @@ The following options are offered:
 	- Grumat: My custom version.
 
 The new version of Artillery adds support for control parameters used by the M600 command.
-My custom version evaluates the filament sensor and docks the print head when filament runs out, which helps not to generate plastic purge over your printed object."""
+My custom version evaluates the filament sensor and docks the print head when filament runs out, which helps not to generate plastic purge over your printed object.""")
 
 
 # --- SetupDialog Class ---
@@ -208,42 +210,42 @@ class SetupDialog(tk.Toplevel):
 		data = [
 			[self.CreateColumn, (0,)],
 
-			[self.Title, ("General Settings",)],
-			[self.Radio, ("Select Printer Model", ["Artillery SideWinder X4 Pro", "Artillery SideWinder X4 Plus"], "printer")],
-			[self.Menu, ("Configuration Reset", ["Update only (default)", "Factory Reset (keep calibration)", "Complete Factory Reset"], "reset")],
-			[self.Check, ("Check Model Attributes", "model_attr")],
+			[self.Title, (_("General Settings"),)],
+			[self.Radio, (_("Select Printer Model"), [_("Artillery SideWinder X4 Pro"), _("Artillery SideWinder X4 Plus")], "printer")],
+			[self.Menu, (_("Configuration Reset"), [_("Update only (default)"), _("Factory Reset (keep calibration)"), _("Complete Factory Reset")], "reset")],
+			[self.Check, (_("Check Model Attributes"), "model_attr")],
 
-			[self.Title, ("Gantry",)],
-			[self.Check, ("Higher Stepper Z Current", "stepper_z_current")],
+			[self.Title, (_("Gantry"),)],
+			[self.Check, (_("Higher Stepper Z Current"), "stepper_z_current")],
 
-			[self.Title, ("Extruder",)],
-			[self.Check, ("Limits Extruder Acceleration", "extruder_accel")],
-			[self.Menu, ("Extruder Run Current", ["800mA (SW X4-Plus)", "900mA (recommendation)", "1000mA (SW X4-Pro)"], "extruder_current")],
+			[self.Title, (_("Extruder"),)],
+			[self.Check, (_("Limits Extruder Acceleration"), "extruder_accel")],
+			[self.Menu, (_("Extruder Run Current"), [_("800mA (SW X4-Plus)"), _("900mA (recommendation)"), _("1000mA (SW X4-Pro)")], "extruder_current")],
 
-			[self.Title, ("Z-Axis Distance Sensor",)],
-			[self.Menu, ("Offset", ["Do not change", "Factory Mount (default)", "180° Mount"], "probe_offset")],
-			[self.Check, ("Improved Z-Offset Sampling", "probe_sampling")],
-			[self.Check, ("Improved Z-Offset Error Margin", "probe_validation")],
+			[self.Title, (_("Z-Axis Distance Sensor"),)],
+			[self.Menu, (_("Offset"), [_("Do not change"), _("Factory Mount (default)"), _("180° Mount")], "probe_offset")],
+			[self.Check, (_("Improved Z-Offset Sampling"), "probe_sampling")],
+			[self.Check, (_("Improved Z-Offset Error Margin"), "probe_validation")],
 
 			[self.CreateColumn, (1,)],
 
-			[self.Title, ("Print Bed",)],
-			[self.Check, ("Activate Manual Leveling Feature", "screws_tilt_adjust")],
+			[self.Title, (_("Print Bed"),)],
+			[self.Check, (_("Activate Manual Leveling Feature"), "screws_tilt_adjust")],
 
-			[self.Title, ("Printer Fans",)],
-			[self.Check, ("Rename Fans", "fan_rename")],
-			[self.Check, ("Improved Mainboard Fan control", "mb_fan_fix")],
-			[self.Menu, ("Mainboard Fan Speed", ["Max (default)", "95%", "90%", "85%", "80%", "75%", "70%"], "mb_fan_speed")],
-			[self.Menu, ("Heatbreak Fan Speed", ["Max (default)", "95%", "90%", "85%", "80%", "75%", "70%"], "hb_fan_speed")],
+			[self.Title, (_("Printer Fans"),)],
+			[self.Check, (_("Rename Fans"), "fan_rename")],
+			[self.Check, (_("Improved Mainboard Fan control"), "mb_fan_fix")],
+			[self.Menu, (_("Mainboard Fan Speed"), [_("Max (default)"), _("95%"), _("90%"), _("85%"), _("80%"), _("75%"), _("70%")], "mb_fan_speed")],
+			[self.Menu, (_("Heatbreak Fan Speed"), [_("Max (default)"), _("95%"), _("90%"), _("85%"), _("80%"), _("75%"), _("70%")], "hb_fan_speed")],
 
-			[self.Title, ("Temperatures",)],
-			[self.Check, ("Temperature Reading for Host and MCU", "temp_mcu")],
+			[self.Title, (_("Temperatures"),)],
+			[self.Check, (_("Temperature Reading for Host and MCU"), "temp_mcu")],
 
-			[self.Title, ("G-Code",)],
-			[self.Menu, ("Nozzle Wipe", ["Do not Change", "Legacy Version", "New Version"], "nozzle_wipe")],
-			[self.Menu, ("Purge Line", ["Do not Change", "Legacy Version", "New Version"], "purge_line")],
-			[self.Check, ("M600: Filament Change Support", "enable_m600")],
-			[self.Menu, ("Pause Macro", ["Do not Change", "Legacy Version", "New Version", "Grumat Version"], "pause")],
+			[self.Title, (_("G-Code"),)],
+			[self.Menu, (_("Nozzle Wipe"), [_("Do not Change"), _("Legacy Version"), _("New Version")], "nozzle_wipe")],
+			[self.Menu, (_("Purge Line"), [_("Do not Change"), _("Legacy Version"), _("New Version")], "purge_line")],
+			[self.Check, (_("M600: Filament Change Support"), "enable_m600")],
+			[self.Menu, (_("Pause Macro"), [_("Do not Change"), _("Legacy Version"), _("New Version"), _("Grumat Version")], "pause")],
 
 			[self.OkCancel, ()],
 		]
@@ -279,9 +281,10 @@ class SetupDialog(tk.Toplevel):
 		tt = "tt_"+var
 		g = globals()
 		if tt in g:
-			Tooltip(widget, g[tt])
+			xl = _(g[tt])
+			Tooltip(widget, xl)
 			for wc in widget.winfo_children():
-				Tooltip(wc, g[tt])
+				Tooltip(wc, xl)
 		if callback:
 			widget.config(command=callback)
 		self.row += 1
@@ -290,7 +293,7 @@ class SetupDialog(tk.Toplevel):
 		v = tk.IntVar(self)
 		v.set(getattr(self.opt, var))
 		self.vars[var] = v
-		radio_frame = ttk.LabelFrame(self.column, text=title)
+		radio_frame = ttk.LabelFrame(self.column, text=_(title))
 		radio_frame.grid(row=self.row, column=0, sticky="we", padx=(20,0), pady=3)
 		for i, label in enumerate(labels):
 			ttk.Radiobutton(radio_frame, text=label, variable=v, value=i).grid(row = i, column=0, sticky="w")
@@ -328,8 +331,8 @@ class SetupDialog(tk.Toplevel):
 		content_frame.grid_columnconfigure(2, uniform="same_1_2")
 		# --- OK/Cancel Button ---
 		tk.Label(content_frame, text="", state="disabled").grid(row=0, column=0)
-		tk.Button(content_frame, text="Ok", command=self._on_save_and_close, width=12).grid(row=0, column=1, padx=4, sticky="we")
-		tk.Button(content_frame, text="Cancel", command=self._on_closing, width=12).grid(row=0, column=2, padx=4, sticky="we")
+		tk.Button(content_frame, text=_("Ok"), command=self._on_save_and_close, width=12).grid(row=0, column=1, padx=4, sticky="we")
+		tk.Button(content_frame, text=_("Cancel"), command=self._on_closing, width=12).grid(row=0, column=2, padx=4, sticky="we")
 
 
 	def _on_save_and_close(self):

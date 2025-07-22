@@ -15,6 +15,9 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 import threading
+
+import i18n
+
 from SetupDialog import SetupDialog
 from SetupDialog import UserOptions
 
@@ -25,6 +28,9 @@ ERROR_CHAR = "\u2716"
 EMPTYMARK_CHAR = "\u274F"
 SKIP_CHAR = "\u26d2"
 
+from typing import Callable
+_ : Callable[[str], str]
+N_ = lambda t : t
 
 def Log(msg):
 	"""
@@ -43,7 +49,7 @@ def ShowError(msg : str):
 	This function writes the given error message to the log and also displays in a messagebox.
 	"""
 	Log(msg)
-	messagebox.showerror("Error", msg)
+	messagebox.showerror(_("Error"), _(msg))
 	
 
 def FindSerialPort():
@@ -65,10 +71,10 @@ def FindSerialPort():
 			res.append(port)
 		#print("{}: {} [{}]".format(port, desc, hwid))
 	if len(res) == 0:
-		ShowError("Cannot find the serial port!\nPlease make sure that the cable is connected to the USB-C port of the printer and the printer is on.")
+		ShowError(N_("Cannot find the serial port!\nPlease make sure that the cable is connected to the USB-C port of the printer and the printer is on."))
 		return None
 	if len(res) != 1:
-		ShowError("There are too many compatible serial port!\nDisconnect all serial port cables except for the printer that you want to apply the fix.")
+		ShowError(N_("There are too many compatible serial port!\nDisconnect all serial port cables except for the printer that you want to apply the fix."))
 		return None
 	return res[0]
 
@@ -421,9 +427,9 @@ class FillCtrl(object):
 		self.frame = ttk.Frame(root, padding=10)
 		self.frame.grid(sticky="nsew")
 		self.frame.grid_columnconfigure(0, weight=1)
-		self.frame.grid_columnconfigure(1, minsize=180)
+		self.frame.grid_columnconfigure(1, minsize=150)
 		self.frame.grid_columnconfigure(2, weight=1)
-		self.frame.grid_columnconfigure(3, minsize=180)
+		self.frame.grid_columnconfigure(3, minsize=150)
 		self.row = -1
 		self.rowmax = -1
 		self.col0 = 0
@@ -463,45 +469,45 @@ class FillCtrl(object):
 class Gui(tk.Tk):
 	def __init__(self):
 		super().__init__()
-		self.title("Artillery SideWinder X4 Unbrick Tool v0.2")
+		self.title(_("Artillery SideWinder X4 Unbrick Tool v0.2"))
 		self.resizable(False, False)
 		self.opts = UserOptions()
 
 		self.tests = FillCtrl(self)
 
 		data = [
-			( "Detecting Serial Port of OS system", "serial_port", EMPTYMARK_CHAR, None),
-			( "Check if Artillery Sidewinder X4 Printer Connected", "connected", EMPTYMARK_CHAR, None),
+			( _("Detecting Serial Port of OS system"), "serial_port", EMPTYMARK_CHAR, None),
+			( _("Check if Artillery Sidewinder X4 Printer Connected"), "connected", EMPTYMARK_CHAR, None),
 			( None, None, "e", None),
-			( "Stopping Client Service", "stop_client", EMPTYMARK_CHAR, 		self._StopClientService),
-			( "Stopping WebCam Service", "stop_webcam", EMPTYMARK_CHAR, 		self._StopWebCamService),
-			( "Stopping Moonraker Service", "stop_moonraker", EMPTYMARK_CHAR, 	self._StopMoonrakerService),
-			( "Stopping Klipper Service", "stop_klipper", EMPTYMARK_CHAR, 		self._StopKlipperService),
-			( None, None, "e", 													self._GetStartFreeSize),
-			( "Erase .gcode files", "gcode_files", EMPTYMARK_CHAR, 				self._DelGcodeFiles),
-			( "Erase miniature files", "miniature_files", EMPTYMARK_CHAR, 		self._DelMiniatureFiles),
-			( "Erase old configuration files", "old_cfg_files", EMPTYMARK_CHAR, self._DelOldCfgFiles),
-			( "Erase log files", "log_files", EMPTYMARK_CHAR, 					self._DelLogFiles),
-			( "Erase Artillery clutter files", "clutter_files", EMPTYMARK_CHAR, self._DelClutterFiles),
+			( _("Stopping User Interface Service"), "stop_client", EMPTYMARK_CHAR,		self._StopClientService),
+			( _("Stopping WebCam Service"), "stop_webcam", EMPTYMARK_CHAR, 				self._StopWebCamService),
+			( _("Stopping Moonraker Service"), "stop_moonraker", EMPTYMARK_CHAR, 		self._StopMoonrakerService),
+			( _("Stopping Klipper Service"), "stop_klipper", EMPTYMARK_CHAR, 			self._StopKlipperService),
+			( None, None, "e", 															self._GetStartFreeSize),
+			( _("Erase .gcode files"), "gcode_files", EMPTYMARK_CHAR, 					self._DelGcodeFiles),
+			( _("Erase miniature files"), "miniature_files", EMPTYMARK_CHAR, 			self._DelMiniatureFiles),
+			( _("Erase old configuration files"), "old_cfg_files", EMPTYMARK_CHAR,		self._DelOldCfgFiles),
+			( _("Erase log files"), "log_files", EMPTYMARK_CHAR, 						self._DelLogFiles),
+			( _("Erase Artillery clutter files"), "clutter_files", EMPTYMARK_CHAR,		self._DelClutterFiles),
 			( None, None, "P", None),
-			( "Fix file permission", "fix_permission", EMPTYMARK_CHAR, 			self._FixPermission),
-			( "Fix for card resize bug", "resize_bug", SKIP_CHAR, 				self._FixResizeMessage),
-			( "Trimming eMMC disk", "trim_emmc", EMPTYMARK_CHAR, 				self._TrimDisk),
+			( _("Fix file permission"), "fix_permission", EMPTYMARK_CHAR, 				self._FixPermission),
+			( _("Fix for card resize bug"), "resize_bug", SKIP_CHAR, 					self._FixResizeMessage),
+			( _("Trimming eMMC disk"), "trim_emmc", EMPTYMARK_CHAR, 					self._TrimDisk),
 			( None, None, "e", None),
-			( "Enabling Client Service", "enable_client", EMPTYMARK_CHAR, 		self._EnableClientService),
-			( "Enabling WebCam Service", "enable_webcam", EMPTYMARK_CHAR, 		self._EnableWebCamService),
-			( "Enabling Moonraker Service", "enable_moonraker", EMPTYMARK_CHAR,	self._EnableMoonrakerService),
-			( "Enabling Klipper Service", "enable_klipper", EMPTYMARK_CHAR,		self._EnableKlipperService),
-			( None, None, "e", 													self._GetEndFreeSize),
-			( "Starting Klipper Service", "start_klipper", EMPTYMARK_CHAR, 		self._StartKlipperService),
-			( "Starting Moonraker Service", "start_moonraker", EMPTYMARK_CHAR,	self._StartMoonrakerService),
-			( "Starting WebCam Service", "start_webcam", EMPTYMARK_CHAR, 		self._StartWebCamService),
-			( "Starting Client Service", "start_client", EMPTYMARK_CHAR, 		self._StartClientService),
+			( _("Enabling User Interface Service"), "enable_client", EMPTYMARK_CHAR, 	self._EnableClientService),
+			( _("Enabling WebCam Service"), "enable_webcam", EMPTYMARK_CHAR, 			self._EnableWebCamService),
+			( _("Enabling Moonraker Service"), "enable_moonraker", EMPTYMARK_CHAR,		self._EnableMoonrakerService),
+			( _("Enabling Klipper Service"), "enable_klipper", EMPTYMARK_CHAR,			self._EnableKlipperService),
+			( None, None, "e", 															self._GetEndFreeSize),
+			( _("Starting Klipper Service"), "start_klipper", EMPTYMARK_CHAR, 			self._StartKlipperService),
+			( _("Starting Moonraker Service"), "start_moonraker", EMPTYMARK_CHAR,		self._StartMoonrakerService),
+			( _("Starting WebCam Service"), "start_webcam", EMPTYMARK_CHAR, 			self._StartWebCamService),
+			( _("Starting User Interface Service"), "start_client", EMPTYMARK_CHAR, 	self._StartClientService),
 			( None, None, "o", None),
-			( "\tTotal Disk Size:", "total_size", None, None),
-			( "\tAvailable Disk Space:", "free_start", None, None),
+			( _("\tTotal Disk Size:"), "total_size", None, None),
+			( _("\tAvailable Disk Space:"), "free_start", None, None),
 			( None, None, "P", None),
-			( "\tAvailable Disk Space After Cleanup:", "free_after", None, None),
+			( _("\tAvailable Disk Space After Cleanup:"), "free_after", None, None),
 		]
 		self.test_list = []
 		cur = self.tests
@@ -665,6 +671,7 @@ class Gui(tk.Tk):
 	
 
 	def Run(self):
+		_ = self._
 		name = FindSerialPort()
 		if name:
 			done = False
@@ -692,9 +699,9 @@ class Gui(tk.Tk):
 					done = True
 				else:
 					self.connected.set(ERROR_CHAR)
-					ShowError("Connection is not an artillery printer")
+					ShowError(N_("Connection is not an artillery printer"))
 			if done:
-				messagebox.showinfo("Rebooting Printer", "All steps were done!\n\nWait for your printer to reboot (please be patient)...")
+				messagebox.showinfo(_("Rebooting Printer", "All steps were done!\n\nWait for your printer to reboot (please be patient)..."))
 		else:
 			self.serial_port.set(ERROR_CHAR)
 
@@ -705,7 +712,7 @@ class Gui(tk.Tk):
 
 
 if __name__ == "__main__":
-	locale.setlocale(locale.LC_ALL, '')
+	i18n.SetupI18nAuto()
 	with open("unbrick-swx4.log", "a", encoding="UTF-8") as log:
 		LOG = log
 		Gui()
