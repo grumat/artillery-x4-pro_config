@@ -92,7 +92,7 @@ class Tooltip:
 									font=self.normal_font,
 									background="#ffffe0", # Match frame background
 									justify=tk.LEFT,
-									wraplength=300,        # Adjust this pixel width for wrapping
+									wraplength=400,        # Adjust this pixel width for wrapping
 									padx=0, pady=0
 									)
 			desc_label.pack(fill="x", padx=0, pady=0, anchor="w")

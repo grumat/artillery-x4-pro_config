@@ -210,8 +210,8 @@ class Conn(object):
 
 	def Write(self, msg : str):
 		"""
-		This is an important that sends messages to the printer. Messages are received as argument for that method, which 
-		uses internal Python String representation. It has to be decoded to bytes format before sending to the printer 
+		This is an important method that sends messages to the printer. Messages are received as argument for that method, 
+		which uses internal Python String representation. It has to be decoded to bytes format before sending to the printer 
 		(this is essentially a formality of Python, since it is a UTF-8 to UTF-8 conversion).
 
 		Data is written to the serial port and a flush command is issued so that the transmission can complete. Just after 
@@ -569,13 +569,13 @@ class Gui(tk.Tk):
 	def FmtByteSize(num : int) -> str:
 		if num > 1100000:
 			num = float(num) / (1000.0 * 1000.0)
-			sc = " GBi"
+			sc = _(" GBi")
 		elif num > 1100:
 			num = float(num) / 1000.0
-			sc = " MBi"
+			sc = _(" MBi")
 		else:
 			num = float(num)
-			sc = " KBi"
+			sc = _(" KBi")
 		res = locale.format_string("%5.3f", num, grouping=True)
 		return res + sc
 

@@ -6,5 +6,6 @@
     ],
     "python.analysis.include": [
         "${workspaceFolder}/assets/*"
-    ]
+    ],
+	 "files.encoding": "utf8"
 }
