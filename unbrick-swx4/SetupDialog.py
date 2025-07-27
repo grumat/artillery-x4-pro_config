@@ -239,9 +239,8 @@ class SetupDialog(tk.Toplevel):
 		self.title("Setup Dialog")
 		self.opt = opt
 		self.vars = {}
-		self.last_col = 0;
 		# Root row counter
-		self.r_cnt = 0
+		self.d_cnt = 0
 		# Column Counter subject to current row counter
 		self.c_cnt = 0
 		# Item row counter subject to current column counter
@@ -251,6 +250,21 @@ class SetupDialog(tk.Toplevel):
 		self.transient(parent)
 		self.grab_set()
 
+		self.columnconfigure(0, weight=1)
+		self.rowconfigure(0, weight=1)
+		# Frame for main content (contains rows)
+		self.dlg = ttk.Frame(self, padding="10")
+		self.dlg.grid(sticky="nsew")
+		self.dlg.columnconfigure(0, weight=1)
+		# Head stores head information (organized in columns)
+		self.head = ttk.Frame(self.dlg)
+		# Body stores all configurable options (organized in columns)
+		self.body = ttk.Frame(self.dlg)
+		# Footer usually contains a button bar (organized in columns)
+		self.footer = ttk.Frame(self.dlg)
+		self.footer.grid()
+		self.footer.columnconfigure(0, weight=1)
+
 		self.CreateWidgets()
 		self.CenterWindow()
 
@@ -259,15 +273,16 @@ class SetupDialog(tk.Toplevel):
 		self.wait_window(self)
 
 	def CreateWidgets(self):
-		# Frame for main content
-		self.dlg = ttk.Frame(self, padding="10")
-		self.dlg.grid()
 
 		data = [
-			[self.CreateHead,	self.r,	()],
-			[self.HLine,		self.r,	()],
-			[self.PrinterModel,	None,	(_("Select Printer Model"), [_("Artillery SideWinder X4 Pro"), _("Artillery SideWinder X4 Plus")], "printer")],
-			[self.CreateColumn,	None,	(0,)],
+			[self.InsertHead,	None,	()],
+			[self.Empty,		self.h,	()],
+			[self.PrinterModel,	self.h,	(_("Select Printer Model"), [_("Artillery SideWinder X4 Pro"), _("Artillery SideWinder X4 Plus")], "printer")],
+			[self.Empty,		self.h,	()],
+
+			[self.InsertBody,	None,	()],
+
+			[self.CreateColumn,	None,	()],
 			[self.Title,		None,	(_("Linux Operating System Cleanup"),)],
 			[self.Check,		None,	(_("Optimize Disk Space"), "optimize_disk_space")],
 			[self.Check,		None,	(_("Fix File Permission"), "file_permissions")],
@@ -285,7 +300,11 @@ class SetupDialog(tk.Toplevel):
 			[self.Menu,			None,	(_("Offset"), [_("Do not change"), _("Factory Mount (default)"), _("180° Mount")], "probe_offset")],
 			[self.Check,		None,	(_("Improved Z-Offset Sampling"), "probe_sampling")],
 			[self.Check,		None,	(_("Improved Z-Offset Error Margin"), "probe_validation")],
-			[self.CreateColumn,	None,	(1,)],
+
+			[self.VLine,		None,	()],
+
+			[self.CreateColumn,	None,	()],
+
 			[self.Title,		None,	(_("Print Bed"),)],
 			[self.Check,		None,	(_("Activate Manual Leveling Feature"), "screws_tilt_adjust")],
 			[self.Title,		None,	(_("Printer Fans"),)],
@@ -300,6 +319,7 @@ class SetupDialog(tk.Toplevel):
 			[self.Menu,			None,	(_("Purge Line"), [_("Do not Change"), _("Legacy Version"), _("New Version")], "purge_line")],
 			[self.Check,		None,	(_("M600: Filament Change Support"), "enable_m600")],
 			[self.Menu,			None,	(_("Pause Macro"), [_("Do not Change"), _("Legacy Version"), _("New Version"), _("Grumat Version")], "pause")],
+
 			[self.OkCancel,		None,	()],
 		]
 
@@ -307,77 +327,156 @@ class SetupDialog(tk.Toplevel):
 			method(pos, *args)
 
 	class Layout:
-		def __init__(self, p, r, c, px, py):
+		def __init__(self, p : ttk.Frame, r, c, px = None, py = None):
 			self.parent = p
 			self.row = r
 			self.col = c
-			self.padx = px
-			self.pady = py
+			self.sticky = ""
+			self.padx = (px is not None) and px or 0
+			self.pady = (py is not None) and py or 0
+		def Setup(self, widget : ttk.Widget) -> None:
+			"""
+			Returns a dictionary suitable for passing to widget.grid(**options).
+			"""
+			options = {
+				"row": self.row,
+				"column": self.col, # Note: grid uses 'column', not 'col'
+			}
+			if self.padx is not None:
+				options["padx"] = self.padx
+			if self.pady is not None:
+				options["pady"] = self.pady
+			if self.sticky: # Only add if sticky is not an empty string
+				options["sticky"] = self.sticky
+			widget.grid(**options)
 
-	def r(self, o):
-		if self.r_cnt:
-			c = self.Layout(self.dlg, self.r_cnt, 0, 0, 15)
+	#           dlg:
+	# d_cnt = 0 +-------------------------------------------+
+	#			|	head:									|
+	# 			|	+-----------+-----------+-----------|	|
+	# 			|	| c_cnt = 0 | c_cnt = 1 | c_cnt = 2 |	|
+	# 			|	+-----------+-----------+-----------|	|
+	#           |											|
+	# d_cnt = 1 |	body:									|
+	#			|	+-------------------------------------+	|
+	#			|	|	  c_cnt = 0...n 				  |	|
+	#			|	|     +-------------------------+	  |	|
+	#			|	| ... | column: 			    | ... |	|
+	#			|	|	  |   i_cnt = 0 <widgets 0> |	  |	|
+	#			|	|	  |   i_cnt = 1 <widgets 1> |	  |	|
+	#			|	|	  |							|	  |	|
+	#			|	| ... |   i_cnt = n <widgets n> | ... |	|
+	#			|	|	  +-------------------------+	  |	|
+	#			|	+-------------------------------------+	|
+	#           |											|
+	# d_cnt = 2 |	footer:									|
+	#			|	+-------------------------------------+	|
+	#			|	|				[  OK  ]   [ Cancel ] |	|
+	#			|	+-------------------------------------+	|
+	#			+-------------------------------------------+
+	def d(self) -> "SetupDialog.Layout":
+		"Layout for dialog/root level"
+		if self.d_cnt:
+			lyt = self.Layout(self.dlg, self.d_cnt, 0, 0, 8)
 		else:
-			c = self.Layout(self.dlg, self.r_cnt, 0, 0, (0,15))
-		self.r_cnt += 1
-		return c
-	def h(self, o):
-		c = self.Layout(0, self.c_cnt, 0, 0)
+			lyt = self.Layout(self.dlg, self.d_cnt, 0, 0, (0,8))
+		lyt.sticky = "nsew"
+		self.d_cnt += 1
+		self.c_cnt = 0
+		self.i_cnt = 0
+		return lyt
+	def h(self) -> "SetupDialog.Layout":
+		"Layout for header (borrows column counter)"
+		lyt = self.Layout(self.head, 0, self.c_cnt, 0, 0)
+		lyt.sticky = "ew"
 		self.c_cnt += 1
-		return c
+		self.i_cnt = 0
+		return lyt
+	def b(self) -> "SetupDialog.Layout":
+		"Layout for Body, which contains columns with all widgets"
+		lyt = self.Layout(self.body, 0, self.c_cnt, 5, 0)
+		lyt.sticky = "nsew"
+		self.c_cnt += 1
+		self.i_cnt = 0
+		return lyt
+	def c(self) -> "SetupDialog.Layout":
+		"Layout for body column. Container for most configuration widgets"
+		lyt = self.Layout(self.column, self.i_cnt, 0, (20,0), 0)
+		lyt.sticky = "ew"
+		self.i_cnt += 1
+		return lyt
+	def c2(self) -> "SetupDialog.Layout":
+		lyt = self.c()
+		lyt.padx = 0
+		return lyt
 
-	def CreateHead(self, lyt):
-		lyt : SetupDialog.Layout = lyt()
-		self.head = ttk.Frame(lyt.parent)
-		self.head.grid(row=lyt.row, column=lyt.col)
+	def InsertHead(self, lyt_call : Callable[[], "SetupDialog.Layout"]):
+		lyt_call = (lyt_call is not None) and lyt_call or self.d
+		lyt : "SetupDialog.Layout" = lyt_call()
+		lyt.Setup(self.head)
+		lyt.parent.grid_rowconfigure(lyt.row, weight=0)
 		self.head.grid_columnconfigure(0, weight=1)
-		self.head.grid_columnconfigure(1, weight=2)
+		self.head.grid_columnconfigure(1, weight=0)
 		self.head.grid_columnconfigure(2, weight=1)
-		ttk.Separator(self.main, orient="horizontal").grid(row=1, column=0, sticky="we", padx=lyt.padx, pady=lyt.col)
-		self.mrow = 2
 
-		ttk.Label(self.head, text="", state="disabled").grid(row=0, column=0)
-		ttk.Label(self.head, text="", state="disabled").grid(row=0, column=2)
+	def InsertBody(self, lyt_call : Callable[[], "SetupDialog.Layout"]):
+		lyt_call = (lyt_call is not None) and lyt_call or self.d
+		lyt : "SetupDialog.Layout" = lyt_call()
+		lyt.Setup(self.body)
+		self.body.grid_rowconfigure(0, weight=1)
+		lyt.parent.grid_rowconfigure(lyt.row, weight=1)
 
-	def HLine(self, lyt):
-		coord : SetupDialog.Layout = lyt()
-		ttk.Separator(coord.parent, orient="horizontal").grid(row=coord.row, column=coord.col, sticky="we", padx=4, pady=15)
+	def CreateColumn(self, lyt_call : Callable[[], "SetupDialog.Layout"]):
+		lyt_call = (lyt_call is not None) and lyt_call or self.b
+		lyt : "SetupDialog.Layout" = lyt_call()
 
-	def PrinterModel(self, p, title, labels, var, callback = None):
-		if p is None:
-			p = self.r
+		lyt.parent.grid_columnconfigure(lyt.col, uniform="col_width", weight=1)
+		self.column = ttk.Frame(lyt.parent)
+		lyt.Setup(self.column)
+		self.column.grid_columnconfigure(0, weight=1)
+
+	def HLine(self, lyt_call : Callable[[], "SetupDialog.Layout"]):
+		lyt_call = (lyt_call is not None) and lyt_call or self.c
+		lyt : "SetupDialog.Layout" = lyt_call()
+		lyt.sticky = "ns"
+		sep = ttk.Separator(lyt.parent, orient="horizontal")
+		lyt.Setup(sep)
+
+	def VLine(self, lyt_call : Callable[[], "SetupDialog.Layout"]):
+		lyt_call = (lyt_call is not None) and lyt_call or self.b
+		lyt : "SetupDialog.Layout" = lyt_call()
+		lyt.parent.grid_columnconfigure(lyt.col, weight=0)
+		sep = ttk.Separator(lyt.parent, orient="vertical")
+		lyt.Setup(sep)
+
+	def Empty(self, lyt_call : Callable[[], "SetupDialog.Layout"]):
+		lyt_call = (lyt_call is not None) and lyt_call or self.c
+		lyt : "SetupDialog.Layout" = lyt_call()
+		label = ttk.Label(lyt.parent, text="", state="disabled")
+		lyt.Setup(label)
+
+	def PrinterModel(self, lyt_call : Callable[[], "SetupDialog.Layout"], title : str, labels : list[str], var, callback = None):
+		lyt_call = (lyt_call is not None) and lyt_call or self.h
+		lyt : "SetupDialog.Layout" = lyt_call()
+
 		v = tk.IntVar(self)
 		v.set(getattr(self.opt, var))
 		self.vars[var] = v
-		radio_frame = ttk.LabelFrame(self.head, text=_(title))
-		radio_frame.grid(row=0, column=1, sticky="we", pady=3)
+
+		radio_frame = ttk.LabelFrame(lyt.parent, text=_(title))
+		lyt.Setup(radio_frame)
 		for i, label in enumerate(labels):
 			ttk.Radiobutton(radio_frame, text=label, variable=v, value=i).grid(row = i, column=0, sticky="w")
 		self.Finalize(radio_frame, var, callback)
 
-	def CreateColumn(self, col):
-		c = 2*col
-		if c:
-			ttk.Separator(self.main, orient="vertical").grid(row=0, column=c-1, sticky="ns", padx=15, pady=4)
-		self.column = ttk.Frame(self.main)
-		self.column.grid(row=2, column=c, sticky="nsew", padx=8)
-		self.main.grid_columnconfigure(c, uniform="same_width")
-		self.column.grid_columnconfigure(0, weight=1)
-		self.last_col = c
-		self.row = 0
+	def Title(self, lyt_call : Callable[[], "SetupDialog.Layout"], label):
+		lyt_call = (lyt_call is not None) and lyt_call or self.c2
+		lyt : "SetupDialog.Layout" = lyt_call()
 
-	def Empty(self):
-		ttk.Label(self.column, text="", state="disabled").grid(row=self.row, column=0)
-		self.row += 1
-
-	def Title(self, label):
-		py = self.row and (15, 0) or (0, 0)
-		frame = ttk.Frame(self.column, borderwidth=2)
-		frame.grid(row=self.row, column=0, sticky="ew", pady=py)
-		frame.grid_columnconfigure(1, weight=1)
-		ttk.Label(frame, text=label).grid(row=0, column=0)
-		ttk.Separator(frame, orient="horizontal").grid(row=0, column=1, sticky="ew")
-		self.row += 1
+		frame = ttk.Frame(lyt.parent, borderwidth=2)
+		lyt.Setup(frame)
+		ttk.Label(frame, text=label).pack(side="left")
+		ttk.Separator(frame, orient="horizontal").pack(side="left", fill="x", expand=True)
 
 	def Finalize(self, widget, var, callback):
 		tt = "tt_"+var
@@ -389,22 +488,29 @@ class SetupDialog(tk.Toplevel):
 				Tooltip(wc, xl)
 		if callback:
 			widget.config(command=callback)
-		self.row += 1
 
-	def Check(self, label, var, cmd = None, callback = None):
+	def Check(self, lyt_call : Callable[[], "SetupDialog.Layout"], label, var, cmd = None, callback = None):
+		lyt_call = (lyt_call is not None) and lyt_call or self.c
+		lyt : "SetupDialog.Layout" = lyt_call()
+
 		v = tk.BooleanVar(self)
 		v.set(getattr(self.opt, var))
 		self.vars[var] = v
-		cb = ttk.Checkbutton(self.column, text=label, variable=self.vars[var])
-		cb.grid(row=self.row, column=0, sticky="w", padx=(20,0))
+
+		cb = ttk.Checkbutton(lyt.parent, text=label, variable=self.vars[var])
+		lyt.Setup(cb)
 		self.Finalize(cb, var, callback)
 
-	def Menu(self, title, labels, var, callback = None):
+	def Menu(self, lyt_call : Callable[[], "SetupDialog.Layout"], title, labels, var, callback = None):
+		lyt_call = (lyt_call is not None) and lyt_call or self.c
+		lyt : "SetupDialog.Layout" = lyt_call()
+
 		v = tk.IntVar(self)
 		v.set(getattr(self.opt, var))
 		self.vars[var] = v
-		frame = ttk.Frame(self.column)
-		frame.grid(row=self.row, column=0, sticky="ew", padx=(20,0))
+
+		frame = ttk.Frame(lyt.parent)
+		lyt.Setup(frame)
 		ml = 0
 		for l in labels:
 			if ml < len(l):
@@ -415,16 +521,19 @@ class SetupDialog(tk.Toplevel):
 		om.grid(row=0, column=1, sticky="ew")
 		self.Finalize(frame, var, callback)
 
-	def OkCancel(self):
-		content_frame = ttk.Frame(self.dlg)
-		content_frame.grid(row=1, column=0, columnspan=self.last_col+1, sticky="swe", pady=(15, 10), padx=8)
-		content_frame.grid_columnconfigure(0, weight=1)
-		content_frame.grid_columnconfigure(1, uniform="same_1_2")
-		content_frame.grid_columnconfigure(2, uniform="same_1_2")
+	def OkCancel(self, lyt_call : Callable[[], "SetupDialog.Layout"]):
+		lyt_call = (lyt_call is not None) and lyt_call or self.d
+		lyt : "SetupDialog.Layout" = lyt_call()
+		lyt.Setup(self.footer)
+		lyt.parent.grid_rowconfigure(lyt.row, weight=0)
+
+		self.footer.grid_columnconfigure(0, weight=1)
+		self.footer.grid_columnconfigure(1, uniform="same_1_2")
+		self.footer.grid_columnconfigure(2, uniform="same_1_2")
 		# --- OK/Cancel Button ---
-		tk.Label(content_frame, text="", state="disabled").grid(row=0, column=0)
-		tk.Button(content_frame, text=_("Ok"), command=self._on_save_and_close, width=12).grid(row=0, column=1, padx=4, sticky="we")
-		tk.Button(content_frame, text=_("Cancel"), command=self._on_closing, width=12).grid(row=0, column=2, padx=4, sticky="we")
+		tk.Label(self.footer, text="", state="disabled").grid(row=0, column=0)
+		tk.Button(self.footer, text=_("Ok"), command=self._on_save_and_close, width=12).grid(row=0, column=1, padx=4, sticky="we")
+		tk.Button(self.footer, text=_("Cancel"), command=self._on_closing, width=12).grid(row=0, column=2, padx=4, sticky="we")
 
 
 	def _on_save_and_close(self):

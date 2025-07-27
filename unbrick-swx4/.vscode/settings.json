@@ -1,11 +1,11 @@
 {
 	"editor.insertSpaces": false,	// sorry I just hate spaces. Cannot understand how someone can use such a counterproductive settings
 	"editor.tabSize": 4,
-    "python.analysis.extraPaths": [
-        "../assets"
-    ],
-    "python.analysis.include": [
-        "${workspaceFolder}/assets/*"
-    ],
-	 "files.encoding": "utf8"
+	"python.analysis.extraPaths": [
+		"../assets"
+	],
+	"python.analysis.include": [
+		"${workspaceFolder}/assets/*"
+	],
+	"files.encoding": "utf8"
 }
