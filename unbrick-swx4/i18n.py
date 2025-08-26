@@ -3,10 +3,18 @@ import os
 import locale
 import sys
 
-SUPPORTED_LANGUAGES = ["en_US", "pt_BR"]
-#SUPPORTED_LANGUAGES = ["pt"]
-DEFAULT_LANGUAGE = "en_US"
-#DEFAULT_LANGUAGE = "pt_BR"
+if 0:
+	SUPPORTED_LANGUAGES = ["en_US", "pt_BR"]
+	DEFAULT_LANGUAGE = "en_US"
+elif 0:
+	SUPPORTED_LANGUAGES = ["de_DE"]
+	DEFAULT_LANGUAGE = "de_DE"
+elif 1:
+	SUPPORTED_LANGUAGES = ["es"]
+	DEFAULT_LANGUAGE = "es"
+else:
+	SUPPORTED_LANGUAGES = ["pt_BR"]
+	DEFAULT_LANGUAGE = "pt_BR"
 APP_NAME = "messages"
 
 
