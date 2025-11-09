@@ -260,7 +260,7 @@ class SetupDialog(tk.Toplevel):
 	def __init__(self, parent, opt : UserOptions):
 		super().__init__(parent)
 		self.parent = parent
-		self.title("Setup Dialog")
+		self.title(_("Setup Dialog"))
 		self.resizable(False, False)
 		self.opt = opt
 		self.vars = {}

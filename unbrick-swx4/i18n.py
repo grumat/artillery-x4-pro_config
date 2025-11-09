@@ -4,14 +4,20 @@ import locale
 import sys
 
 if 0:
-	SUPPORTED_LANGUAGES = ["en_US", "pt_BR"]
+	SUPPORTED_LANGUAGES = ["en_US", "de_DE", "es", "fr", "it", "pt_BR"]
 	DEFAULT_LANGUAGE = "en_US"
 elif 0:
 	SUPPORTED_LANGUAGES = ["de_DE"]
 	DEFAULT_LANGUAGE = "de_DE"
-elif 1:
+elif 0:
 	SUPPORTED_LANGUAGES = ["es"]
 	DEFAULT_LANGUAGE = "es"
+elif 0:
+	SUPPORTED_LANGUAGES = ["fr"]
+	DEFAULT_LANGUAGE = "fr"
+elif 1:
+	SUPPORTED_LANGUAGES = ["it"]
+	DEFAULT_LANGUAGE = "it"
 else:
 	SUPPORTED_LANGUAGES = ["pt_BR"]
 	DEFAULT_LANGUAGE = "pt_BR"
