@@ -15,13 +15,15 @@ elif 0:
 elif 0:
 	SUPPORTED_LANGUAGES = ["fr"]
 	DEFAULT_LANGUAGE = "fr"
-elif 1:
+elif 0:
 	SUPPORTED_LANGUAGES = ["it"]
 	DEFAULT_LANGUAGE = "it"
 else:
 	SUPPORTED_LANGUAGES = ["pt_BR"]
 	DEFAULT_LANGUAGE = "pt_BR"
 APP_NAME = "messages"
+
+_ = gettext.gettext
 
 
 def GetUserPreferredLocales():
@@ -69,6 +71,7 @@ def SetupI18nAuto():
 	"""
 	Sets up the gettext environment by auto-detecting the best language.
 	"""
+	global _
 	# 1. Determine user's preferred locales
 	preferred_locales = GetUserPreferredLocales()
 
@@ -87,6 +90,7 @@ def SetupI18nAuto():
 		# Install the translator globally if you want to use '_' or 'gettext'
 		# without explicitly calling translator.gettext
 		translator.install()		# Bind the domain to the locale directory and set the text domain
+		_ = translator.gettext
 		
 	except FileNotFoundError as e:
 		# Fallback if setting locale fails (e.g., system doesn't have it installed)
@@ -94,20 +98,21 @@ def SetupI18nAuto():
 	except gettext.Error as e:
 		# Fallback if gettext binding fails
 		gettext.NullTranslations().install()
+	_ = gettext.gettext
 
 
 def SetupI18nManual(lang_code):
 	"""
 	A fallback function to manually set up i18n for a given language code.
 	"""
+	global _
 	locale_path = GetLocalePath()
 
 	try:
 		locale.setlocale(locale.LC_ALL, lang_code)
 		gettext.bindtextdomain(APP_NAME, locale_path)
 		gettext.textdomain(APP_NAME)
-		_ = gettext.gettext
-		return _
 	except Exception as e:
 		return lambda x: x
+	_ = gettext.gettext
 
