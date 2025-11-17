@@ -20,8 +20,7 @@ N_ = lambda t : t
 from UserOptions import *
 import help
 from progress_dialog import ProgressDialog
-from workflow import Workflow
-from mylog import Log, LOG
+from my_workflow import Workflow
 from myenv import *
 
 
@@ -30,8 +29,7 @@ class SetupDialog:
 	def __init__(self, fields, title="", initial_values=None):
 		self.app = tb.Window(themename="superhero")
 		self.app.title(_(title))  # Translate window title
-		script_directory = GetMainScriptPath()
-		self.app.iconbitmap(os.path.join(script_directory, 'assets', 'unbrick-swx4.ico'))
+		self.app.iconbitmap(os.path.join(GetAssetsFolder(), 'unbrick-swx4.ico'))
 		self.widgets = {}
 		self.values = None
 		self.fields = fields
@@ -288,12 +286,11 @@ fields = [
 
 
 if __name__ == "__main__":
+	Info('Starting Application')
 	SetupI18nAuto()
-	with open("unbrick-swx4.log", "a", encoding="UTF-8") as log:
-		LOG = log
-		uopts = UserOptions()
-		uopts.LoadIni(GetIniFileName())
-		dialog = SetupDialog(fields, title=N_("Artillery SideWinder X4 Unbrick Tool v0.2"), initial_values=uopts)
-		dialog.Show()
+	uopts = UserOptions()
+	uopts.LoadIni(GetIniFileName())
+	dialog = SetupDialog(fields, title=N_("Artillery SideWinder X4 Unbrick Tool v0.2"), initial_values=uopts)
+	dialog.Show()
 
 

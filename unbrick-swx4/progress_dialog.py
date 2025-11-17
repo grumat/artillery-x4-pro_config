@@ -7,7 +7,7 @@ import ttkbootstrap as tb
 from ttkbootstrap.constants import *
 import tkinter as tk
 from tkinter import scrolledtext, font, StringVar
-from workflow import Task, TaskState, Workflow, Message, MessageType
+from my_workflow import Task, TaskState, Workflow, Message, MessageType
 from i18n import _
 from myenv import *
 
@@ -32,8 +32,7 @@ class ProgressDialog:
 		self.dialog.title(_(title))
 		self.dialog.transient(parent)  # Make it modal
 		self.dialog.grab_set()  # Block interaction with parent
-		script_directory = GetMainScriptPath()
-		self.dialog.iconbitmap(os.path.join(script_directory, 'assets', 'unbrick-swx4.ico'))
+		self.dialog.iconbitmap(os.path.join(GetAssetsFolder(), 'unbrick-swx4.ico'))
 		# Disable the close button
 		self.dialog.protocol("WM_DELETE_WINDOW", lambda: None)
 
@@ -60,6 +59,13 @@ class ProgressDialog:
 		self._build_footer()
 
 		self._center_dialog()
+		self._set_cursor_recursive(self.dialog, "watch")
+
+	def _set_cursor_recursive(self, widget, cursor):
+		if widget.winfo_name() != "always_action":
+			widget.config(cursor=cursor)
+			for child in widget.winfo_children():
+				self._set_cursor_recursive(child, cursor)
 
 	def _build_grid(self):
 		"""Build a 2-column grid with example rows."""
@@ -92,18 +98,18 @@ class ProgressDialog:
 			ctrl.checkmark.set("disabled")
 			bootstyle0 = "light"
 			bootstyle1 = "inverse-light"
-		elif task.state == TaskState.READY:
-			ctrl.checkmark.set("ready")
-			bootstyle1 = "inverse-secondary"
 		elif task.state == TaskState.RUNNING:
 			ctrl.checkmark.set("running")
 			bootstyle1 = "inverse-primary"
 		elif task.state == TaskState.DONE:
 			ctrl.checkmark.set("success")
 			bootstyle1 = "inverse-success"
-		else:
+		elif task.state == TaskState.FAIL:
 			ctrl.checkmark.set("error")
 			bootstyle1 = "inverse-danger"
+		else:
+			ctrl.checkmark.set("ready")
+			bootstyle1 = "inverse-secondary"
 		if bootstyle0 and (ctrl.bootstyle0 != bootstyle0):
 			ctrl.bootstyle0 = bootstyle0
 			ctrl.widget0.configure(bootstyle=bootstyle0)
@@ -120,8 +126,8 @@ class ProgressDialog:
 		self.log = scrolledtext.ScrolledText(
 			log_frame,
 			wrap=tk.WORD,  # Use tk.WORD
-			width=60,
-			height=10,
+			width=80,
+			height=20,
 			font=("Helvetica", 10),
 			state="normal",
 			bg="#f0f0f0",
@@ -135,9 +141,16 @@ class ProgressDialog:
 		self.log.tag_config("warning", foreground="orange")
 		self.log.tag_config("error", foreground="red")
 
+	def _log_insert(self, text, tag=None):
+		"""Insert text into the log with optional styling."""
+		self.log.configure(state="normal")
+		self.log.insert(END, text, tag)
+		self.log.see(END)  # Auto-scroll to the end
+		self.log.configure(state="disabled")
+
 	def _build_footer(self):
 		"""Build the progress bar and buttons."""
-		footer_frame = tb.Frame(self.dialog)
+		footer_frame = tb.Frame(self.dialog, name="always_action")
 		footer_frame.pack(fill=X, padx=10, pady=10)
 
 		# Progress bar
@@ -159,6 +172,10 @@ class ProgressDialog:
 		)
 		self.action_button.pack(side=RIGHT, padx=(10, 0))
 
+	def _set_progress(self, value):
+		"""Update the progress bar (0-100)."""
+		self.progress.configure(value=value)
+
 	def _on_action(self):
 		"""Handle Cancel/Close button clicks."""
 		if not self.completed:
@@ -178,7 +195,7 @@ class ProgressDialog:
 					self._set_progress(o)
 				elif isinstance(o, Message):
 					msg : Message = o
-					self._log_insert(msg.msg, msg.type)
+					self._log_insert(msg.msg, msg.type.value)
 				elif isinstance(o, Task):
 					self._update_logic(o)
 		except queue.Empty:
@@ -186,26 +203,17 @@ class ProgressDialog:
 
 	def _complete(self):
 		"""Mark the process as completed and update the UI."""
+		self._set_cursor_recursive(self.dialog, "")
 		self.completed = True
 		self.action_button.configure(
 			text=_("Close"),
 			bootstyle="success",
 			state="normal"
 		)
+		Info("Process completed successfully.")
 		self._log_insert(_("Process completed successfully.\n"), "bold")
 		# Re-enable closing via the 'X' button
 		self.dialog.protocol("WM_DELETE_WINDOW", self.Close)
-
-	def _set_progress(self, value):
-		"""Update the progress bar (0-100)."""
-		self.progress.configure(value=value)
-
-	def _log_insert(self, text, tag=None):
-		"""Insert text into the log with optional styling."""
-		self.log.configure(state="normal")
-		self.log.insert(END, text, tag)
-		self.log.see(END)  # Auto-scroll to the end
-		self.log.configure(state="disabled")
 
 	def _center_dialog(self):
 		"""Center the dialog on the screen."""

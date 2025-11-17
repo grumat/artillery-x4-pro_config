@@ -8,9 +8,15 @@ import tkinter as tk
 import queue
 import threading
 import time
+import paramiko
 
 import UserOptions
 from i18n import _
+from myenv import *
+
+
+USERNAME = 'mks'
+PASSWORD = 'makerbase'
 
 
 class MessageType(Enum):
@@ -40,17 +46,32 @@ class Task:
 		self.state = state
 	def Do(self):
 		time.sleep(0.2)
+	def CanRun(self) -> bool:
+		return self.state in (TaskState.RUNNING, TaskState.READY, TaskState.ALWAYS)
+	def CanFail(self) -> bool:
+		return self.state in (TaskState.RUNNING, TaskState.READY)
 	def UpdateState(self):
-		if self.state in (TaskState.RUNNING, TaskState.READY):
-			if self.workflow.exception or self.workflow.failed_connection or self.workflow.cancel_flag:
+		if self.CanFail():
+			workflow = self.workflow
+			if workflow.exception or workflow.failed_connection or workflow.cancel_flag:
 				self.state = TaskState.FAIL
-				self.workflow.UpdateUI(self)
+				workflow.UpdateUI(self)
 
-class Detect(Task):
+class Connect(Task):
 	def __init__(self, workflow : "Workflow") -> None:
-		super().__init__(workflow, N_("Detecting Serial Port of OS system"), TaskState.ALWAYS)
+		super().__init__(workflow, N_("Connecting to printer using SSH"), TaskState.ALWAYS)
 	def Do(self):
-		super().Do()
+		self.workflow.client.connect(hostname=self.workflow.opts.ip_addr, username=USERNAME, password=PASSWORD)
+		Info("SSH connection established.")
+		self.workflow.sftp = self.workflow.client.open_sftp()
+
+class Disconnect(Task):
+	def __init__(self, workflow : "Workflow") -> None:
+		super().__init__(workflow, N_("Disconnecting SSH Client"), TaskState.ALWAYS)
+	def Do(self):
+		workflow = self.workflow
+		if hasattr(workflow, 'sftp') and workflow.sftp:
+			workflow.sftp.close()
 
 class CheckConnect(Task):
 	def __init__(self, workflow : "Workflow") -> None:
@@ -191,8 +212,11 @@ class Workflow(object):
 		self.dlg : tk.Misc
 		self.queue : queue.Queue
 		self.thread : threading.Thread
+		self.client = paramiko.SSHClient()
+		self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+		self.sftp : paramiko.SFTPClient
 		self.tasks : list[Task] = []
-		self.tasks.append(Detect(self))
+		self.tasks.append(Connect(self))
 		self.tasks.append(CheckConnect(self))
 		self.tasks.append(StopUserInterface(self))
 		self.tasks.append(StopWebCam(self))
@@ -214,6 +238,8 @@ class Workflow(object):
 		self.tasks.append(StartMoonraker(self))
 		self.tasks.append(StartWebCam(self))
 		self.tasks.append(StartUserInterface(self))
+		# Always the Last
+		self.tasks.append(Disconnect(self))
 
 	def UpdateUI(self, task: Task|Message|int|None):
 		self.queue.put(task)
@@ -226,23 +252,38 @@ class Workflow(object):
 			except Exception as e:
 				self.exception = True
 
+	def _update_progress(self, cnt : int):
+		for task in self.tasks:
+			cnt += task.CanRun()
+		return cnt
+
 	def _worker_thread(self):
+		cnt = 0
 		for i, task in enumerate(self.tasks):
-			self.UpdateUI((i * 100 + len(self.tasks)//2) // len(self.tasks))
 			self._update_states()
-			if task.state in (TaskState.READY, TaskState.ALWAYS):
+			if task.CanRun():
+				total = self._update_progress(cnt)
+				cnt += 1
+				if total == 0:
+					self.UpdateUI(100)
+				else:
+					self.UpdateUI((cnt * 100 + total//2) // total)
 				try:
-					self.UpdateUI(Message(MessageType.NORMAL, _('Running') + ' ' + _(task.label) + '...'))
+					Info(f'Running {task.label}...')
+					self.UpdateUI(Message(MessageType.NORMAL, _(task.label) + ': ' + _('Running...') + '  '))
 					task.state = TaskState.RUNNING
 					self.UpdateUI(task)
 					task.Do()
-					self.UpdateUI(Message(MessageType.BOLD, '  ' + _('OK!') + '\n'))
+					self.UpdateUI(Message(MessageType.BOLD, _('OK!') + '\n'))
+					Info('  OK!')
 					task.state = TaskState.DONE
 					self.UpdateUI(task)
 				except Exception as e:
-					self.exception = True
 					error_message = str(e)
-					self.UpdateUI(Message(MessageType.ERROR, '\n' + _(error_message) + '\n'))
+					self.exception = True
+					task.state = TaskState.FAIL
+					Error(f'{error_message}\n')
+					self.UpdateUI(Message(MessageType.ERROR, _('ERROR!') + '\n\t' + _(error_message) + '\n'))
 		self.UpdateUI(100)
 		self._update_states()
 		time.sleep(0.5)			# give time for user knowledge
