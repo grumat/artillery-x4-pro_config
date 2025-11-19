@@ -11,16 +11,31 @@ import time
 import paramiko
 import re
 import select # Use the standard select module for checking readiness
+import locale
+import fnmatch
+import shlex
 
 import UserOptions
 from i18n import _
 from myenv import *
+from mylib import *
 
 
 USERNAME = 'root'
 PASSWORD = 'makerbase'
 
 
+class ArtSW4:
+	"""
+	Properties common to Artillery SideWinder 4
+	"""
+	LOGIN_PROMPTS = ('root@mkspi', 'mks@mkspi')
+	@staticmethod
+	def IsLoginPrompt(line : str) -> bool:
+		for p in ArtSW4.LOGIN_PROMPTS:
+			if line.startswith(p):
+				return True
+		return False
 
 class DiskUsage:
 	"""
@@ -77,10 +92,33 @@ class Task:
 				self.SetState(TaskState.FAIL)
 		elif (self.state == TaskState.CONNECTED) and workflow.failed_connection:
 				self.SetState(TaskState.FAIL)
+	def Bold(self, msg : str) -> None:
+		self.workflow.UpdateUI(Message(MessageType.BOLD, msg))
 	def Info(self, msg : str) -> None:
 		self.workflow.UpdateUI(Message(MessageType.NORMAL, msg))
 	def Warning(self, msg : str) -> None:
 		self.workflow.UpdateUI(Message(MessageType.WARNING, msg))
+	@staticmethod
+	def FmtByteSize(num : int) -> str:
+		if num > 1100000:
+			num = float(num) / (1000.0 * 1000.0)
+			sc = _(" GBi")
+		elif num > 1100:
+			num = float(num) / 1000.0
+			sc = _(" MBi")
+		else:
+			num = float(num)
+			sc = _(" KBi")
+		res = locale.format_string("%5.3f", num, grouping=True)
+		return res + sc
+
+
+#class MinTemplate(Task):
+#	def __init__(self, workflow : "Workflow") -> None:
+#		super().__init__(workflow, N_("..."), TaskState.READY)
+#	def Do(self):
+#		super().Do()
+
 
 class Connect(Task):
 	def __init__(self, workflow : "Workflow") -> None:
@@ -147,13 +185,37 @@ class CheckConnect(Task):
 		if found != 6:
 			raise Exception(N_("The connection does not report an Artillery SW X4 printer"))
 
+class GetInitialDiskSpace(Task):
+	def __init__(self, workflow : "Workflow") -> None:
+		super().__init__(workflow, N_("Reading initial disk space"), TaskState.READY)
+	def Do(self):
+		workflow = self.workflow
+		workflow.start_space = workflow.GetFreeScape()
+		self.Info(_("\n\tBoot partition total size: {0}").format(Task.FmtByteSize(workflow.start_space.boot_size)))
+		self.Info(_("\n\tBoot partition free size: {0}").format(Task.FmtByteSize(workflow.start_space.boot_free)))
+		self.Info(_("\n\tRoot partition total size: {0}").format(Task.FmtByteSize(workflow.start_space.root_size)))
+		self.Info(_("\n\tRoot partition free size: {0}").format(Task.FmtByteSize(workflow.start_space.root_free)) + '\n')
+
+class GetFinalDiskSpace(Task):
+	def __init__(self, workflow : "Workflow") -> None:
+		super().__init__(workflow, N_("Reading final disk space"), TaskState.READY)
+	def Do(self):
+		workflow = self.workflow
+		workflow.end_space = workflow.GetFreeScape()
+		self.Info(_("\n\tBoot partition total size: {0}").format(Task.FmtByteSize(workflow.end_space.boot_size)))
+		self.Info(_("\n\tBoot partition free size: {0}").format(Task.FmtByteSize(workflow.end_space.boot_free)))
+		self.Info(_("\n\tRoot partition total size: {0}").format(Task.FmtByteSize(workflow.end_space.root_size)))
+		self.Info(_("\n\tRoot partition free size: {0}").format(Task.FmtByteSize(workflow.end_space.root_free)))
+		if workflow.end_space.root_free > workflow.start_space.root_free:
+			self.Bold(_("\n\tRecovered disk space: {0}").format(Task.FmtByteSize(workflow.end_space.root_free - workflow.start_space.root_free)) + '\n')
+
 class StopUserInterface(Task):
 	def __init__(self, workflow : "Workflow") -> None:
 		super().__init__(workflow, N_("Stopping User Interface Service"), TaskState.READY)
 	def Do(self):
 		super().Do()
 		self.workflow.ExecCommand("systemctl stop makerbase-client")
-		self.Info(_("\n\tPrinter display is now unresponsive...\n"))
+		self.Info(_("\n\tPrinter display is now unresponsive.\n"))
 
 class StopWebCam(Task):
 	def __init__(self, workflow : "Workflow") -> None:
@@ -167,8 +229,9 @@ class StopMoonraker(Task):
 		super().__init__(workflow, N_("Stopping Moonraker Service"), TaskState.READY)
 	def Do(self):
 		super().Do()
+		self.workflow.ExecCommand("systemctl stop moonraker-obico")
 		self.workflow.ExecCommand("systemctl stop moonraker")
-		self.Info(_("\n\tWeb access is down...\n"))
+		self.Info(_("\n\tWeb access is down.\n"))
 
 class StopKlipper(Task):
 	def __init__(self, workflow : "Workflow") -> None:
@@ -176,59 +239,125 @@ class StopKlipper(Task):
 	def Do(self):
 		super().Do()
 		self.workflow.ExecCommand("systemctl stop klipper")
-		self.Info(_("\n\tKlipper is down...\n"))
+		self.Info(_("\n\tKlipper is down.\n"))
 
 class EraseGcodeFiles(Task):
 	def __init__(self, workflow : "Workflow") -> None:
 		super().__init__(workflow, N_("Erase .gcode files"), workflow.opts.optimize_disk_space and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		super().Do()
+		cnt = 0
+		cnt += self.workflow.DelFileCount("/home/mks/gcode_files/*")
+		self.Info(_("\n\tRemoved {} .gcode files.\n").format(cnt))
 
 class EraseMiniatures(Task):
 	def __init__(self, workflow : "Workflow") -> None:
 		super().__init__(workflow, N_("Erase miniature files"), workflow.opts.optimize_disk_space and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
-		super().Do()
+		cnt = 0
+		cnt += self.workflow.DelFileCount("/home/mks/simage_space/*")
+		cnt += self.workflow.DelFileCount("/home/mks/gcode_files/.thumbs/*")
+		cnt += self.workflow.DelFileCount("/home/mks/Videos/*")
+		self.Info(_("\n\tRemoved {} miniature files.\n").format(cnt))
 
 class EraseOldConfig(Task):
 	def __init__(self, workflow : "Workflow") -> None:
 		super().__init__(workflow, N_("Erase old configuration files"), workflow.opts.optimize_disk_space and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		super().Do()
+		cnt = 0
+		cnt += self.workflow.DelFileCount("/home/mks/klipper_config/.moonraker.conf.bkp")
+		cnt += self.workflow.DelFileCount("/home/mks/klipper_config/printer-2*.cfg")
+		self.Info(_("\n\tRemoved {} old configuration files.\n").format(cnt))
 
 class EraseLogFiles(Task):
 	def __init__(self, workflow : "Workflow") -> None:
 		super().__init__(workflow, N_("Erase log files"), workflow.opts.optimize_disk_space and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		super().Do()
+		cnt = 0
+		cnt += self.workflow.DelFileCount("/home/mks/klipper_logs/timelapse/*")
+		cnt += self.workflow.DelFileCount("/home/mks/klipper_logs/*")
+		cnt += self.workflow.DelFileCount("/home/mks/Desktop/myfile/ws/debug_log.txt")
+		self.Info(_("\n\tRemoved {} log files.\n").format(cnt))
 
 class EraseClutterFiles(Task):
 	def __init__(self, workflow : "Workflow") -> None:
 		super().__init__(workflow, N_("Erase Artillery clutter files"), workflow.opts.optimize_disk_space and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		super().Do()
+		self.Info(_("\n\tBe patient...\n"))
+		cnt = 0
+		cnt += self.workflow.DelFileCount("/home/mks/.bash_history")
+		cnt += self.workflow.DelFileCount("/home/mks/.gitconfig")
+		cnt += self.workflow.DelFileCount("/home/mks/.viminfo")
+		cnt += self.workflow.DelFileCount("/home/mks/auto-webcam-id.sh")
+		cnt += self.workflow.DelFileCount("/home/mks/moonraker-obico-master.zip")
+		cnt += self.workflow.DelFileCount("/home/mks/moonraker-timelapse-main.zip")
+		cnt += self.workflow.DelFileCount("/home/mks/plrtmpA.1606")
+		cnt += self.workflow.DelFileCount("/home/mks/update_3b3bdc8.deb")
+		cnt += self.workflow.DelFileCount("/home/mks/update_50701cc.deb")
+		cnt += self.workflow.DelFileCount("/home/mks/update_f263f3d.deb")
+		cnt += self.workflow.DelFileCount("/home/mks/webcam.txt")
+		cnt += self.workflow.DelFileCount("/home/mks/Desktop/myfile/database.db")
+		cnt += self.workflow.DelFileCount("/home/mks/Desktop/myfile/ws/build/src/database.db")
+		cnt += self.workflow.DelFileCount("/home/mks/Desktop/myfile/ws.bak/build/mksclient")
+		# Entire Folders
+		cnt += self.workflow.DelTreeCount("/home/mks/moonraker-timelapse-main")
+		self.Info(_("\n\tRemoved {} unneeded files.\n").format(cnt))
 
 class FixFilePermission(Task):
 	def __init__(self, workflow : "Workflow") -> None:
 		super().__init__(workflow, N_("Fix file permission"), workflow.opts.file_permissions and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		super().Do()
+		self.Info(_("\n\tBe patient...\n"))
+		self.workflow.ExecCommand("chmod a-x /etc/systemd/system/logrotate.service")
+		self.workflow.ExecCommand("chmod a-x /lib/systemd/system/armbian-firstrun-config.service")
+		self.workflow.ExecCommand("chmod a-x /lib/systemd/system/armbian-hardware-optimize.service")
+		self.workflow.ExecCommand("chmod a-x /lib/systemd/system/armbian-hardware-monitor.service")
+		self.workflow.ExecCommand("chmod a-x /lib/systemd/system/armbian-ramlog.service")
+		self.workflow.ExecCommand("chmod a-x /lib/systemd/system/armbian-zram-config.service")
+		self.workflow.ExecCommand("chmod a-x /lib/systemd/system/bootsplash-hide-when-booted.service")
+		self.workflow.ExecCommand("chmod a-x /lib/systemd/system/gpio-monitor.service")
+		self.workflow.ExecCommand("chmod a-x /lib/systemd/system/makerbase-webcam.service")
+		self.workflow.ExecCommand("chmod a-x /lib/systemd/system/makerbase-byid.service")
+		self.workflow.ExecCommand("chmod a-x /usr/lib/systemd/system/getty@tty1.service.d/10-noclear.conf")
+		self.workflow.ExecCommand("chmod a-x /usr/lib/systemd/system/serial-getty@.service.d/10-term.conf")
+		self.workflow.ExecCommand("chmod a-x /usr/lib/systemd/system/systemd-journald.service.d/override.conf")
+		self.workflow.ExecCommand("chmod a-x /usr/lib/systemd/system/systemd-modules-load.service.d/10-timeout.conf")
+		self.Info(_("\n\tFixed/verified {} system files permissions.").format(15))
+		self.Info(_("\n\tSearching user folder...  "))
+		files = self.workflow.ExecCommandEx("find /home/mks/ -not -user mks -not -group mks")
+		sel = []
+		for f in files:
+			if fnmatch.fnmatch(f, '/home/mks/klipper_logs/moonraker-obico.*'):
+				continue
+			if fnmatch.fnmatch(f, '/home/mks/Desktop/myfile/ws/yuntu_plr*'):
+				continue
+			sel.append(f)
+		self.Bold(_('{} files found\n').format(len(sel)))
+		for f in sel:
+			self.Info(_("\tFixing file {}...\n").format(f))
+			self.workflow.ExecCommand("chown mks:mks {}".format(shlex.quote(f)))
 
 class FixCardResizeBug(Task):
 	def __init__(self, workflow : "Workflow") -> None:
 		super().__init__(workflow, N_("Fix for card resize bug"), workflow.opts.resize_bug and TaskState.READY or TaskState.DISABLED)
-	def Do(self):
-		super().Do()
 	def UpdateState(self):
 		super().UpdateState()
 		if self.CanFail() and self.workflow.resizing_issue == False:
 			self.SetState(TaskState.DISABLED)
+	def Do(self):
+		super().Do()
+		self.workflow.ExecCommand("systemctl disable armbian-resize-filesystem")
 
 class TrimDisk(Task):
 	def __init__(self, workflow : "Workflow") -> None:
 		super().__init__(workflow, N_("Trimming eMMC disk"), workflow.opts.trim and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		super().Do()
+		self.workflow.ExecCommand("fstrim /")
 
 class EnableUserInterface(Task):
 	def __init__(self, workflow : "Workflow") -> None:
@@ -249,6 +378,7 @@ class EnableMoonraker(Task):
 		super().__init__(workflow, N_("Enabling Moonraker Service"), TaskState.CONNECTED)
 	def Do(self):
 		super().Do()
+		self.workflow.ExecCommand("systemctl enable moonraker-obico")
 		self.workflow.ExecCommand("systemctl enable moonraker")
 
 class EnableKlipper(Task):
@@ -271,6 +401,7 @@ class StartMoonraker(Task):
 	def Do(self):
 		super().Do()
 		self.workflow.ExecCommand("systemctl start moonraker")
+		self.workflow.ExecCommand("systemctl start moonraker-obico")
 
 class StartWebCam(Task):
 	def __init__(self, workflow : "Workflow") -> None:
@@ -291,6 +422,13 @@ class Disconnect(Task):
 		super().__init__(workflow, N_("Disconnecting SSH Client"), TaskState.ALWAYS)
 	def Do(self):
 		super().Do()
+		workflow = self.workflow
+		if (workflow.exception == False) \
+			and (workflow.failed_connection == False) \
+			and (workflow.cancel_flag == False):
+			workflow.reboot_on_exit = True
+			Warning('Rebooting printer')
+			self.Warning(_("\n\n\tRebooting printer\n"))
 		self.workflow.Disconnect()
 
 
@@ -299,7 +437,6 @@ class Workflow(object):
 	" Class to run all operations "
 	def __init__(self, opts : UserOptions.UserOptions) -> None:
 		self.opts = opts
-		self.connected = False
 		self.exception = False
 		self.failed_connection = False
 		self.cancel_flag = False
@@ -313,10 +450,13 @@ class Workflow(object):
 		self.motd_output : list[str] = []
 		self.resizing_issue = False
 		self.reboot_on_exit = False
+		self.start_space = DiskUsage()
+		self.end_space = DiskUsage()
 
 		self.tasks : list[Task] = []
 		self.tasks.append(Connect(self))
 		self.tasks.append(CheckConnect(self))
+		self.tasks.append(GetInitialDiskSpace(self))
 		self.tasks.append(StopUserInterface(self))
 		self.tasks.append(StopWebCam(self))
 		self.tasks.append(StopMoonraker(self))
@@ -329,6 +469,7 @@ class Workflow(object):
 		self.tasks.append(FixFilePermission(self))
 		self.tasks.append(FixCardResizeBug(self))
 		self.tasks.append(TrimDisk(self))
+		self.tasks.append(GetFinalDiskSpace(self))
 		self.tasks.append(EnableUserInterface(self))
 		self.tasks.append(EnableWebCam(self))
 		self.tasks.append(EnableMoonraker(self))
@@ -357,19 +498,26 @@ class Workflow(object):
 		
 		while True:
 			# 1. Check if the channel is ready to receive (i.e., has data in the buffer)
-			if self.shell.recv_ready():
-				# 2. Read the available data (use a large chunk size)
-				drained_data += self.shell.recv(65535)
-				# Reset timeout since we received data
-				start_time = time.time()
 			if self.shell.recv_stderr_ready():
 				# 2. Read the available data (use a large chunk size)
 				drained_err += self.shell.recv_stderr(65535)
 				# Reset timeout since we received data
 				start_time = time.time()
-				
+
+			if self.shell.recv_ready():
+				# 2. Read the available data (use a large chunk size)
+				drained_data += self.shell.recv(65535)
+				# Reset timeout since we received data
+				start_time = time.time()
+				# Try to optimize timeout, when input ends with a login prompt
+				tmp = drained_data.rsplit(b'\n')
+				tail = tmp[-1].decode('utf-8', errors='ignore')
+				for p in ArtSW4.LOGIN_PROMPTS:
+					# login prompt cancel the timeout, but lets loop one more time before bailing out
+					if tail.startswith(p):
+						start_time -= timeout;
 			# 3. If there's nothing immediately ready, wait briefly
-			elif not self.shell.recv_ready() and (time.time() - start_time) < timeout:
+			elif (time.time() - start_time) < timeout:
 				# Check the channel status using select to avoid an infinite busy loop
 				# and wait for data up to a very small interval (e.g., 0.1 seconds)
 				r, w, e = select.select([self.shell], [], [], 0.1)
@@ -407,7 +555,9 @@ class Workflow(object):
 		if self.shell:
 			if self.reboot_on_exit:
 				self.reboot_on_exit = False
-				self.shell.send(b'reboot\n')
+				self.ExecCommand('reboot')
+			else:
+				self.ExecCommand('exit')
 			self.shell.close()
 			self.shell = None
 		if self.client:
@@ -431,7 +581,7 @@ class Workflow(object):
 		if len(output) and (output[0] == cmd[:-1]):
 			del output[0]
 		# Remove the prompt at tail
-		while len(output) and (output[-1].startswith('root@mkspi') or output[-1].startswith('mks@mkspi')):
+		while len(output) and ArtSW4.IsLoginPrompt(output[-1]):
 			del output[-1]
 		# Convert errors into list
 		error = error.splitlines()
@@ -467,6 +617,22 @@ class Workflow(object):
 					u.boot_free = int(m[4])
 					u.total += u.boot_size
 		return u
+
+	def DelFileCount(self, name : str) -> int:
+		res = self.ExecCommandEx("find {} -type f | wc -l".format(name))
+		cnt = 0
+		if res:
+			cnt = TryParseInt(res[0].strip(), 0)
+		self.ExecCommandEx("rm {}".format(name))
+		return cnt
+
+	def DelTreeCount(self, name : str) -> int:
+		res = self.ExecCommandEx("find {} -type f | wc -l".format(name))
+		cnt = 0
+		if res:
+			cnt = TryParseInt(res[0].strip(), 0)
+		self.ExecCommandEx("rm -rf {}".format(name))
+		return cnt
 
 
 	###################################
@@ -520,6 +686,9 @@ class Workflow(object):
 					self.UpdateUI(Message(MessageType.ERROR, _('ERROR!') + '\n\t' + _(error_message) + '\n'))
 		self.UpdateUI(100)
 		self._update_states()
+		
+		
+		
 		time.sleep(0.5)			# give time for user knowledge
 		self.UpdateUI(None)
 
