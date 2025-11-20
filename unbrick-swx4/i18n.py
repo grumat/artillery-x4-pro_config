@@ -1,7 +1,6 @@
 import gettext
-import os
 import locale
-import sys
+from my_env import GetLocalePath
 
 if 0:
 	SUPPORTED_LANGUAGES = ["en_US", "de_DE", "es", "fr", "it", "pt_BR"]
@@ -24,6 +23,7 @@ else:
 APP_NAME = "messages"
 
 _ = gettext.gettext
+N_ = lambda t : t
 
 
 def GetUserPreferredLocales():
@@ -59,14 +59,6 @@ def SelectBestLanguage(preferred_locales, supported_languages, default_language)
 	return default_language
 
 
-def GetLocalePath():
-	if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
-		bundle_dir = sys._MEIPASS
-	else:
-		bundle_dir = os.path.dirname(os.path.abspath(__file__))
-	return os.path.join(bundle_dir, "locale")
-
-
 def SetupI18nAuto():
 	"""
 	Sets up the gettext environment by auto-detecting the best language.
@@ -94,9 +86,6 @@ def SetupI18nAuto():
 		
 	except FileNotFoundError as e:
 		# Fallback if setting locale fails (e.g., system doesn't have it installed)
-		gettext.NullTranslations().install()
-	except gettext.Error as e:
-		# Fallback if gettext binding fails
 		gettext.NullTranslations().install()
 	_ = gettext.gettext
 

@@ -1,18 +1,20 @@
 #
 # -*- coding: UTF-8 -*-
+#
+# spellchecker:words bootstyle, ttkbootstrap, checkmark, padx, pady, textvariable
 
 import os
 import queue
 import ttkbootstrap as tb
-from ttkbootstrap.constants import *
+from ttkbootstrap.constants import BOTH, W, EW, END, LEFT, X, RIGHT
 import tkinter as tk
-from tkinter import scrolledtext, font, StringVar
-from my_workflow import Task, TaskState, Workflow, Message, MessageType
+from tkinter import scrolledtext, StringVar
+from my_workflow import Workflow, Message, Task, TaskState
 from i18n import _
-from myenv import *
+from my_env import GetAssetsFolder, Info
 
 
-ATTR_COLUMNS = 2
+ATTR_COLUMNS = 3
 
 class CtrlLinks:
 	def __init__(self, row : int) -> None:
@@ -92,6 +94,10 @@ class ProgressDialog:
 		if task not in self.controls:
 			return
 		ctrl = self.controls[task]
+		if ctrl.widget0 is None:
+			return
+		if ctrl.widget1 is None:
+			return
 		bootstyle0 = ""
 		bootstyle1 = ""
 		if task.state == TaskState.DISABLED:
@@ -107,6 +113,9 @@ class ProgressDialog:
 		elif task.state == TaskState.FAIL:
 			ctrl.checkmark.set("error")
 			bootstyle1 = "inverse-danger"
+		elif task.state == TaskState.CANCELLED:
+			ctrl.checkmark.set("cancelled")
+			bootstyle1 = "inverse-warning"
 		else:
 			ctrl.checkmark.set("ready")
 			bootstyle1 = "inverse-secondary"
@@ -143,8 +152,13 @@ class ProgressDialog:
 
 	def _log_insert(self, text, tag=None):
 		"""Insert text into the log with optional styling."""
+		if not hasattr(self, "log") or self.log is None:
+			return
 		self.log.configure(state="normal")
-		self.log.insert(END, text, tag)
+		if tag:
+			self.log.insert(END, text, tag)
+		else:
+			self.log.insert(END, text)
 		self.log.see(END)  # Auto-scroll to the end
 		self.log.configure(state="disabled")
 

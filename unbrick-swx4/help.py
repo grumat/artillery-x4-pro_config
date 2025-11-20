@@ -1,7 +1,7 @@
 #
 # -*- coding: UTF-8 -*-
 
-N_ = lambda t : t
+from i18n import N_
 
 
 tt_printer = N_(

@@ -5,6 +5,9 @@ import sys
 import os
 import logging
 
+__all__ = ["GetMainScriptPath", "GetAssetsFolder", "GetIniFileName", "GetLogFileName", "GetBackupFolder", "GetLocalePath", "Debug", "Info", "Warn", "Error"]
+
+
 def GetMainScriptPath():
 	# If running as a PyInstaller bundle (frozen)
 	if getattr(sys, 'frozen', False):
@@ -14,21 +17,29 @@ def GetMainScriptPath():
 		# Return the path to the script
 		return os.path.dirname(os.path.abspath(__file__))
 
-def GetAssetsFolder():
-	# If running as a PyInstaller bundle (frozen)
-	if getattr(sys, 'frozen', False):
-		# Return the path to the executable
-		base_path = sys._MEIPASS
-	else:
-		# Running as a script
-		base_path = os.path.dirname(os.path.abspath(__file__))
-	return os.path.join(base_path, 'assets')
-
 def GetIniFileName():
 	return os.path.join(GetMainScriptPath(), 'unbrick-swx4.ini')
 
 def GetLogFileName():
 	return os.path.join(GetMainScriptPath(), 'unbrick-swx4.log')
+
+def GetBackupFolder():
+	return os.path.join(GetMainScriptPath(), 'backup')
+
+def _GetStaticData():
+	# If running as a PyInstaller bundle (frozen)
+	# Defaults to running as a script
+	base_path = os.path.dirname(os.path.abspath(__file__))
+	if getattr(sys, 'frozen', False):
+		# Return the path to the executable # spellchecker:disable-next-line
+		base_path: str = getattr(sys, '_MEIPASS', base_path)  # type: ignore
+	return base_path
+
+def GetAssetsFolder():
+	return os.path.join(_GetStaticData(), 'assets')
+
+def GetLocalePath():
+	return os.path.join(_GetStaticData(), 'locale')
 
 logger = logging.getLogger('unbrick-swx4')
 logger.setLevel(logging.DEBUG)

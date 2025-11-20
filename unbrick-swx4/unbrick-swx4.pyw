@@ -1,27 +1,26 @@
 #
 # -*- coding: UTF-8 -*-
-"""
-This scripts automates the unbricking of Artillery Sidewinder X4 printers.
 
-REMARK: echo -n "base64==" | base64 -d | bunzip2 > file.dat
+"""
+This scripts automates the un-bricking of Artillery Sidewinder X4 printers.
 """
 
-from i18n import SetupI18nAuto, _
+# spellchecker: words themename, padx, pady, bootstyle, columnspan, Grumat, uopts
+
+from i18n import SetupI18nAuto, _, N_
 import os
-import time
 
+# spellchecker:disable
 import ttkbootstrap as tb
-from ttkbootstrap.constants import *
+from ttkbootstrap.constants import BOTH, NSEW, EW, W, RIGHT
 from ttkbootstrap.widgets import ToolTip
-
-from typing import Callable
-N_ = lambda t : t
+# spellchecker:enable
 
 from UserOptions import *
 import help
 from progress_dialog import ProgressDialog
 from my_workflow import Workflow
-from myenv import *
+from my_env import GetAssetsFolder, GetIniFileName, Info
 
 
 
@@ -269,9 +268,9 @@ fields = [
 
 	{"type": "title", 										"text": N_("Printer Fans")},
 	{"type": "checkbox", 	"name": "fan_rename", 			"text": N_("Rename Fans"), "label": ""},
-	{"type": "checkbox", 	"name": "mb_fan_fix", 			"text": N_("Improved Mainboard Fan control"), "label": ""},
-	{"type": "combobox",  	"name": "mb_fan_speed", 		"label": N_("Mainboard Fan Speed"), "options": [N_("Max (default)"), N_("95%"), N_("90%"), N_("85%"), N_("80%"), N_("75%"), N_("70%")], },
-	{"type": "combobox",  	"name": "hb_fan_speed", 		"label": N_("Heatbreak Fan Speed"), "options": [N_("Max (default)"), N_("95%"), N_("90%"), N_("85%"), N_("80%"), N_("75%"), N_("70%")], },
+	{"type": "checkbox", 	"name": "mb_fan_fix", 			"text": N_("Improved Main-board Fan control"), "label": ""},
+	{"type": "combobox",  	"name": "mb_fan_speed", 		"label": N_("Main-board Fan Speed"), "options": [N_("Max (default)"), N_("95%"), N_("90%"), N_("85%"), N_("80%"), N_("75%"), N_("70%")], },
+	{"type": "combobox",  	"name": "hb_fan_speed", 		"label": N_("Heat-break Fan Speed"), "options": [N_("Max (default)"), N_("95%"), N_("90%"), N_("85%"), N_("80%"), N_("75%"), N_("70%")], },
 
 	{"type": "title", 										"text": N_("Temperatures")},
 	{"type": "checkbox", 	"name": "temp_mcu", 			"text": N_("Temperature Reading for Host and MCU"), "label": ""},
