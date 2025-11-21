@@ -1,5 +1,7 @@
 #
 # -*- coding: UTF-8 -*-
+#
+# spellchecker:words stty
 
 
 import paramiko
@@ -8,7 +10,7 @@ import time
 import re
 import shlex
 
-from i18n import N_
+from i18n import N_, _
 from my_env import Info, Debug, Error
 from my_lib import TryParseInt
 from typing import Callable, Optional
@@ -24,7 +26,7 @@ class ArtSW4:
 	"""
 	LOGIN_PROMPTS = ('root@mkspi', 'mks@mkspi')
 	@staticmethod
-	def IsLoginPrompt(line : str) -> bool:
+	def IsShellPrompt(line : str) -> bool:
 		for p in ArtSW4.LOGIN_PROMPTS:
 			if line.startswith(p):
 				return True
@@ -55,26 +57,20 @@ class ArtillerySideWinder(object):
 		self.failed_connection = False
 
 	# --- Helper Function to Clear the Buffer ---
-	def _drain_shell_buffer(self, timeout=1.0) -> tuple[str, str]:
+	def _drain_shell_buffer(self, timeout=1.0) -> str:
 		"""Reads all currently buffered data from the shell channel."""
 		if self.shell is None:
 			raise Exception(N_("Connection is invalid to complete the command!"))
-		time.sleep(max(0.2, timeout / 50))
+		#time.sleep(max(0.2, timeout / 50))
 		start_time_2 = start_time = time.time()
 		
 		# We will accumulate all the "garbage" data here, mostly the old prompt
 		drained_data = b''
-		drained_err = b''
 		
 		while True:
 			cur_time = time.time()
+			dif = cur_time - start_time
 			# 1. Check if the channel is ready to receive (i.e., has data in the buffer)
-			if self.shell.recv_stderr_ready():
-				# 2. Read the available data (use a large chunk size)
-				drained_err += self.shell.recv_stderr(65535)
-				# Reset timeout since we received data
-				start_time_2 = cur_time
-
 			if self.shell.recv_ready():
 				# 2. Read the available data (use a large chunk size)
 				drained_data += self.shell.recv(65535)
@@ -87,25 +83,23 @@ class ArtillerySideWinder(object):
 					# login prompt cancel the timeout
 					if tail.startswith(p):
 						Debug("\tPrompt was seen. bailing out")
-						# Try one more loop, before exiting (200 ms)
-						start_time = cur_time - timeout + 0.25;
+						# Try one more loop, before exiting (100 ms)
+						start_time = cur_time - timeout + 0.100;
 						break
 			# 3. If there's nothing immediately ready, wait briefly
-			elif ((cur_time - start_time) < timeout) \
-				or ((cur_time - start_time_2) < timeout):
+			elif (dif < timeout):
+				time.sleep(0.1)
 				# Check the channel status using select to avoid an infinite busy loop
 				# and wait for data up to a very small interval (e.g., 0.1 seconds)
-				r, w, e = select.select([self.shell], [], [], 0.1)
+				r, w, e = select.select([self.shell], [], [], timeout - dif)
 				if not r: # If select returns no readable handles, break the loop
-					break
-				if not e: # If select returns no readable handles, break the loop
 					break
 					
 			# 4. If the timeout is hit, assume the output has stopped
-			elif (cur_time - start_time_2) > 0.25:
+			else:
 				break
 		# Return the data we drained (often useful for debugging)
-		return (drained_data.decode('utf-8', errors='ignore'), drained_err.decode('utf-8', errors='ignore'))
+		return drained_data.decode('utf-8', errors='ignore')
 
 	def Connect(self, ip_addr : str):
 		if self.client is None:
@@ -123,7 +117,9 @@ class ArtillerySideWinder(object):
 		time.sleep(2)
 		# 3. Read everything currently in the buffer. This should be the MOTD + prompt.
 		tmp = self._drain_shell_buffer()
-		self.motd_output = tmp[0].splitlines()
+		self.motd_output = tmp.splitlines()
+		# Disable echo
+		self.ExecCommand('stty -echo')
 		# Make sure messages are in English/US for correct parsing
 		self.ExecCommand('export LC_ALL=C')
 		# Open sftp channel for file transfer
@@ -136,9 +132,9 @@ class ArtillerySideWinder(object):
 		if self.shell:
 			if self.reboot_on_exit:
 				self.reboot_on_exit = False
-				self.ExecCommand('reboot', 5)
+				self.ExecCommand('reboot', 5, True)
 			else:
-				self.ExecCommand('exit', 5)
+				self.ExecCommand('exit', 5, True)
 			self.shell.close()
 			self.shell = None
 		if self.client:
@@ -146,7 +142,7 @@ class ArtillerySideWinder(object):
 				self.client.close()
 			self.client = None
 
-	def ExecCommand(self, cmd : str, timeout = 10) -> tuple[list[str], list[str]]:
+	def ExecCommand(self, cmd : str, timeout = 10, can_exit = False) -> list[str]:
 		if self.client is None:
 			raise Exception(N_("Connection is invalid to complete the command!"))
 		if self.shell is None:
@@ -156,31 +152,27 @@ class ArtillerySideWinder(object):
 		if not cmd.endswith('\n'):
 			cmd += '\n'
 		self.shell.send(cmd.encode('utf-8'))
-		output, error = self._drain_shell_buffer(timeout=timeout)
+		output = self._drain_shell_buffer(timeout=timeout)
+		# At least the shell prompt was expected!
+		if (len(output) == 0) and (can_exit == False):
+			msg = N_("No response seen during the specified timeout!")
+			Error(msg)
+			raise Exception(_(msg))
+
 		output = output.splitlines()
 		# Remove the command echo
 		if len(output) and (output[0] == cmd[:-1]):
 			del output[0]
 		# Remove the prompt at tail
-		while len(output) and ArtSW4.IsLoginPrompt(output[-1]):
+		while len(output) and ArtSW4.IsShellPrompt(output[-1]):
 			del output[-1]
-		# Convert errors into list
-		error = error.splitlines()
 		# Write to log
 		for line in output:
 			Debug(f'\t\t{line.strip()}')
-		for line in error:
-			Error(f'\t\t{line.strip()}')
-		return (output, error)
-
-	def ExecCommandEx(self, cmd : str, timeout = 10) -> list[str]:
-		output, error = self.ExecCommand(cmd, timeout)
-		if error:
-			raise Exception('\n'.join(error))
 		return output
 
 	def GetFreeScape(self) -> DiskUsage:
-		lines = self.ExecCommandEx("df -k")
+		lines = self.ExecCommand("df -k")
 		u = DiskUsage()
 		for line in lines:
 			m = re.match(r'(\S+)\s+(\d+)\s+(\d+)\s+(\d+)\s+\d+%\s(\S+)', line)
@@ -197,7 +189,7 @@ class ArtillerySideWinder(object):
 	
 	def FindFiles(self, name : str) -> list[str]:
 		pat = re.compile(r'find:\s.+: No such file or directory')
-		res = self.ExecCommandEx("find {} -type f".format(name), 30)
+		res = self.ExecCommand("find {} -type f".format(name), 30)
 		# Removes message like: find: ‘/home/mks/moonraker-timelapse-main’: No such file or directory
 		if res and pat.match(res[0]):
 			del res[0]
@@ -227,7 +219,7 @@ class ArtillerySideWinder(object):
 		for name in names:
 			if info:
 				info(name, True)
-			res = self.ExecCommandEx("find {} -type f | wc -l".format(shlex.quote(name)), 30)
+			res = self.ExecCommand("find {} -type f | wc -l".format(shlex.quote(name)), 30)
 			# Removes message like: find: ‘/home/mks/moonraker-timelapse-main’: No such file or directory
 			if res and pat.match(res[0]):
 				continue

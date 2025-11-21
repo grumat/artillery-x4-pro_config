@@ -46,7 +46,7 @@ class FixHomePermission(Task):
 		super().Do()
 		# spellchecker: enable
 		self.Info(_("\n\tSearching for locked files on user folder...  "))
-		files = self.workflow.ExecCommandEx("find /home/mks/ -not -user mks -not -group mks", 120)
+		files = self.workflow.ExecCommand("find /home/mks/ -not -user mks -not -group mks", 120)
 		# Filter files used by 'root' services
 		sel = []
 		for f in files:

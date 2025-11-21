@@ -7,5 +7,19 @@
 	"python.analysis.include": [
 		"${workspaceFolder}/assets/*"
 	],
-	"files.encoding": "utf8"
+	"files.encoding": "utf8",
+	"cSpell.words": [
+		"gcode",
+		"Klipper",
+		"makerbase",
+		"mksclient",
+		"mkspi",
+		"obico",
+		"plrtmp",
+		"rockchip",
+		"simage",
+		"timelapse",
+		"unbrick",
+		"viminfo"
+	]
 }

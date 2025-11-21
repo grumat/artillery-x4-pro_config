@@ -37,7 +37,7 @@ class CheckConnect(Task):
 		else:
 			time.sleep(0.2)
 			# Check `uname -a` results
-			res = self.workflow.ExecCommandEx('uname -a')
+			res = self.workflow.ExecCommand('uname -a')
 			if len(res):
 				m = re.match(r'Linux mkspi (\d+\.\d+\.\d+)-rockchip64 .*', res[0])
 				if m:
@@ -49,7 +49,7 @@ class CheckConnect(Task):
 		else:
 			time.sleep(0.2)
 			# Check `./get_id` mkspi utility and verify MCU model
-			res = self.workflow.ExecCommandEx('./get_id')
+			res = self.workflow.ExecCommand('./get_id')
 			for line in res:
 				line = line.strip()
 				m = re.match(r'/dev/serial/by-id/usb-Klipper_stm32f401xc_[A-Z0-9]{24}-if00', line)
@@ -63,7 +63,7 @@ class CheckConnect(Task):
 		else:
 			time.sleep(0.2)
 			# Check `ls -1 /home/mks/Desktop/myfile/others/artillery_X4_*.cfg` to find configuration restore files
-			res = self.workflow.ExecCommandEx('ls -1 /home/mks/Desktop/myfile/others/artillery_X4_*.cfg')
+			res = self.workflow.ExecCommand('ls -1 /home/mks/Desktop/myfile/others/artillery_X4_*.cfg')
 			for line in res:
 				line = line.strip()
 				m = re.match(r'/home/mks/Desktop/myfile/others/artillery_X4_(.+)\.cfg', line)
