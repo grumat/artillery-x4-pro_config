@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: UTF-8 -*-
+#
+# spellchecker: words gcode endstop EPCOS mainboard neopixel
 
 import sys
 import os
@@ -9,13 +11,16 @@ import types
 
 # Get the directory of the current script
 current_dir = os.path.normpath(os.path.dirname(os.path.abspath(__file__)))
+# Construct the path to the 'edit_cfg' library
+lib_dir = os.path.normpath(os.path.join(current_dir, '..'))
 # Construct the path to the 'assets' directory
-assets_dir = os.path.normpath(os.path.join(current_dir, '..', 'assets'))
+assets_dir = os.path.normpath(os.path.join(lib_dir, 'assets'))
 
 # Add the 'assets' directory to sys.path
+sys.path.append(lib_dir)
 sys.path.append(assets_dir)
 # Now you can import helper_functions as if it were a module
-import edit_cfg
+import edit_cfg		# type: ignore
 import encoded_data
 
 test_file = os.path.join(current_dir, 'test.cfg')
@@ -56,12 +61,12 @@ def MkCfgClone():
 	"""Makes a clone of a configuration file, used for tests"""
 	if os.path.exists(test_file):
 		os.unlink(test_file)
-	src_cfg = os.path.normpath(os.path.join(current_dir, '..', '..', 'backup', '20250701-printer.cfg'))
+	src_cfg = os.path.normpath(os.path.join(current_dir, 'test-reference.cfg'))
 	shutil.copyfile(src_cfg, test_file)
 
 err_count = 0
 total_err_count = 0
-def Run(args : list[str], cmp, fname : str = None) -> None:
+def Run(args : list[str], cmp, fname : str | None = None) -> None:
 	global err_count
 	# Prints command line
 	cmdline = ' '.join(shlex.quote(a) for a in args)
@@ -119,7 +124,7 @@ def Test_ListSec():
 	Run(['ListSec', 'abcdefg', 'extra-arg'], "!ARG+")
 
 	Run(['ListSec', 'printer'], "=printer @264 :2098A795")
-	Run(['ListSec', 'include *'], lambda res : str(res).endswith("fi7kinChIfuiecA="))
+	Run(['ListSec', 'include *'], lambda res : str(res).endswith("fi7kinChIfuiecA=")) # spellchecker: disable-line
 	Run(['ListSec', 'stepper_?'], lambda res : str(res).endswith("fi7kinChIS/zd5A="))
 
 	Test_Close_()
@@ -133,7 +138,7 @@ def Test_ListKeys():
 	Run(['ListKeys', 'pause_resume'], "!KEY")
 	Run(['ListKeys', 'idle_timeout'], "=timeout @284 :58D59594")
 	Run(['ListKeys', 'gcode_macro nozzle_wipe'], "=gcode @408 :B77EDF4D")
-	Run(['ListKeys', 'printer'], lambda res : str(res).endswith("IpwoSAtX0ksA=="))
+	Run(['ListKeys', 'printer'], lambda res : str(res).endswith("IpwoSAtX0ksA==")) # spellchecker: disable-line
 
 	Test_Close_()
 
@@ -152,9 +157,9 @@ def Test_GetKey():
 	Run(['GetKey', 'stepper_y', 'endstop_pin'], "=tmc2209_stepper_y:virtual_endstop")
 	Run(['GetKey', 'stepper_y', 'step_pulse_duration'], "=0.000002")
 	Run(['GetKey', 'extruder', 'sensor_type'], "=EPCOS 100K B57560G104F")
-	Run(['GetKey', 'homing_override', 'gcode'], lambda res : str(res).endswith("5IpwoSCwmqeqA="))
-	Run(['GetKey', 'gcode_macro G29', 'gcode'], lambda res : str(res).endswith("+LuSKcKEhiJ8GKA"))
-	Run(['GetKey', 'gcode_macro M600', 'gcode'], lambda res : str(res).endswith("uSKcKEgn29ApA=="))
+	Run(['GetKey', 'homing_override', 'gcode'], lambda res : str(res).endswith("i7kinChITWZTlAA="))	# spellchecker: disable-line
+	Run(['GetKey', 'gcode_macro G29', 'gcode'], lambda res : str(res).endswith("x+LuSKcKEg5WYIZg"))	# spellchecker: disable-line
+	Run(['GetKey', 'gcode_macro M600', 'gcode'], lambda res : str(res).endswith("uSKcKEgn29ApA=="))	# spellchecker: disable-line
 
 	Run(['GetKey', 'stepper_?', 'step_pin'], "!SEC+")
 
@@ -192,11 +197,11 @@ def Test_EditKeyML():
 	Run(['EditKeyML', 'no_no_no', 'no_key', encoded_data.M600, 'extra-arg'], "!ARG+")
 
 	Run(['EditKeyML', 'gcode_macro M600', 'gcode', encoded_data.M600], ".OK")
-	Run(['GetKey', 'gcode_macro M600', 'gcode'], lambda res : str(res).endswith("DDUncXckU4UJBkMhnJA=="))
+	Run(['GetKey', 'gcode_macro M600', 'gcode'], lambda res : str(res).endswith("/F3JFOFCQ39ObeQ"))
 
 	Run(['GetKey', 'gcode_macro M600', 'new_key'], "!KEY")
 	Run(['EditKeyML', 'gcode_macro M600', 'new_key', encoded_data.M600], ".OK")
-	Run(['GetKey', 'gcode_macro M600', 'new_key'], lambda res : str(res).endswith("DDUncXckU4UJBkMhnJA=="))
+	Run(['GetKey', 'gcode_macro M600', 'new_key'], lambda res : str(res).endswith("/F3JFOFCQ39ObeQ"))
 
 	Run(['EditKeyML', 'gcode_macro *', 'new_key', encoded_data.M600], "!SEC+")
 
@@ -226,8 +231,8 @@ def Test_RenSec():
 	Test_Begin_("RenSec Test")
 	Run(['RenSec'], "!ARG")
 	Run(['RenSec', 'abcdefg'], "!ARG")
-	Run(['RenSec', 'abcdefg', 'defgh'], "!SEC")
-	Run(['RenSec', 'abcdefg', 'defgh', 'extra-arg'], "!ARG+")
+	Run(['RenSec', 'abcdefg', 'defgh'], "!SEC")					# spellchecker: disable-line
+	Run(['RenSec', 'abcdefg', 'defgh', 'extra-arg'], "!ARG+") 	# spellchecker: disable-line
 
 	Run(['ListSec', 'controller_fan mainboard_fan'], "=controller_fan mainboard_fan @242 :9971A484")
 	Run(['RenSec', 'controller_fan mainboard_fan', 'controller_fan motherboard_fan'], ".OK")
@@ -245,7 +250,7 @@ def Test_DelSec():
 	Run(['DelSec', 'abcdefg', 'extra-arg'], "!ARG+")
 	Run(['DelSec', '@9999'], "!RANGE")
 
-	Run(['ListSec', 'neopixel my_neopixel'], "=neopixel my_neopixel @648 :60C51F9E")
+	Run(['ListSec', 'neopixel my_neopixel'], "=neopixel my_neopixel @650 :60C51F9E")
 	Run(['DelSec', 'neopixel my_neopixel'], ".OK")
 	Run(['ListSec', 'neopixel my_neopixel'], "!SEC")
 
@@ -266,9 +271,9 @@ def Test_ReadSec():
 
 	Run(['ReadSec', 'pause_resume'], lambda res : str(res).endswith("7xdyRThQkEjA7v4A=="))
 	Run(['ReadSec', 'input_shaper'], lambda res : str(res).endswith("RThQkBAC6zkA=="))
-	Run(['ReadSec', 'extruder'], lambda res : str(res).endswith("4u5IpwoSD5i+UKA=="))
+	Run(['ReadSec', 'extruder'], lambda res : str(res).endswith("4u5IpwoSD5i+UKA==")) # spellchecker: disable-line
 
-	Run(['ReadSec', '@464'], lambda res : str(res).endswith("5IpwoSFd2ewqA="))
+	Run(['ReadSec', '@464'], lambda res : str(res).endswith("5IpwoSFd2ewqA=")) # spellchecker: disable-line
 
 	Test_Close_()
 
@@ -299,10 +304,10 @@ def Test_OvrSec():
 	Run(['OvrSec', 'abcdefg', 'bad-data', 'extra-arg'], "!ARG+")
 	Run(['OvrSec', 'abcdefg', section1], "!SEC")
 
-	Run(['ListSec', 'gcode_arcs'], "=gcode_arcs @632 :7224E2B6")
+	Run(['ListSec', 'gcode_arcs'], "=gcode_arcs @634 :7224E2B6")
 	Run(['OvrSec', 'gcode_arcs', section1], ".OK")
 	Run(['ListSec', 'gcode_arcs'], "!SEC")
-	Run(['ListSec', 'new-top'], "=new-top @633 :41A7D47C")
+	Run(['ListSec', 'new-top'], "=new-top @635 :41A7D47C")
 
 	Run(['ListSec', 'tmc2209 extruder'], "=tmc2209 extruder @368 :77B0CB90")
 	Run(['OvrSec', 'tmc2209 extruder', section2], ".OK")

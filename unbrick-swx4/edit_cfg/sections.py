@@ -76,12 +76,12 @@ class Section(object):
 		return [i for i in self.keys if i.name == k]
 	def GetSingleKey(self, k : str) -> Result:
 		"""Makes sure that only a single key is selected."""
-		key = self.GetKey(k)
-		if not key:
+		key_list = self.GetKey(k)
+		if not key_list:
 			return NO_KEY(self.GetLoc())
-		if len(key) > 1:
+		if len(key_list) > 1:
 			return MULT_KEY(self.GetLoc())
-		key : Key = key[0]
+		key : Key = key_list[0]
 		return Result('k', key, key.GetLoc())
 	def GetCRC(self):
 		"""Compute CRC of contents using `StringEssence()` method"""

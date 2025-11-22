@@ -3,10 +3,9 @@
 #
 # Spellchecker: words MULT
 
-from .context import Context
 from .sections import Section, SecLabel
 from .loc import Loc
-from .parser import CfgIterator
+from .parser import CfgIterator, Context
 from .line import MLine
 from .result import Result, NO_SECTION, MULT_SECTION, INV_RANGE
 
@@ -68,25 +67,26 @@ class Contents(object):
 						elif it.HasKeyPattern():
 							# Found a "key:..." pattern
 							self.cur_key = it.CreateKey()
+							if self.cur_key.loc.idx_n is None:
+								raise ValueError("Key location has an unexpected state")
 							it.NextLine()
 							# If the key is multi-line mode, we have to fetch all lines
-							if self.cur_key.IsMultiLine():
+							if it.IsLineEmpty() or it.HasLeadingBlanks():
 								# This flag marks True if the last line that was seen is blank
-								blank = False
 								while True:
+									if it.rl is None:
+										raise ValueError("Line instance shall have a contents")
+									has_raw_data = (it.rl.raw.strip() != '')
 									if it.rl.raw:
 										if it.rl.raw[0].isspace():
 											# This collect even commented out lines
-											self.cur_key.value.append(MLine(it.rl.unc+'\n', it.lno))
-											blank = it.IsLineEmpty()
+											self.cur_key.value.append(MLine(it.rl.unc+'\n', it.lno, has_raw_data))
 										else:
-											# Skip the last empty line on transition
-											if blank:
-												self.cur_key.loc.idx_n -= 1
 											break
 									else:
-										blank = True
+										self.cur_key.value.append(MLine('\n', it.lno, has_raw_data))
 									it.NextLine()
+								self.cur_key.ShrinkIfEmpty()
 							self.cur_sect.keys.append(self.cur_key)
 							self.cur_key = None
 						else:
@@ -117,7 +117,7 @@ class Contents(object):
 			if s.GetLoc().IsInRange(lno):
 				return Result('s', s)
 		return NO_SECTION
-	def GetFirstSection(self) -> Section:
+	def GetFirstSection(self) -> Section | None:
 		for s in self.sections:
 			if not s.name.IsInclude():
 				return s

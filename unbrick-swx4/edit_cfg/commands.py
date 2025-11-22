@@ -3,10 +3,11 @@
 #
 # Spellchecker: words libtools
 
+import sys
 
-from .context import Context
+from .parser import Context
 from .sections import SecLabel, Section
-from .result import Result, NO_LOC, MISSING_ARG, NO_SECTION, NO_KEY, INV_RANGE, ML_KEY, OK, INV_ENC, EMPTY
+from .result import Result, NO_LOC, MISSING_ARG, NO_SECTION, NO_KEY, INV_RANGE, ML_KEY, OK, INV_ENC, EMPTY, NO_FN
 from .libtools import EncodeMultiLine, DecodeMultiLine
 from .contents import Contents
 from .keys import Key
@@ -20,9 +21,9 @@ def ListSec(ctx : Context) -> Result:
 		- arg1: configuration file name (optional)
 	"""
 	# Get section
-	sec = ctx.GetArg()
-	if sec and not ctx.IsLastFileArg(sec):
-		sec = SecLabel(sec)
+	arg = ctx.GetArg()
+	if arg and not ctx.IsLastFileArg(arg):
+		arg = SecLabel(arg)
 		# Load configuration file
 		res = ctx.ReadLines()
 		if not res:
@@ -31,7 +32,7 @@ def ListSec(ctx : Context) -> Result:
 		c = Contents(ctx)
 		c.Load()
 		# Filter results
-		hits = c.MatchSections(sec)
+		hits = c.MatchSections(arg)
 		if len(hits) > 1:
 			# Handle multi-line responses
 			res = "".join([f"{s.GetLabel()} @{s.GetLoc().idx_0} :{s.GetCRC():08X}\n" for s in hits])
@@ -51,8 +52,8 @@ def ListKeys(ctx : Context) -> Result:
 		- arg1: configuration file name (optional)
 	"""
 	# Get section
-	sec = ctx.GetArg()
-	if sec and not ctx.IsLastFileArg(sec):
+	arg = ctx.GetArg()
+	if arg and not ctx.IsLastFileArg(arg):
 		# Load configuration file
 		res = ctx.ReadLines()
 		if not res:
@@ -61,27 +62,27 @@ def ListKeys(ctx : Context) -> Result:
 		c = Contents(ctx)
 		c.Load()
 		# Section by number?
-		if sec.startswith('@'):
-			res = c.GetSectionOfLine(int(sec[1:]))
+		if arg.startswith('@'):
+			res = c.GetSectionOfLine(int(arg[1:]))
 		else:
 			# Search for section
-			res = c.GetSingleSection(SecLabel(sec))
+			res = c.GetSingleSection(SecLabel(arg))
 		# Object was found?
 		if res.IsObject():
 			if not isinstance(res.value, Section):
 				raise ValueError("Unexpected object type in 'result'")
-			s = res.value
-			if ctx.IsRangeValid(s.GetLoc()):
-				if len(s.keys) == 0:
-					res = NO_KEY(s.GetLoc())
-				elif len(s.keys) == 1:
-					k = s.keys[0]
+			sec = res.value
+			if ctx.IsRangeValid(sec.GetLoc()):
+				if len(sec.keys) == 0:
+					res = NO_KEY(sec.GetLoc())
+				elif len(sec.keys) == 1:
+					k = sec.keys[0]
 					res = Result('=', f"{k.name} @{k.GetLoc().idx_0} :{k.GetCRC():08X}", k.GetLoc())
 				else:
-					t = "".join(f"{k.name} @{k.GetLoc().idx_0} :{k.GetCRC():08X}\n" for k in s.keys)
+					t = "".join(f"{k.name} @{k.GetLoc().idx_0} :{k.GetCRC():08X}\n" for k in sec.keys)
 					res = Result('*', EncodeMultiLine(t), NO_LOC)
 			else:
-				res = INV_RANGE(s.GetLoc())	# bug?
+				res = INV_RANGE(sec.GetLoc())	# bug?
 		return res
 	return MISSING_ARG
 
@@ -129,7 +130,7 @@ def GetKey(ctx : Context) -> Result:
 					else:
 						# Simple response for single line
 						res.code = '='
-						res.value = key.value
+						res.value = key.GetSingleLineValue()
 			else:
 				res = INV_RANGE(sec.GetLoc())	# bug?
 			return res
@@ -176,7 +177,7 @@ def EditKey(ctx : Context) -> Result:
 					# Found a key?
 					if res.IsKindOf(NO_KEY(NO_LOC)):
 						# Append entry
-						ctx.AddLines(sec.GetLoc(), [f"{k}:{data}\n"])
+						ctx.AddLines(sec.GetLoc(), [f"{k}: {data}\n"])
 						# Writes results
 						res = ctx.WriteLines()
 					elif res.IsObject():
@@ -186,10 +187,10 @@ def EditKey(ctx : Context) -> Result:
 						key = res.value
 						if key.IsMultiLine():
 							return ML_KEY(key.GetLoc())
-						if key.value == data:
+						if key.GetSingleLineValue() == data:
 							return OK
 						# This method preserves comments
-						ctx.EditLine(key.GetLoc(), f"{k}:{data}")
+						ctx.EditLine(key.GetLoc(), f"{k}: {data}")
 						# Writes results
 						res = ctx.WriteLines()
 				else:
@@ -246,7 +247,7 @@ def EditKeyML(ctx : Context) -> Result:
 						key = res.value
 						if not key.IsMultiLine():
 							return ML_KEY(key.GetLoc())
-						if key.value == data:
+						if key.GetMultiLineValue() == data:
 							return OK
 						# Use section location
 						loc = key.GetLoc()
@@ -545,4 +546,3 @@ def OvrSec(ctx : Context) -> Result:
 				res = ctx.WriteLines()
 			return res
 	return MISSING_ARG
-

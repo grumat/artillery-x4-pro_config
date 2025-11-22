@@ -17,7 +17,8 @@
 		"editor.insertSpaces": false,
 		"editor.tabSize": 4,
 		"python.analysis.extraPaths": [
-			"${workspaceFolder:assets}"
+			"${workspaceFolder:assets}",
+			"$(workspaceFolder}"
 		],
 		"python.analysis.include": [
 			"${workspaceFolder:assets}"
