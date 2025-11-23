@@ -1,7 +1,7 @@
 #
 # -*- coding: UTF-8 -*-
 #
-# Spellchecker:	words MULT libtools
+# Spellchecker:	words MULT libtools gcode klipper
 
 import fnmatch
 import zlib

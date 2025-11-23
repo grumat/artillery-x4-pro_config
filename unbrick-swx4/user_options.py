@@ -1,5 +1,7 @@
 #
 # -*- coding: UTF-8 -*-
+#
+# Spellchecker: words klipper, gcode
 
 import os
 import configparser
@@ -40,6 +42,12 @@ class UserOptions(object):
 		self.purge_line = 2
 		self.enable_m600 = True
 		self.pause = 3
+
+	def IsArtillerySWX4Pro(self):
+		return self.printer == 0
+	
+	def IsArtillerySWX4Plus(self):
+		return self.printer != 0
 
 	def SaveIni(self, filename):
 		config = configparser.ConfigParser()
@@ -87,8 +95,8 @@ class UserOptions(object):
 			'enable_m600': str(self.enable_m600),
 			'pause': str(self.pause),
 		}
-		with open(filename, 'w') as configfile:
-			config.write(configfile)
+		with open(filename, 'w') as config_file:
+			config.write(config_file)
 
 	def LoadIni(self, filename):
 		if not os.path.isfile(filename):

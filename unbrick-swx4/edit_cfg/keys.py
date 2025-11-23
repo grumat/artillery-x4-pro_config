@@ -4,8 +4,6 @@
 # Spellchecker:	words libtools
 
 
-from typing import TypeGuard
-
 from .loc import Loc
 from .line import MLine
 from .libtools import StringCRC

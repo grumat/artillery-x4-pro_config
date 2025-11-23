@@ -1,7 +1,7 @@
 #
 # -*- coding: UTF-8 -*-
 #
-# spellchecker:words stty
+# spellchecker:words stty makerbase mkspi timelapse
 
 
 import paramiko
@@ -9,11 +9,11 @@ import select # Use the standard select module for checking readiness
 import time
 import re
 import shlex
+from typing import Callable, Optional
 
 from i18n import N_, _
 from my_env import Info, Debug, Error
 from my_lib import TryParseInt
-from typing import Callable, Optional
 
 
 USERNAME = 'root'
@@ -101,7 +101,7 @@ class ArtillerySideWinder(object):
 		# Return the data we drained (often useful for debugging)
 		return drained_data.decode('utf-8', errors='ignore')
 
-	def Connect(self, ip_addr : str):
+	def Connect(self, ip_addr : str) -> None:
 		if self.client is None:
 			self.client = paramiko.SSHClient()
 		try:
@@ -125,7 +125,7 @@ class ArtillerySideWinder(object):
 		# Open sftp channel for file transfer
 		self.sftp = self.client.open_sftp()
 
-	def Disconnect(self):
+	def Disconnect(self) -> None:
 		if self.sftp:
 			self.sftp.close()
 			self.sftp = None
@@ -170,6 +170,11 @@ class ArtillerySideWinder(object):
 		for line in output:
 			Debug(f'\t\t{line.strip()}')
 		return output
+	
+	def SftpGet(self, src : str, dest : str) -> None:
+		if self.sftp is None:
+			raise RuntimeError("Called method without connection")
+		self.sftp.get(src, dest)
 
 	def GetFreeScape(self) -> DiskUsage:
 		lines = self.ExecCommand("df -k")

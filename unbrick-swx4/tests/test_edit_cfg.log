@@ -271,7 +271,7 @@ PASSED: .OK
 Q: GetKey stepper_x full_steps_per_rotation
 PASSED: =201
 -------------------------
-Q: EditKey 'gcode_macro M600' gcode QlpoOTFBWSZTWWQyGckAABPfgAAwQmFaAjICSnAnJ94OMAD6rYIoohpo0A0aAB6QR6qaaZAAAAAaBVT1KntSaNGBGbSQG1HpBBFIokRENAiUY3kkyZkmN+msK+JGeZln66kMxZfbEEFYWYo7EZDQ32tKnPlzsVXJrPVtcDIwMepiPg6lrRG4mSCJJSZCi0WjgHV/BY4uDD4WoahPEGAwgIBo+oULHInoKGonwwFg+OBYtGFNldRgbixyop+jQveuWhmZlitDDUncXckU4UJBkMhnJA==
+Q: EditKey 'gcode_macro M600' gcode QlpoOTFBWSZTWd/Tm3kAABPfgAAwQmFaAjICSnAnJ94OMADarYRRRDTQAaNABtII9VNPU0AAAAAAqp6pT2pNMRgDaSaDaT1IIIpFEiIhmElGFpJMaZUYWx2ivkRnmZZwdaGYsutiCCsLMUdqMhobrVkdOPSpcsTSe74bzEvMOxgPk7FaxOCZIIklJkKLRaN4dn8Fji3sPlahqDAGg0eHh8dYMFPkTwGD6J6NBQdPgUVEU13aC82lTjRT9GZa12OZkZFS6hfoT/F3JFOFCQ39ObeQ
 PASSED: !ML
 -------------------------
 Q: GetKey stepper_z new_key
@@ -307,13 +307,13 @@ PASSED: !ARG
 Q: EditKeyML no_no_no no_key 999
 PASSED: !ENC
 -------------------------
-Q: EditKeyML no_no_no no_key QlpoOTFBWSZTWWQyGckAABPfgAAwQmFaAjICSnAnJ94OMAD6rYIoohpo0A0aAB6QR6qaaZAAAAAaBVT1KntSaNGBGbSQG1HpBBFIokRENAiUY3kkyZkmN+msK+JGeZln66kMxZfbEEFYWYo7EZDQ32tKnPlzsVXJrPVtcDIwMepiPg6lrRG4mSCJJSZCi0WjgHV/BY4uDD4WoahPEGAwgIBo+oULHInoKGonwwFg+OBYtGFNldRgbixyop+jQveuWhmZlitDDUncXckU4UJBkMhnJA==
+Q: EditKeyML no_no_no no_key QlpoOTFBWSZTWd/Tm3kAABPfgAAwQmFaAjICSnAnJ94OMADarYRRRDTQAaNABtII9VNPU0AAAAAAqp6pT2pNMRgDaSaDaT1IIIpFEiIhmElGFpJMaZUYWx2ivkRnmZZwdaGYsutiCCsLMUdqMhobrVkdOPSpcsTSe74bzEvMOxgPk7FaxOCZIIklJkKLRaN4dn8Fji3sPlahqDAGg0eHh8dYMFPkTwGD6J6NBQdPgUVEU13aC82lTjRT9GZa12OZkZFS6hfoT/F3JFOFCQ39ObeQ
 PASSED: !SEC
 -------------------------
-Q: EditKeyML no_no_no no_key QlpoOTFBWSZTWWQyGckAABPfgAAwQmFaAjICSnAnJ94OMAD6rYIoohpo0A0aAB6QR6qaaZAAAAAaBVT1KntSaNGBGbSQG1HpBBFIokRENAiUY3kkyZkmN+msK+JGeZln66kMxZfbEEFYWYo7EZDQ32tKnPlzsVXJrPVtcDIwMepiPg6lrRG4mSCJJSZCi0WjgHV/BY4uDD4WoahPEGAwgIBo+oULHInoKGonwwFg+OBYtGFNldRgbixyop+jQveuWhmZlitDDUncXckU4UJBkMhnJA== extra-arg
+Q: EditKeyML no_no_no no_key QlpoOTFBWSZTWd/Tm3kAABPfgAAwQmFaAjICSnAnJ94OMADarYRRRDTQAaNABtII9VNPU0AAAAAAqp6pT2pNMRgDaSaDaT1IIIpFEiIhmElGFpJMaZUYWx2ivkRnmZZwdaGYsutiCCsLMUdqMhobrVkdOPSpcsTSe74bzEvMOxgPk7FaxOCZIIklJkKLRaN4dn8Fji3sPlahqDAGg0eHh8dYMFPkTwGD6J6NBQdPgUVEU13aC82lTjRT9GZa12OZkZFS6hfoT/F3JFOFCQ39ObeQ extra-arg
 PASSED: !ARG+
 -------------------------
-Q: EditKeyML 'gcode_macro M600' gcode QlpoOTFBWSZTWWQyGckAABPfgAAwQmFaAjICSnAnJ94OMAD6rYIoohpo0A0aAB6QR6qaaZAAAAAaBVT1KntSaNGBGbSQG1HpBBFIokRENAiUY3kkyZkmN+msK+JGeZln66kMxZfbEEFYWYo7EZDQ32tKnPlzsVXJrPVtcDIwMepiPg6lrRG4mSCJJSZCi0WjgHV/BY4uDD4WoahPEGAwgIBo+oULHInoKGonwwFg+OBYtGFNldRgbixyop+jQveuWhmZlitDDUncXckU4UJBkMhnJA==
+Q: EditKeyML 'gcode_macro M600' gcode QlpoOTFBWSZTWd/Tm3kAABPfgAAwQmFaAjICSnAnJ94OMADarYRRRDTQAaNABtII9VNPU0AAAAAAqp6pT2pNMRgDaSaDaT1IIIpFEiIhmElGFpJMaZUYWx2ivkRnmZZwdaGYsutiCCsLMUdqMhobrVkdOPSpcsTSe74bzEvMOxgPk7FaxOCZIIklJkKLRaN4dn8Fji3sPlahqDAGg0eHh8dYMFPkTwGD6J6NBQdPgUVEU13aC82lTjRT9GZa12OZkZFS6hfoT/F3JFOFCQ39ObeQ
 PASSED: .OK
 -------------------------
 Q: GetKey 'gcode_macro M600' gcode
@@ -345,7 +345,7 @@ Expands to:
 Q: GetKey 'gcode_macro M600' new_key
 PASSED: !KEY
 -------------------------
-Q: EditKeyML 'gcode_macro M600' new_key QlpoOTFBWSZTWWQyGckAABPfgAAwQmFaAjICSnAnJ94OMAD6rYIoohpo0A0aAB6QR6qaaZAAAAAaBVT1KntSaNGBGbSQG1HpBBFIokRENAiUY3kkyZkmN+msK+JGeZln66kMxZfbEEFYWYo7EZDQ32tKnPlzsVXJrPVtcDIwMepiPg6lrRG4mSCJJSZCi0WjgHV/BY4uDD4WoahPEGAwgIBo+oULHInoKGonwwFg+OBYtGFNldRgbixyop+jQveuWhmZlitDDUncXckU4UJBkMhnJA==
+Q: EditKeyML 'gcode_macro M600' new_key QlpoOTFBWSZTWd/Tm3kAABPfgAAwQmFaAjICSnAnJ94OMADarYRRRDTQAaNABtII9VNPU0AAAAAAqp6pT2pNMRgDaSaDaT1IIIpFEiIhmElGFpJMaZUYWx2ivkRnmZZwdaGYsutiCCsLMUdqMhobrVkdOPSpcsTSe74bzEvMOxgPk7FaxOCZIIklJkKLRaN4dn8Fji3sPlahqDAGg0eHh8dYMFPkTwGD6J6NBQdPgUVEU13aC82lTjRT9GZa12OZkZFS6hfoT/F3JFOFCQ39ObeQ
 PASSED: .OK
 -------------------------
 Q: GetKey 'gcode_macro M600' new_key
@@ -374,7 +374,7 @@ Expands to:
 		{% endif %}
 	{% endif %}
 -------------------------
-Q: EditKeyML 'gcode_macro *' new_key QlpoOTFBWSZTWWQyGckAABPfgAAwQmFaAjICSnAnJ94OMAD6rYIoohpo0A0aAB6QR6qaaZAAAAAaBVT1KntSaNGBGbSQG1HpBBFIokRENAiUY3kkyZkmN+msK+JGeZln66kMxZfbEEFYWYo7EZDQ32tKnPlzsVXJrPVtcDIwMepiPg6lrRG4mSCJJSZCi0WjgHV/BY4uDD4WoahPEGAwgIBo+oULHInoKGonwwFg+OBYtGFNldRgbixyop+jQveuWhmZlitDDUncXckU4UJBkMhnJA==
+Q: EditKeyML 'gcode_macro *' new_key QlpoOTFBWSZTWd/Tm3kAABPfgAAwQmFaAjICSnAnJ94OMADarYRRRDTQAaNABtII9VNPU0AAAAAAqp6pT2pNMRgDaSaDaT1IIIpFEiIhmElGFpJMaZUYWx2ivkRnmZZwdaGYsutiCCsLMUdqMhobrVkdOPSpcsTSe74bzEvMOxgPk7FaxOCZIIklJkKLRaN4dn8Fji3sPlahqDAGg0eHh8dYMFPkTwGD6J6NBQdPgUVEU13aC82lTjRT9GZa12OZkZFS6hfoT/F3JFOFCQ39ObeQ
 PASSED: !SEC+
 -------------------------
 
@@ -482,7 +482,7 @@ Q: DelSec @9999
 PASSED: !RANGE
 -------------------------
 Q: ListSec 'neopixel my_neopixel'
-PASSED: =neopixel my_neopixel @650 :60C51F9E
+PASSED: =neopixel my_neopixel @648 :60C51F9E
 
 -------------------------
 Q: DelSec 'neopixel my_neopixel'
@@ -652,7 +652,7 @@ Q: OvrSec abcdefg QlpoOTFBWSZTWfHTUc0AAANbgAAQAAIQEAAKCgHOgCAAIppiA9PVCmAAMNJKhH
 PASSED: !SEC
 -------------------------
 Q: ListSec gcode_arcs
-PASSED: =gcode_arcs @634 :7224E2B6
+PASSED: =gcode_arcs @632 :7224E2B6
 
 -------------------------
 Q: OvrSec gcode_arcs QlpoOTFBWSZTWfHTUc0AAANbgAAQAAIQEAAKCgHOgCAAIppiA9PVCmAAMNJKhHbLwbODv8XckU4UJDx01HNA
@@ -662,7 +662,7 @@ Q: ListSec gcode_arcs
 PASSED: !SEC
 -------------------------
 Q: ListSec new-top
-PASSED: =new-top @635 :41A7D47C
+PASSED: =new-top @633 :41A7D47C
 
 -------------------------
 Q: ListSec 'tmc2209 extruder'
@@ -678,6 +678,110 @@ PASSED: !SEC
 Q: ListSec 'tmc2209 extruder2'
 PASSED: =tmc2209 extruder2 @369 :A160D7EF
 
+-------------------------
+
+                              NO ERRORS                               
+|____________________________________________________________________|
+
+
+ ____________________________________________________________________ 
+|                                                                    |
+                       === Persistence Test ===                       
+
+Q: GetSave
+PASSED: *QlpoOTFBWSZTWfZWQ4UAAHl/gAAwEABIF3/nP+2dir/v/3BAAc4Y1NDQRMmSI/KYoHqAAaD1AeSGg2oNNAgVAAAAAAAAABzAJpgEyGAAJgmAAACRQphRvVGmR6g0AGhtQaaA0NqNCgqaZIdaEP22BBdInWpzWehsbwyNLQZ3pYKgUgXJYksQ0mwY03hEF7Tou94PB+6m4XUkqSN1EtJm8r+fPm6I894WxoxOJ9sUQaSyCEZBCICEcYkuEWXGhBub3tQrWhBa4DtfVLDJScBuDhBjbbYNiaYMfaF8EGupEhjbCnLCqutC7GEBIA5QRUERa0q7RYo5sKSxxBKS9RFEm835sWRa1a5Spko1SKMlcWe8XhiUKEoSChBIMw5h7BQQtIlzFUlQxd2pFZCuuDStFcrdoPbShq8PoQNNXK57YEAW9cgu1eai/HHDl98MMHwqi3GWw0YdVUebKg/Ns9fJkN09SyifzvSB3P+26XdmwQDK/i7Bp4PvJuJkwIWQpCAjY2EdnwEkoryUULQplP+kWqWec9Hp9OIul9omM4AqDIuEQSDKy0MMEwbg2zNoVRjZt2VTgUGpGAxkwmgqNms3ZgUWSmSZAcYpzydmYgslChiKg3zDxtU0TGZLhBwBmoqQlPOEsH+LuSKcKEh7KyHCgA==
+Expands to:
+#*# <---------------------- SAVE_CONFIG ---------------------->
+#*# DO NOT EDIT THIS BLOCK OR BELOW. The contents are auto-generated.
+#*#
+#*# [extruder]
+#*# control = pid
+#*# pid_kp = 37.178
+#*# pid_ki = 11.803
+#*# pid_kd = 29.278
+#*#
+#*# [heater_bed]
+#*# control = pid
+#*# pid_kp = 69.250
+#*# pid_ki = 0.771
+#*# pid_kd = 1555.528
+#*#
+#*# [probe]
+#*# z_offset = 0.470
+#*#
+#*# [bed_mesh default]
+#*# version = 1
+#*# points =
+#*# 	  -0.034500, -0.015250, -0.008750, -0.015000, -0.016750, -0.063750
+#*# 	  -0.071750, -0.044750, -0.027000, -0.024750, -0.061500, -0.088250
+#*# 	  -0.093250, -0.062250, -0.036250, -0.044250, -0.112500, -0.081000
+#*# 	  -0.074500, -0.051750, -0.025250, -0.028750, -0.080500, -0.058250
+#*# 	  -0.051750, -0.030750, -0.015250, -0.019000, -0.049250, -0.042750
+#*# 	  -0.035500, -0.030750, -0.013500, -0.008750, -0.035750, -0.026000
+#*# tension = 0.2
+#*# min_x = 20.0
+#*# algo = bicubic
+#*# y_count = 6
+#*# mesh_y_pps = 4
+#*# min_y = 20.0
+#*# x_count = 6
+#*# max_y = 220.0
+#*# mesh_x_pps = 4
+#*# max_x = 220.0
+#*#
+#*# [input_shaper]
+#*# shaper_type_x = mzv
+#*# shaper_freq_x = 59.0
+#*# shaper_type_y = mzv
+-------------------------
+Q: Save QlpoOTFBWSZTWbmw3gkAAHV/gEAwEABIF3/nP+2dir/v/3BAAec7h1choJAyKep4ImnqNAA0DxIeU9Q2p6QNNBAigAAAAPUDQAAbUGp+qUaNAGgAAANAAaDQAJFCp6aE9qIHkRoAD1MmgNDRoAaA8CldMyipCHtpkIL4irQp1LEjWWDR+xamodqahIC6eMERTkQC7saTySXPeZhHxkx8Jku4W3R7dtvavQ8CkxocT4YoppK0Qi0QiAhGQOptpA2PeFltOtttjGJtAV4/SlLmYNiSb5TN0RDbzQBqaDQASBCGAIQPvhLU4GJJDjE4kAEFEIArLBbPRagmimS4MHd3aUBVBF96EpQWLiCGkFBkqLRUFVs1zhmUwFKislAcizMwa4QQSSAQCSQSaWIrS6tXKKWWyKoiqta5wZQ8hOgUkggztSKzizmivQTiKzDlGmsNIAq9aDX83KLMML+r4vvvhbG57B9XK85iIgwVCGfMdmy9u3JkaaJjEUgeL5bdzuzXkAyb8bKMNv7xj2KOFTEVCAjY812+kJMopd/MEDIFMp85ixmlnjou/ICLsh2RaRQMAFRRVdKhQP6uwkwg5GI125EVGNm5ZTVAoP1GEwZCYTQXTDeMUwKLJTJMgOMVcpVycoFezeolBUFZiEcMT9dI4F5XQgGaiRCU5Qk/+LuSKcKEhc2G8Eg=
+PASSED: .OK
+-------------------------
+Q: GetSave
+PASSED: *QlpoOTFBWSZTWbmw3gkAAHV/gEAwEABIF3/nP+2dir/v/3BAAec7h1choJAyKep4ImnqNAA0DxIeU9Q2p6QNNBAigAAAAPUDQAAbUGp+qUaNAGgAAANAAaDQAJFCp6aE9qIHkRoAD1MmgNDRoAaA8CldMyipCHtpkIL4irQp1LEjWWDR+xamodqahIC6eMERTkQC7saTySXPeZhHxkx8Jku4W3R7dtvavQ8CkxocT4YoppK0Qi0QiAhGQOptpA2PeFltOtttjGJtAV4/SlLmYNiSb5TN0RDbzQBqaDQASBCGAIQPvhLU4GJJDjE4kAEFEIArLBbPRagmimS4MHd3aUBVBF96EpQWLiCGkFBkqLRUFVs1zhmUwFKislAcizMwa4QQSSAQCSQSaWIrS6tXKKWWyKoiqta5wZQ8hOgUkggztSKzizmivQTiKzDlGmsNIAq9aDX83KLMML+r4vvvhbG57B9XK85iIgwVCGfMdmy9u3JkaaJjEUgeL5bdzuzXkAyb8bKMNv7xj2KOFTEVCAjY812+kJMopd/MEDIFMp85ixmlnjou/ICLsh2RaRQMAFRRVdKhQP6uwkwg5GI125EVGNm5ZTVAoP1GEwZCYTQXTDeMUwKLJTJMgOMVcpVycoFezeolBUFZiEcMT9dI4F5XQgGaiRCU5Qk/+LuSKcKEhc2G8Eg=
+Expands to:
+#*# <---------------------- SAVE_CONFIG ---------------------->
+#*# DO NOT EDIT THIS BLOCK OR BELOW. The contents are auto-generated.
+#*#
+#*# [extruder]
+#*# control = pid
+#*# pid_kp = 41.556
+#*# pid_ki = 13.852
+#*# pid_kd = 31.167
+#*#
+#*# [heater_bed]
+#*# control = pid
+#*# pid_kp = 68.837
+#*# pid_ki = 0.719
+#*# pid_kd = 1646.929
+#*#
+#*# [probe]
+#*# z_offset = 1.265
+#*#
+#*# [bed_mesh default]
+#*# version = 1
+#*# points =
+#*# 	-0.205000, -0.318750, -0.371250, -0.446250, -0.456250, -0.505000
+#*# 	-0.280000, -0.290000, -0.308750, -0.392500, -0.438750, -0.522500
+#*# 	-0.303750, -0.266250, 0.080000, 0.083750, -0.440000, -0.522500
+#*# 	-0.346250, -0.331250, -0.097500, -0.226250, -0.445000, -0.527500
+#*# 	-0.295000, -0.288750, -0.305000, -0.385000, -0.435000, -0.468750
+#*# 	-0.243750, -0.336250, -0.343750, -0.417500, -0.455000, -0.488750
+#*# tension = 0.2
+#*# min_x = 20.0
+#*# algo = bicubic
+#*# y_count = 6
+#*# mesh_y_pps = 4
+#*# min_y = 20.0
+#*# x_count = 6
+#*# max_y = 290.0
+#*# mesh_x_pps = 4
+#*# max_x = 290.0
+#*#
+#*# [input_shaper]
+#*# shaper_type_x = mzv
+#*# shaper_freq_x = 58.8
+#*# shaper_type_y = 2hump_ei
 -------------------------
 
                               NO ERRORS                               

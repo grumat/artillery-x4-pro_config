@@ -1,9 +1,8 @@
 #
 # -*- coding: UTF-8 -*-
 #
-# Spellchecker: words libtools
+# Spellchecker: words libtools MULT
 
-import sys
 
 from .parser import Context
 from .sections import SecLabel, Section
@@ -19,6 +18,13 @@ def ListSec(ctx : Context) -> Result:
 	High level command to list keys:
 		- arg0: section or pattern
 		- arg1: configuration file name (optional)
+	Returns:
+		- MISSING_ARG : when command line parameters are missing
+		- NO_SECTION: Section was not found
+		- EXTRA_ARGS: If too many arguments were given
+		- NO_FILE: If file was not found
+		- String for single line responses
+		- Encoding for multi line responses
 	"""
 	# Get section
 	arg = ctx.GetArg()
@@ -50,6 +56,14 @@ def ListKeys(ctx : Context) -> Result:
 	High level command to return the list of keys, line numbers and CRC of a given section.
 		- arg0: section name or line number. For line number use `@nnn` format
 		- arg1: configuration file name (optional)
+	Returns:
+		- MISSING_ARG : when command line parameters are missing
+		- NO_SECTION: Section was not found
+		- EXTRA_ARGS: If too many arguments were given
+		- NO_FILE: If file was not found
+		- INV_RANGE: The given line value is out of range
+		- String for single line responses
+		- Encoding for multi line responses
 	"""
 	# Get section
 	arg = ctx.GetArg()
@@ -94,6 +108,16 @@ def GetKey(ctx : Context) -> Result:
 		- arg1: key
 		- arg2: configuration file name (optional)
 	The value is returned either as simple string or base64 for multi-line keys
+	Returns:
+		- MISSING_ARG : when command line parameters are missing
+		- NO_SECTION: Section was not found
+		- EXTRA_ARGS: If too many arguments were given
+		- NO_FILE: If file was not found
+		- MULT_SECTION: Multiple section was found
+		- NO_SECTION: No section was found
+		- INV_RANGE: The given line value is out of range
+		- String for single line responses
+		- Encoding for multi line responses
 	"""
 	# Get section
 	arg = ctx.GetArg()
@@ -146,6 +170,14 @@ def EditKey(ctx : Context) -> Result:
 		- arg2: New value
 		- arg3: configuration file name (optional)
 	This command also adds a new key value if it does not exists.
+	Returns:
+		- MISSING_ARG : when command line parameters are missing
+		- NO_SECTION: Section was not found
+		- EXTRA_ARGS: If too many arguments were given
+		- NO_FILE: If file was not found
+		- MULT_SECTION: Multiple section was found
+		- NO_SECTION: No section was found
+		- INV_RANGE: The given line value is out of range
 	"""
 	# Get section
 	arg = ctx.GetArg()
@@ -546,3 +578,36 @@ def OvrSec(ctx : Context) -> Result:
 				res = ctx.WriteLines()
 			return res
 	return MISSING_ARG
+
+
+def GetSave(ctx : Context) -> Result:
+	# Load configuration file
+	res = ctx.ReadLines()
+	if res:
+		# Load contents
+		c = Contents(ctx)
+		c.Load()
+		lines = c.GetPersistence()
+		res = Result('*', EncodeMultiLine(lines), c.save)
+	return res
+
+
+def Save(ctx : Context) -> Result:
+	# Get base64 data
+	data = ctx.GetArg()
+	if data and not ctx.IsLastFileArg(data):
+		# Load configuration file
+		res = ctx.ReadLines()
+		if not res:
+			return res
+		try:
+			data = DecodeMultiLine(data)
+		except:
+			return INV_ENC
+		# Load contents
+		c = Contents(ctx)
+		c.Load()
+		c.ReplacePersistence(data)
+		return ctx.WriteLines()
+	return MISSING_ARG
+

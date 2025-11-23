@@ -197,11 +197,11 @@ def Test_EditKeyML():
 	Run(['EditKeyML', 'no_no_no', 'no_key', encoded_data.M600, 'extra-arg'], "!ARG+")
 
 	Run(['EditKeyML', 'gcode_macro M600', 'gcode', encoded_data.M600], ".OK")
-	Run(['GetKey', 'gcode_macro M600', 'gcode'], lambda res : str(res).endswith("/F3JFOFCQ39ObeQ"))
+	Run(['GetKey', 'gcode_macro M600', 'gcode'], lambda res : str(res).endswith("/F3JFOFCQ39ObeQ"))	# spellchecker: disable-line
 
 	Run(['GetKey', 'gcode_macro M600', 'new_key'], "!KEY")
 	Run(['EditKeyML', 'gcode_macro M600', 'new_key', encoded_data.M600], ".OK")
-	Run(['GetKey', 'gcode_macro M600', 'new_key'], lambda res : str(res).endswith("/F3JFOFCQ39ObeQ"))
+	Run(['GetKey', 'gcode_macro M600', 'new_key'], lambda res : str(res).endswith("/F3JFOFCQ39ObeQ"))	# spellchecker: disable-line
 
 	Run(['EditKeyML', 'gcode_macro *', 'new_key', encoded_data.M600], "!SEC+")
 
@@ -250,7 +250,7 @@ def Test_DelSec():
 	Run(['DelSec', 'abcdefg', 'extra-arg'], "!ARG+")
 	Run(['DelSec', '@9999'], "!RANGE")
 
-	Run(['ListSec', 'neopixel my_neopixel'], "=neopixel my_neopixel @650 :60C51F9E")
+	Run(['ListSec', 'neopixel my_neopixel'], "=neopixel my_neopixel @648 :60C51F9E")
 	Run(['DelSec', 'neopixel my_neopixel'], ".OK")
 	Run(['ListSec', 'neopixel my_neopixel'], "!SEC")
 
@@ -304,15 +304,24 @@ def Test_OvrSec():
 	Run(['OvrSec', 'abcdefg', 'bad-data', 'extra-arg'], "!ARG+")
 	Run(['OvrSec', 'abcdefg', section1], "!SEC")
 
-	Run(['ListSec', 'gcode_arcs'], "=gcode_arcs @634 :7224E2B6")
+	Run(['ListSec', 'gcode_arcs'], "=gcode_arcs @632 :7224E2B6")
 	Run(['OvrSec', 'gcode_arcs', section1], ".OK")
 	Run(['ListSec', 'gcode_arcs'], "!SEC")
-	Run(['ListSec', 'new-top'], "=new-top @635 :41A7D47C")
+	Run(['ListSec', 'new-top'], "=new-top @633 :41A7D47C")
 
 	Run(['ListSec', 'tmc2209 extruder'], "=tmc2209 extruder @368 :77B0CB90")
 	Run(['OvrSec', 'tmc2209 extruder', section2], ".OK")
 	Run(['ListSec', 'tmc2209 extruder'], "!SEC")
 	Run(['ListSec', 'tmc2209 extruder2'], "=tmc2209 extruder2 @369 :A160D7EF")
+
+	Test_Close_()
+
+def Test_Persistence():
+	Test_Begin_("Persistence Test")
+
+	Run(['GetSave'], lambda res : str(res).endswith("POEsH+LuSKcKEh7KyHCgA=="))
+	Run(['Save', encoded_data.RESET_CFG_SWX4_PLUS], ".OK")
+	Run(['GetSave'], lambda res : str(res).endswith("Qk/+LuSKcKEhc2G8Eg="))
 
 	Test_Close_()
 
@@ -333,6 +342,7 @@ def main():
 	Test_ReadSec()
 	Test_AddSec()
 	Test_OvrSec()
+	Test_Persistence()
 
 	print(f"TOTAL ERROR COUNT: {total_err_count}")
 

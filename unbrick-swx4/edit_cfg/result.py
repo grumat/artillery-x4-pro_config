@@ -3,6 +3,8 @@
 #
 # spellchecker:words MULT
 
+from typing import TypeGuard
+
 from .loc import Loc, NO_LOC
 
 class Result(object):
@@ -18,19 +20,19 @@ class Result(object):
 		return self.code == '!'
 	def __bool__(self):
 		return not self.IsError()
-	def IsOk(self):
+	def IsOk(self) -> bool:
 		"""
 		Every success operation with no arguments uses the '.' code. The '=' and '*' 
 		codes are also used for successful operations returning results
 		"""
 		return self.code in ('.', '=', '*')
-	def IsString(self):
+	def IsString(self) -> bool:
 		"""A simple string response uses the '=' code"""
 		return self.code == '='
-	def IsBase64(self):
+	def IsBase64(self) -> bool:
 		"""A response block encoded in base64 uses the '*' code"""
 		return self.code == '*'
-	def IsObject(self):
+	def IsObject(self) -> bool:
 		"""By convention a alpha codes are reserved for objects"""
 		return self.code.isalpha()
 	def IsKindOf(self, o : Result) -> bool:

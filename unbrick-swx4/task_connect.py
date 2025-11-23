@@ -1,5 +1,7 @@
 #
 # -*- coding: UTF-8 -*-
+#
+# Spellchecker: words mkspi, klipper, rockchip
 
 import os
 import time

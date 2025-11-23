@@ -1,11 +1,12 @@
 #
 # -*- coding: UTF-8 -*-
-
+#
+# Spellchecker: words klipper, makerbase, obico
 
 import time
 
 from i18n import _, N_
-from my_workflow import Workflow, Task, TaskState
+from my_workflow import Workflow, Task, TaskState, ExecCommand
 
 
 class StopUserInterface(Task):

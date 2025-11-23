@@ -16,18 +16,32 @@
 	"settings": {
 		"editor.insertSpaces": false,
 		"editor.tabSize": 4,
-		"python.analysis.extraPaths": [
+		"python.autoComplete.extraPaths":[
+			"${workspaceFolder}",
 			"${workspaceFolder:assets}",
-			"$(workspaceFolder}"
+			"${workspaceFolder}/edit_cfg",
+			"${workspaceFolder:mk-assets}",
+			"${workspaceFolder:tests}"
+		],
+		"python.analysis.extraPaths": [
+			"${workspaceFolder}",
+			"${workspaceFolder:assets}",
+			"${workspaceFolder}/edit_cfg",
+			"${workspaceFolder:mk-assets}",
+			"${workspaceFolder:tests}"
 		],
 		"python.analysis.include": [
-			"${workspaceFolder:assets}"
+			"./**/*.py",
+			"./**/*.pyw"
 		],
-		"python.formatting.provider": "none",
+		"files.encoding": "utf8",
+		"python.analysis.autoSearchPaths": true,
+		"python.analysis.enableTroubleshootMissingImports": true,
 		"[python]": {
-        "editor.insertSpaces": false,
-        "editor.tabSize": 4,
-        "editor.defaultFormatter": "ms-python.python"
-    },
+			"editor.insertSpaces": false,
+			"editor.tabSize": 4,
+			"editor.defaultFormatter": "ms-python.python"
+		},
+		"C_Cpp.codeAnalysis.clangTidy.headerFilter": "",
 	}
 }

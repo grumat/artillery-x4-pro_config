@@ -1,7 +1,7 @@
 #
 # -*- coding: UTF-8 -*-
 #
-# spellchecker:words bootstyle, ttkbootstrap, checkmark, padx, pady, textvariable
+# spellchecker:words bootstyle, ttkbootstrap, checkmark, padx, pady, textvariable, unbrick
 
 import os
 import queue

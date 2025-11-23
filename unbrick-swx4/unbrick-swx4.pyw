@@ -5,7 +5,7 @@
 This scripts automates the un-bricking of Artillery Sidewinder X4 printers.
 """
 
-# spellchecker: words themename, padx, pady, bootstyle, columnspan, Grumat, uopts
+# spellchecker: words themename padx pady bootstyle columnspan Grumat uopts unbrick klipper
 
 from i18n import SetupI18nAuto, _, N_
 import os
@@ -16,7 +16,7 @@ from ttkbootstrap.constants import BOTH, NSEW, EW, W, RIGHT
 from ttkbootstrap.widgets import ToolTip
 # spellchecker:enable
 
-from UserOptions import *
+from user_options import UserOptions
 import help
 from progress_dialog import ProgressDialog
 from my_workflow import Workflow

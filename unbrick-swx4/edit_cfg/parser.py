@@ -1,7 +1,7 @@
 #
 # -*- coding: UTF-8 -*-
 #
-# Spellchecker:	words MULT libtools valn
+# Spellchecker:	words MULT libtools valn klipper
 
 
 import os
@@ -168,13 +168,15 @@ class Context(object):
 		# Locate neutral position
 		ins = loc.idx_n or loc.idx_0
 		if ins > 0:
-			ins -= 1
-			# Search for non-empty
-			while ins > loc.idx_0:
-				if self.raw_lines[ins].raw.strip():
-					break
+			# Append to tail?
+			if ins < len(self.raw_lines):
 				ins -= 1
-			ins += 1
+				# Search for non-empty
+				while ins > loc.idx_0:
+					if self.raw_lines[ins].raw.strip():
+						break
+					ins -= 1
+				ins += 1
 		else:
 			ins = 0
 		# Now insert lines

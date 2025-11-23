@@ -1,5 +1,7 @@
 #
 # -*- coding: UTF-8 -*-
+#
+# Spellchecker: words klipper, obico
 
 import fnmatch
 import shlex

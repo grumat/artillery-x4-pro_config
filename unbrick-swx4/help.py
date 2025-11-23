@@ -1,5 +1,7 @@
 #
 # -*- coding: UTF-8 -*-
+#
+# Spellchecker:: words klipper fluidd mainboard grumat
 
 from i18n import N_
 
@@ -132,7 +134,7 @@ tt_fan_rename = N_(
 	"""Rename Fans
 This option renames printer fans to nice names. This is used on the 'fluidd' interface.
 
-The 'Fan 0' is renamed to 'Heatbreak Cooling Fan';
+The 'Fan 0' is renamed to 'Heat break Cooling Fan';
 The 'Fan 2' is renamed to 'Mainboard Fan'.""")
 
 
@@ -157,14 +159,14 @@ In my repository I suggest the mount of a 'fan duct' that concentrates more air 
 
 
 tt_hb_fan_speed = N_(
-	"""Heatbreak Fan Speed
-This option allows you to reduce the speed of the heatbreak fan. This should reduce the noise levels.
+	"""  Fan Speed
+This option allows you to reduce the speed of the heat break fan. This should reduce the noise levels.
 
 Please consider the following: the main function of this fan is to protect the filament smoothing near the entry of the hot-end, which could deform when the extruder pushes. If you reduce the cooling fan too much you may experience clogs on the cold end.
 
 But notice that this setup was designed for very high temperatures. If your max temperature never goes above 250°C you can reduce this value. This is my case and I use 90%, which already does a good job in noise levels.
 
-Speculative Note: Artillery launched recently a new print head, which seems to have less heatsink mass, which reduces inertia. On the other hand, this indicates that the old heatsink is over dimensioned.""")
+Speculative Note: Artillery launched recently a new print head, which seems to have less heat sink mass, which reduces inertia. On the other hand, this indicates that the old heat sink is over dimensioned.""")
 
 
 tt_temp_mcu = N_(

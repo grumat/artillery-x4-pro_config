@@ -122,6 +122,17 @@ class Contents(object):
 			if not s.name.IsInclude():
 				return s
 		return None
+	def GetPersistence(self) -> list[str]:
+		if self.save.idx_0 is None:
+			raise ValueError("Unexpected type for 'Loc")
+		return self.ctx.GetLines(self.save)
+	def ReplacePersistence(self, data : list[str]) -> None:
+		if self.save.idx_0 is None:
+			raise ValueError("Unexpected type for 'Loc")
+		self.ctx.DeleteRange(self.save)
+		self.save.idx_n = self.save.idx_0
+		self.ctx.AddLines(self.save, data)
+		self.save.idx_n = self.save.idx_0 + len(data)
 	def AddSectionLines(self, loc : Loc, data : list[str]) -> None:
 		if (self.save.idx_0 is None) or (loc.idx_0 is None):
 			raise ValueError("Unexpected type for 'Loc")
