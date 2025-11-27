@@ -115,7 +115,7 @@ def StringCRC(s : str, seed : int) -> int:
 	return zlib.crc32(StringEssence(s), seed)
 
 
-def DecodeMultiLine(b64 : str) -> list:
+def DecodeMultiLine(b64 : str) -> list[str]:
 	"""Get BASE64 payload and convert to string list"""
 	# Decode BASE64
 	ba = base64.b64decode(b64.encode('utf-8'))

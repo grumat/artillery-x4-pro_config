@@ -3,9 +3,19 @@
 #
 # spellchecker:words MULT
 
+import re
 from typing import TypeGuard
 
 from .loc import Loc, NO_LOC
+from.libtools import DecodeMultiLine
+
+
+class ListData(object):
+	PATTERN = re.compile(r'(\w+)\s@(\d+)\s:([A-F0-9]{8})')
+	def __init__(self, key : str, line : int, crc : str) -> None:
+		self.key = key
+		self.line = line
+		self.crc = crc
 
 class Result(object):
 	def __init__(self, c : str, val : str | object, loc : Loc = NO_LOC):
@@ -37,6 +47,33 @@ class Result(object):
 		return self.code.isalpha()
 	def IsKindOf(self, o : Result) -> bool:
 		return (self.code == o.code) and (type(self.value) == type(o.value) and (self.value == o.value))
+	@staticmethod
+	def _get_single_key_list(v : str) -> ListData:
+		m = ListData.PATTERN.match(v)
+		if m:
+			return ListData(m[1], int(m[2]), m[3])
+		raise ValueError("Cannot call this method for this result type")
+	def GetKeyList(self) -> list[ListData]:
+		if not isinstance(self.value, str):
+			raise ValueError("Cannot call this method for this result type")
+		if self.IsBase64():
+			lines = DecodeMultiLine(self.value)
+		elif self.IsString():
+			lines = [self.value]
+		else:
+			raise ValueError("Cannot call this method for this result type")
+		res = []
+		for l in lines:
+			res.append(Result._get_single_key_list(l))
+		return res
+	def GetSingleKeyList(self) -> ListData:
+		if isinstance(self.value, str) and self.IsString():
+			return Result._get_single_key_list(self.value)
+		raise ValueError("Cannot call this method for this result type")
+	def DecodeBase64(self) -> list[str]:
+		if isinstance(self.value, str) and self.IsBase64():
+			return DecodeMultiLine(self.value)
+		raise ValueError("Cannot call this method for this result type")
 
 # General success result
 OK = Result('.', "OK")

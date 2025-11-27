@@ -101,6 +101,62 @@ def ListKeys(ctx : Context) -> Result:
 	return MISSING_ARG
 
 
+def ListKey(ctx : Context) -> Result:
+	"""
+	High level command to return the list of keys, line numbers and CRC of a given section.
+		- arg0: section name or line number. For line number use `@nnn` format
+		- arg1: key name
+		- arg2: configuration file name (optional)
+	Returns:
+		- MISSING_ARG : when command line parameters are missing
+		- NO_SECTION: Section was not found
+		- EXTRA_ARGS: If too many arguments were given
+		- NO_FILE: If file was not found
+		- INV_RANGE: The given line value is out of range
+		- String for single line responses
+		- Encoding for multi line responses
+	"""
+	# Get section
+	arg = ctx.GetArg()
+	if arg and not ctx.IsLastFileArg(arg):
+		# Get key
+		k = ctx.GetArg()
+		if k and not ctx.IsLastFileArg(k):
+			# Load configuration file
+			res = ctx.ReadLines()
+			if not res:
+				return res
+			# Load contents
+			c = Contents(ctx)
+			c.Load()
+			# Section by number?
+			if arg.startswith('@'):
+				res = c.GetSectionOfLine(int(arg[1:]))
+			else:
+				# Search for section
+				res = c.GetSingleSection(SecLabel(arg))
+			# Object was found?
+			if res.IsObject():
+				if not isinstance(res.value, Section):
+					raise ValueError("Unexpected object type in 'result'")
+				sec = res.value
+				if ctx.IsRangeValid(sec.GetLoc()):
+					if len(sec.keys) == 0:
+						res = NO_KEY(sec.GetLoc())
+					else:
+						res = sec.GetSingleKey(k)
+						if res.IsObject():
+							if not isinstance(res.value, Key):
+								raise ValueError("Unexpected object type in 'result'")
+							key = res.value
+							res = Result('=', f"{key.name} @{key.GetLoc().idx_0} :{key.GetCRC():08X}", key.GetLoc())
+					return res
+				else:
+					res = INV_RANGE(sec.GetLoc())	# bug?
+			return res
+	return MISSING_ARG
+
+
 def GetKey(ctx : Context) -> Result:
 	"""
 	High level command to return the value of a key:

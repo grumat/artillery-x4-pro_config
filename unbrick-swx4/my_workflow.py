@@ -10,38 +10,20 @@ import queue
 import threading
 import time
 from enum import Enum
-from typing import TYPE_CHECKING, Optional, Callable
+from typing import TYPE_CHECKING
 
 TEST_MODE = os.getenv("USWX4_TEST")
 
-from user_options import UserOptions	# pyright: ignore[reportMissingImports]
-from i18n import _
-from my_env import Info, Error, GetBackupFolder
-if (TEST_MODE is None) and not TYPE_CHECKING:
-	from my_shell import ArtillerySideWinder, DiskUsage
+if TYPE_CHECKING:
+	from .user_options import UserOptions
+	from .i18n import _
+	from .my_env import Info, Error, GetBackupFolder
+	from .my_shell import ArtillerySideWinder, DiskUsage
 else:
-	from my_shell import DiskUsage
-	class ArtillerySideWinder(object):
-		"Test only: A dummy connection class"
-		def __init__(self) -> None:
-			self.failed_connection = False
-			self.sftp = None
-			self.reboot_on_exit = False
-			self.motd_output = ""
-		def Connect(self, ip_addr : str) -> None:
-			pass
-		def Disconnect(self) -> None:
-			pass
-		def ExecCommand(self, cmd : str, timeout : int = 30) -> list[str]:
-			return []
-		def SftpGet(self, src : str, dest : str) -> None:
-			pass
-		def GetFreeScape(self) -> DiskUsage:
-			return DiskUsage()
-		def DelFileMatch(self, names : str|list[str], info: Optional[Callable[[str, bool], None]] = None) -> int:
-			return 0
-		def DelTreeMatch(self, names : str|list[str], info: Optional[Callable[[str, bool], None]] = None) -> int:
-			return 0
+	from user_options import UserOptions
+	from i18n import _
+	from my_env import Info, Error, GetBackupFolder
+	from my_shell import ArtillerySideWinder, DiskUsage
 
 
 
@@ -136,16 +118,27 @@ class Workflow(ArtillerySideWinder):
 
 		self.tasks : list[Task] = []
 
-		if (TEST_MODE is None) and not TYPE_CHECKING:
-			from task_permissions import FixFilePermission, FixHomePermission
-			from task_connect import Connect, CheckConnect, Disconnect
-			from task_disk import GetInitialDiskSpace, GetFinalDiskSpace, TrimDisk
-			from task_services import StopKlipper, StartKlipper, EnableKlipper, StopMoonraker, StartMoonraker, EnableMoonraker, \
-					StopUserInterface, StartUserInterface, EnableUserInterface, StopWebCam, StartWebCam, EnableWebCam, FixCardResizeBug
-			from task_erasefiles import EraseGcodeFiles, EraseMiniatures, EraseLogFiles, EraseOldConfig, EraseClutterFiles
-		from task_config import BackupConfig, ConfigReset, FixModelSettings
+		if (TEST_MODE is None):
+			if TYPE_CHECKING:
+				from .task_permissions import FixFilePermission, FixHomePermission
+				from .task_connect import Connect, CheckConnect, Disconnect
+				from .task_disk import GetInitialDiskSpace, GetFinalDiskSpace, TrimDisk
+				from .task_services import StopKlipper, StartKlipper, EnableKlipper, StopMoonraker, StartMoonraker, EnableMoonraker, \
+						StopUserInterface, StartUserInterface, EnableUserInterface, StopWebCam, StartWebCam, EnableWebCam, FixCardResizeBug
+				from .task_erasefiles import EraseGcodeFiles, EraseMiniatures, EraseLogFiles, EraseOldConfig, EraseClutterFiles
+			else:
+				from task_permissions import FixFilePermission, FixHomePermission
+				from task_connect import Connect, CheckConnect, Disconnect
+				from task_disk import GetInitialDiskSpace, GetFinalDiskSpace, TrimDisk
+				from task_services import StopKlipper, StartKlipper, EnableKlipper, StopMoonraker, StartMoonraker, EnableMoonraker, \
+						StopUserInterface, StartUserInterface, EnableUserInterface, StopWebCam, StartWebCam, EnableWebCam, FixCardResizeBug
+				from task_erasefiles import EraseGcodeFiles, EraseMiniatures, EraseLogFiles, EraseOldConfig, EraseClutterFiles
+		if TYPE_CHECKING:
+			from .task_config import BackupConfig, ConfigReset, FixModelSettings
+		else:
+			from task_config import BackupConfig, ConfigReset, FixModelSettings
 
-		if (TEST_MODE is None) and not TYPE_CHECKING:
+		if (TEST_MODE is None):
 			self.tasks.append(Connect(self))
 			self.tasks.append(CheckConnect(self))
 			self.tasks.append(GetInitialDiskSpace(self))
@@ -166,7 +159,7 @@ class Workflow(ArtillerySideWinder):
 		self.tasks.append(ConfigReset(self))
 		self.tasks.append(FixModelSettings(self))
 
-		if (TEST_MODE is None) and not TYPE_CHECKING:
+		if (TEST_MODE is None):
 			self.tasks.append(TrimDisk(self))
 			self.tasks.append(GetFinalDiskSpace(self))
 			self.tasks.append(EnableUserInterface(self))
@@ -180,7 +173,7 @@ class Workflow(ArtillerySideWinder):
 			# Always the Last
 			self.tasks.append(Disconnect(self))
 
-	if (TEST_MODE is None) and not TYPE_CHECKING:
+	if (TEST_MODE is None):
 		def UpdateUI(self, task: Task|Message|int|None):
 			self.queue.put(task)
 			self.dlg.event_generate("<<UpdateUI>>", when="tail")
@@ -260,5 +253,5 @@ class Workflow(ArtillerySideWinder):
 					self.exception = True
 					self._set_task_state(task, TaskState.FAIL)
 					Error(f'{error_message}\n')
-					print('\033[31m' + '\n\t{error_message}\n' + '\033[30m')
+					print('\033[31m' + f'\n\t{error_message}\n' + '\033[30m')
 

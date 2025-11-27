@@ -1,7 +1,7 @@
 #
 # -*- coding: UTF-8 -*-
 #
-# Spellchecker:	words MULT libtools valn klipper
+# Spellchecker:	words MULT valn klipper
 
 
 import os

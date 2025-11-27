@@ -15,10 +15,10 @@ class MLine(object):
 		self.is_empty = not line.strip()
 		self.is_comment = self.is_empty and has_raw_data	# a entirely used for comment
 	def GetEssence(self) -> bytes:
-		from libtools import StringEssence
+		from .libtools import StringEssence
 		return StringEssence(self.line)
 	def GetCRC(self, seed : int) -> int:
-		from libtools import StringCRC
+		from .libtools import StringCRC
 		return StringCRC(self.line, seed)
 
 

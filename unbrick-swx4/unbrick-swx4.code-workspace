@@ -30,10 +30,6 @@
 			"${workspaceFolder:mk-assets}",
 			"${workspaceFolder:tests}"
 		],
-		"python.analysis.include": [
-			"./**/*.py",
-			"./**/*.pyw"
-		],
 		"files.encoding": "utf8",
 		"python.analysis.autoSearchPaths": true,
 		"python.analysis.enableTroubleshootMissingImports": true,

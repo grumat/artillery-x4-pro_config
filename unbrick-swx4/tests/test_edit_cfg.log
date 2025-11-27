@@ -74,6 +74,36 @@ square_corner_velocity @271 :29FB8E65
 
  ____________________________________________________________________ 
 |                                                                    |
+                         === ListKey Test ===                         
+
+Q: ListKey
+PASSED: !ARG
+-------------------------
+Q: ListKey abcdefg
+PASSED: !ARG
+-------------------------
+Q: ListKey abcdefg dummy
+PASSED: !SEC
+-------------------------
+Q: ListKey abcdefg dummy extra-arg
+PASSED: !ARG+
+-------------------------
+Q: ListKey pause_resume extra-arg
+PASSED: !KEY
+-------------------------
+Q: ListKey printer kinematics
+PASSED: =kinematics @265 :032E315C
+-------------------------
+Q: ListKey 'gcode_macro G29' gcode
+PASSED: =gcode @293 :F8CEE4BF
+-------------------------
+
+                              NO ERRORS                               
+|____________________________________________________________________|
+
+
+ ____________________________________________________________________ 
+|                                                                    |
                          === GetKey Test ===                          
 
 Q: GetKey

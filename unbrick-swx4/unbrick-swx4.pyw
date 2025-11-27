@@ -245,7 +245,7 @@ fields = [
 	{"type": "checkbox", 	"name": "trim", 				"text": N_("Trim eMMC"), "label": ""},
 
 	{"type": "title", 										"text": N_("Klipper Hardware Configuration")},
-	{"type": "combobox", 	"name": "reset", 				"label": N_("Configuration Reset"), "options": [N_("Update only (default)"), N_("Factory Reset (keep calibration)"), N_("Complete Factory Reset")], },
+	{"type": "combobox", 	"name": "reset", 				"label": N_("Configuration Reset"), "options": [N_("Update only (default)"), N_("Reset calibration"), N_("Factory Reset (keep calibration)"), N_("Complete Factory Reset")], },
 	{"type": "checkbox", 	"name": "model_attr", 			"text": N_("Fix Printer Model Settings"), "label": ""},
 
 	{"type": "title", 										"text": N_("Gantry")},

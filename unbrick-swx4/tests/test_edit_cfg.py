@@ -74,7 +74,7 @@ def Run(args : list[str], cmp, fname : str | None = None) -> None:
 	# Use a local test file
 	args.append(fname or test_file)
 	# Run "editor" with arguments
-	res = edit_cfg.main(args)
+	res = edit_cfg.EditConfig(args)
 	# Validation function?
 	if isinstance(cmp, types.FunctionType):
 		st : bool = cmp(res)
@@ -139,6 +139,19 @@ def Test_ListKeys():
 	Run(['ListKeys', 'idle_timeout'], "=timeout @284 :58D59594")
 	Run(['ListKeys', 'gcode_macro nozzle_wipe'], "=gcode @408 :B77EDF4D")
 	Run(['ListKeys', 'printer'], lambda res : str(res).endswith("IpwoSAtX0ksA==")) # spellchecker: disable-line
+
+	Test_Close_()
+
+def Test_ListKey():
+	Test_Begin_("ListKey Test")
+	Run(['ListKey'], "!ARG")
+	Run(['ListKey', 'abcdefg'], "!ARG")
+	Run(['ListKey', 'abcdefg', 'dummy'], "!SEC")
+	Run(['ListKey', 'abcdefg', 'dummy', 'extra-arg'], "!ARG+")
+
+	Run(['ListKey', 'pause_resume', 'extra-arg'], "!KEY")
+	Run(['ListKey', 'printer', 'kinematics'], "=kinematics @265 :032E315C")
+	Run(['ListKey', 'gcode_macro G29', 'gcode'], "=gcode @293 :F8CEE4BF")
 
 	Test_Close_()
 
@@ -320,7 +333,7 @@ def Test_Persistence():
 	Test_Begin_("Persistence Test")
 
 	Run(['GetSave'], lambda res : str(res).endswith("POEsH+LuSKcKEh7KyHCgA=="))
-	Run(['Save', encoded_data.RESET_CFG_SWX4_PLUS], ".OK")
+	Run(['Save', encoded_data.RESET_CFG_PLUS], ".OK")
 	Run(['GetSave'], lambda res : str(res).endswith("Qk/+LuSKcKEhc2G8Eg="))
 
 	Test_Close_()
@@ -333,6 +346,7 @@ def main():
 	sys.stdout = Tee(os.path.join(current_dir, 'test_edit_cfg.log'))
 	Test_ListSec()
 	Test_ListKeys()
+	Test_ListKey()
 	Test_GetKey()
 	Test_EditKey()
 	Test_EditKeyML()
