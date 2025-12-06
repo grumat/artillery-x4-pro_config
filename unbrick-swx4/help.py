@@ -79,10 +79,10 @@ Too much temperature in the extruder stepper has the potential to soften your fi
 
 
 tt_stepper_z_current = N_(
-	"""Stepper Z Current
-For this option you can select between 800mA and 900mA. It is recommended to use the lower value except if you are experiencing Z-Axis movement issues.
+	"""Stepper Z Hold Current
+For this option you can select between 800mA and 900mA. It is recommended to use the lower value except if you are having trouble maintaining the Z-axis positioning.
 
-Note: Factory default values for the X4-Plus model is 800mA, while the X4-Pro model uses 900mA. This seems inconsistent, since the Plus model has more mass to move.""")
+Note: Factory default values for the X4-Plus model is 800mA, while the X4-Pro model uses 900mA. This seems inconsistent, since the Plus model has more mass to hold.""")
 
 
 tt_extruder_current = N_(

@@ -5,7 +5,7 @@
 
 class Loc(object):
 	"""Line location in the source file (0-based indexes)"""
-	def __init__(self, i_0 : int | None = None, i_n : int | None = None):
+	def __init__(self, i_0 : int, i_n : int):
 		self.idx_0 = i_0
 		self.idx_n = i_n
 	def __bool__(self):
@@ -14,6 +14,10 @@ class Loc(object):
 		if self.idx_0:
 			return self.idx_n and f"[{self.idx_0}:{self.idx_n}]" or f"[{self.idx_0}]"
 		return "[]"
+	def __repr__(self):
+		if self.idx_0:
+			return "Loc(" + (self.idx_n and f"[{self.idx_0}:{self.idx_n}]" or f"[{self.idx_0}]") + ")"
+		return "Loc([])"
 	def IsNoLoc(self):
 		"""Test for empty location"""
 		return self.idx_0 is None
@@ -28,4 +32,4 @@ class Loc(object):
 				return self.idx_0 == lno
 		return True
 
-NO_LOC = Loc()
+NO_LOC = Loc(-1,-1)

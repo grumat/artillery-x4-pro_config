@@ -510,7 +510,14 @@ def ReadSec(ctx : Context) -> Result:
 				raise ValueError("Unexpected object type in 'result'")
 			s = res.value
 			if ctx.IsRangeValid(s.GetLoc()):
-				lines = ctx.GetLines(s.GetLoc())
+				loc = s.GetLoc()
+				if loc.idx_0 is None:
+					raise ValueError("Invalid location")
+				if loc.idx_n:
+					loc.idx_n += 1
+				else:
+					loc.idx_n = loc.idx_0 + 1
+				lines = ctx.GetLines(loc)
 				if not lines:
 					res = EMPTY
 				elif len(lines) == 0:

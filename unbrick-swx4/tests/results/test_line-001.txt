@@ -1,0 +1,806 @@
+IncludeLine: '[include plr.cfg]'                                      [include plr.cfg]
+IncludeLine: '[include MCU_ID.cfg]'                                   [include MCU_ID.cfg]
+IncludeLine: '[include moonraker_obico_macros.cfg]'                   [include moonraker_obico_macros.cfg]
+IncludeLine: '[include timelapse.cfg]'                                [include timelapse.cfg]
+EmptyLine: ''                                                         
+SectionLine: '[stepper_x]'                                            [stepper_x]
+ValueLine: 'step_pin:PC14'                                            step_pin:PC14
+ValueLine: 'dir_pin:!PC13'                                            dir_pin:!PC13
+ValueLine: 'enable_pin:!PC15'                                         enable_pin:!PC15
+ValueLine: 'microsteps: 16'                                           microsteps: 16
+ValueLine: 'rotation_distance: 40'                                    rotation_distance: 40
+ValueLine: 'full_steps_per_rotation:200  #set to 400 for 0.9 degre... full_steps_per_rotation:200  #set to 400 for 0.9 degree stepper
+ValueLine: ';endstop_pin:!PC0'                                        ;endstop_pin:!PC0
+ValueLine: 'endstop_pin:tmc2209_stepper_x:virtual_endstop'            endstop_pin:tmc2209_stepper_x:virtual_endstop
+ValueLine: 'position_min: -6'                                         position_min: -6
+ValueLine: 'position_endstop: -6'                                     position_endstop: -6
+ValueLine: 'position_max: 250'                                        position_max: 250
+ValueLine: 'homing_speed:40'                                          homing_speed:40
+ValueLine: 'homing_retract_dist:0'                                    homing_retract_dist:0
+ValueLine: 'homing_positive_dir:false'                                homing_positive_dir:false
+ValueLine: 'step_pulse_duration:0.000002'                             step_pulse_duration:0.000002
+EmptyLine: ''                                                         
+SectionLine: '[stepper_y]'                                            [stepper_y]
+ValueLine: 'step_pin:PB7'                                             step_pin:PB7
+ValueLine: 'dir_pin:PB6'                                              dir_pin:PB6
+ValueLine: 'enable_pin:!PB8'                                          enable_pin:!PB8
+ValueLine: 'microsteps:16'                                            microsteps:16
+ValueLine: 'rotation_distance: 40'                                    rotation_distance: 40
+ValueLine: 'full_steps_per_rotation:200  #set to 400 for 0.9 degre... full_steps_per_rotation:200  #set to 400 for 0.9 degree stepper
+ValueLine: ';endstop_pin:!PC1'                                        ;endstop_pin:!PC1
+ValueLine: 'endstop_pin:tmc2209_stepper_y:virtual_endstop'            endstop_pin:tmc2209_stepper_y:virtual_endstop
+ValueLine: 'position_min: 0'                                          position_min: 0
+ValueLine: 'position_endstop:0'                                       position_endstop:0
+ValueLine: 'position_max:250'                                         position_max:250
+ValueLine: 'homing_speed:40'                                          homing_speed:40
+ValueLine: 'homing_retract_dist:0'                                    homing_retract_dist:0
+ValueLine: 'homing_positive_dir:false'                                homing_positive_dir:false
+ValueLine: 'step_pulse_duration:0.000002'                             step_pulse_duration:0.000002
+EmptyLine: ''                                                         
+SectionLine: '[stepper_z]'                                            [stepper_z]
+ValueLine: 'step_pin:PC10'                                            step_pin:PC10
+ValueLine: 'dir_pin:!PA15'                                            dir_pin:!PA15
+ValueLine: 'enable_pin: !PC11'                                        enable_pin: !PC11
+ValueLine: 'microsteps: 16'                                           microsteps: 16
+ValueLine: 'rotation_distance: 8'                                     rotation_distance: 8
+ValueLine: 'full_steps_per_rotation: 200'                             full_steps_per_rotation: 200
+ValueLine: 'endstop_pin: probe:z_virtual_endstop'                     endstop_pin: probe:z_virtual_endstop
+CommentLine: '##  Z-position of nozzle (in mm) to z-endstop trigge... ##  Z-position of nozzle (in mm) to z-endstop trigger point relative to print surface (Z0)
+CommentLine: '##  (+) value = endstop above Z0, (-) value = endsto... ##  (+) value = endstop above Z0, (-) value = endstop below
+CommentLine: '##\tIncreasing position_endstop brings nozzle closer... ##	Increasing position_endstop brings nozzle closer to the bed
+CommentLine: '##  After you run Z_ENDSTOP_CALIBRATE, position_ends... ##  After you run Z_ENDSTOP_CALIBRATE, position_endstop will be stored at the very end of your config
+ValueLine: 'position_max: 260'                                        position_max: 260
+ValueLine: 'position_min: -5'                                         position_min: -5
+ValueLine: 'homing_speed:20'                                          homing_speed:20
+EmptyLine: ''                                                         
+SectionLine: '[extruder]'                                             [extruder]
+ValueLine: 'step_pin:PB1'                                             step_pin:PB1
+ValueLine: 'dir_pin:!PB2'                                             dir_pin:!PB2
+ValueLine: 'enable_pin:!PB0'                                          enable_pin:!PB0
+ValueLine: 'microsteps:16'                                            microsteps:16
+ValueLine: 'rotation_distance: 4.706#31.4\t#Bondtech 5mm Drive Gea... rotation_distance: 4.706#31.4	#Bondtech 5mm Drive Gears
+ValueLine: ';gear_ratio: 52:10'                                       ;gear_ratio: 52:10
+ValueLine: 'full_steps_per_rotation: 200\t#200 for 1.8 degree, 400... full_steps_per_rotation: 200	#200 for 1.8 degree, 400 for 0.9 degree
+ValueLine: 'nozzle_diameter: 0.400'                                   nozzle_diameter: 0.400
+ValueLine: 'filament_diameter: 1.750'                                 filament_diameter: 1.750
+ValueLine: 'min_temp: -100'                                           min_temp: -100
+ValueLine: 'max_temp: 330'                                            max_temp: 330
+ValueLine: 'heater_pin: PA7'                                          heater_pin: PA7
+ValueLine: 'sensor_type:EPCOS 100K B57560G104F'                       sensor_type:EPCOS 100K B57560G104F
+ValueLine: 'sensor_pin: PA1'                                          sensor_pin: PA1
+ValueLine: 'max_power: 1'                                             max_power: 1
+ValueLine: ';control :pid'                                            ;control :pid
+ValueLine: ';pid_kp : 26.213'                                         ;pid_kp : 26.213
+ValueLine: ';pid_ki : 1.304'                                          ;pid_ki : 1.304
+ValueLine: ';pid_kd : 131.721'                                        ;pid_kd : 131.721
+ValueLine: 'pressure_advance: 0.03'                                   pressure_advance: 0.03
+ValueLine: 'pressure_advance_smooth_time: 0.02'                       pressure_advance_smooth_time: 0.02
+ValueLine: 'max_extrude_cross_section:500'                            max_extrude_cross_section:500
+ValueLine: 'instantaneous_corner_velocity: 5.000'                     instantaneous_corner_velocity: 5.000
+ValueLine: 'max_extrude_only_distance: 500'                           max_extrude_only_distance: 500
+ValueLine: 'max_extrude_only_velocity:500'                            max_extrude_only_velocity:500
+ValueLine: 'max_extrude_only_accel:6000'                              max_extrude_only_accel:6000
+ValueLine: 'step_pulse_duration:0.000002'                             step_pulse_duration:0.000002
+ValueLine: 'min_extrude_temp:0'                                       min_extrude_temp:0
+ValueLine: 'smooth_time: 2.0'                                         smooth_time: 2.0
+EmptyLine: ''                                                         
+SectionLine: '[homing_override]'                                      [homing_override]
+ValueLine: 'set_position_z:0'                                         set_position_z:0
+MultiLineStartLine: 'gcode:'                                          gcode:
+ContinuationLine: '\tbed_mesh_clear'                                  	bed_mesh_clear
+ContinuationLine: '\tG91'                                             	G91
+ContinuationLine: '\tG1 Z5 F120'                                      	G1 Z5 F120
+ContinuationLine: '\tG90'                                             	G90
+ContinuationLine: '\t{% if params.X is defined %}'                    	{% if params.X is defined %}
+ContinuationLine: '\t\t{% if params.Y is undefined %}'                		{% if params.Y is undefined %}
+ContinuationLine: '\t\t\t{% if params.Z is undefined %}'              			{% if params.Z is undefined %}
+ContinuationLine: '\t\t\t\tG28 X'                                     				G28 X
+ContinuationLine: '\t\t\t{% endif %}'                                 			{% endif %}
+ContinuationLine: '\t\t{% endif %}'                                   		{% endif %}
+ContinuationLine: '\t{% endif %}'                                     	{% endif %}
+ContinuationLine: '\t{% if params.Y is defined %}'                    	{% if params.Y is defined %}
+ContinuationLine: '\t\t{% if params.X is undefined %}'                		{% if params.X is undefined %}
+ContinuationLine: '\t\t\t{% if params.Z is undefined %}'              			{% if params.Z is undefined %}
+ContinuationLine: '\t\t\t\tG28 Y'                                     				G28 Y
+ContinuationLine: '\t\t\t{% endif %}'                                 			{% endif %}
+ContinuationLine: '\t\t{% endif %}'                                   		{% endif %}
+ContinuationLine: '\t{% endif %}'                                     	{% endif %}
+ContinuationLine: '\t{% if params.Z is defined %}'                    	{% if params.Z is defined %}
+ContinuationLine: '\t\t{% if params.X is undefined %}'                		{% if params.X is undefined %}
+ContinuationLine: '\t\t\t{% if params.Y is undefined %}'              			{% if params.Y is undefined %}
+ContinuationLine: '\t\t\t\tG28 Y'                                     				G28 Y
+ContinuationLine: '\t\t\t\tG28 X'                                     				G28 X
+ContinuationLine: '\t\t\t\tG1 X120 Y120 F3000'                        				G1 X120 Y120 F3000
+ContinuationLine: '\t\t\t\t{% set z_max = printer.toolhead.axis_ma... 				{% set z_max = printer.toolhead.axis_maximum.z-6|int %}
+ContinuationLine: '\t\t\t\tSET_KINEMATIC_POSITION Z={z_max}'          				SET_KINEMATIC_POSITION Z={z_max}
+ContinuationLine: '\t\t\t\tprobe probe_speed=5 samples=5'             				probe probe_speed=5 samples=5
+ContinuationLine: "\t\t\t\t{% set probe_offset=-(printer.configfil... 				{% set probe_offset=-(printer.configfile.settings['probe'].z_offset) %}
+ContinuationLine: '\t\t\t\tG91'                                       				G91
+ContinuationLine: '\t\t\t\tG1 Z{probe_offset}  F300'                  				G1 Z{probe_offset}  F300
+ContinuationLine: '\t\t\t\tG90'                                       				G90
+ContinuationLine: '\t\t\t\tSET_KINEMATIC_POSITION Z=0'                				SET_KINEMATIC_POSITION Z=0
+ContinuationLine: '\t\t\t\tG91'                                       				G91
+ContinuationLine: '\t\t\t\tG1 Z5 F300'                                				G1 Z5 F300
+ContinuationLine: '\t\t\t\tG90'                                       				G90
+ContinuationCommentLine: '\t\t\t\t# G28 Z'                            				# G28 Z
+ContinuationLine: '\t\t\t{% endif %}'                                 			{% endif %}
+ContinuationLine: '\t\t{% endif %}'                                   		{% endif %}
+ContinuationLine: '\t{% endif %}'                                     	{% endif %}
+ContinuationLine: '\t{% if params.X is defined %}'                    	{% if params.X is defined %}
+ContinuationLine: '\t\t{% if params.Y is defined %}'                  		{% if params.Y is defined %}
+ContinuationLine: '\t\t\t{% if params.Z is undefined %}'              			{% if params.Z is undefined %}
+ContinuationLine: '\t\t\t\tG28 Y'                                     				G28 Y
+ContinuationLine: '\t\t\t\tG28 X'                                     				G28 X
+ContinuationLine: '\t\t\t{% endif %}'                                 			{% endif %}
+ContinuationLine: '\t\t{% endif %}'                                   		{% endif %}
+ContinuationLine: '\t{% endif %}'                                     	{% endif %}
+ContinuationLine: '\t{% if params.X is undefined %}'                  	{% if params.X is undefined %}
+ContinuationLine: '\t\t{% if params.Y is undefined %}'                		{% if params.Y is undefined %}
+ContinuationLine: '\t\t\t{% if params.Z is undefined %}'              			{% if params.Z is undefined %}
+ContinuationLine: '\t\t\t\tG28 Y'                                     				G28 Y
+ContinuationLine: '\t\t\t\tG28 X'                                     				G28 X
+ContinuationLine: '\t\t\t\tG1 X120 Y120 F3000'                        				G1 X120 Y120 F3000
+ContinuationCommentLine: '\t\t\t\t# G28 Z'                            				# G28 Z
+ContinuationLine: '\t\t\t\t{% set z_max = printer.toolhead.axis_ma... 				{% set z_max = printer.toolhead.axis_maximum.z-5|int %}
+ContinuationLine: '\t\t\t\tSET_KINEMATIC_POSITION Z={z_max}'          				SET_KINEMATIC_POSITION Z={z_max}
+ContinuationLine: '\t\t\t\tprobe probe_speed=5 samples=5'             				probe probe_speed=5 samples=5
+ContinuationLine: "\t\t\t\t{% set probe_offset=-(printer.configfil... 				{% set probe_offset=-(printer.configfile.settings['probe'].z_offset) %}
+ContinuationLine: '\t\t\t\tG91'                                       				G91
+ContinuationLine: '\t\t\t\tG1 Z{probe_offset} F300'                   				G1 Z{probe_offset} F300
+ContinuationLine: '\t\t\t\tG90'                                       				G90
+ContinuationLine: '\t\t\t\tSET_KINEMATIC_POSITION Z=0'                				SET_KINEMATIC_POSITION Z=0
+ContinuationLine: '\t\t\t\tG91'                                       				G91
+ContinuationLine: '\t\t\t\tG1 Z5 F300'                                				G1 Z5 F300
+ContinuationLine: '\t\t\t\tG90'                                       				G90
+ContinuationLine: '\t\t\t{% endif %}'                                 			{% endif %}
+ContinuationLine: '\t\t{% endif %}'                                   		{% endif %}
+ContinuationLine: '\t{% endif %}'                                     	{% endif %}
+ContinuationLine: '\tG90'                                             	G90
+ContinuationLine: '\tBED_MESH_PROFILE LOAD="default"'                 	BED_MESH_PROFILE LOAD="default"
+EmptyLine: ''                                                         
+SectionLine: ';[safe_z_home]'                                         ;[safe_z_home]
+ValueLine: ';home_xy_position: 137, 103'                              ;home_xy_position: 137, 103
+ValueLine: ';speed: 100'                                              ;speed: 100
+ValueLine: ';z_hop: 10'                                               ;z_hop: 10
+ValueLine: ';z_hop_speed: 5'                                          ;z_hop_speed: 5
+EmptyLine: ''                                                         
+SectionLine: '[probe]'                                                [probe]
+ValueLine: 'pin:PA8'                                                  pin:PA8
+ValueLine: 'x_offset:-18'                                             x_offset:-18
+ValueLine: 'y_offset: 14'                                             y_offset: 14
+ValueLine: ';z_offset: 0.00'                                          ;z_offset: 0.00
+ValueLine: 'speed: 3.0'                                               speed: 3.0
+ValueLine: 'lift_speed: 12.0'                                         lift_speed: 12.0
+ValueLine: 'samples: 4'                                               samples: 4
+ValueLine: 'samples_result: median'                                   samples_result: median
+ValueLine: 'sample_retract_dist: 5.0'                                 sample_retract_dist: 5.0
+ValueLine: 'samples_tolerance: 0.028'                                 samples_tolerance: 0.028
+ValueLine: 'samples_tolerance_retries: 5'                             samples_tolerance_retries: 5
+EmptyLine: ''                                                         
+SectionLine: '[bed_mesh]'                                             [bed_mesh]
+ValueLine: 'speed:120'                                                speed:120
+ValueLine: 'horizontal_move_z:10'                                     horizontal_move_z:10
+ValueLine: 'mesh_min:20,20'                                           mesh_min:20,20
+ValueLine: 'mesh_max:220,220'                                         mesh_max:220,220
+ValueLine: 'probe_count:6,6'                                          probe_count:6,6
+ValueLine: 'algorithm:bicubic'                                        algorithm:bicubic
+ValueLine: 'bicubic_tension:0.2'                                      bicubic_tension:0.2
+ValueLine: 'mesh_pps:2,2'                                             mesh_pps:2,2
+EmptyLine: ''                                                         
+SectionLine: '[verify_heater extruder]'                               [verify_heater extruder]
+ValueLine: 'max_error: 120'                                           max_error: 120
+ValueLine: 'check_gain_time:5'                                        check_gain_time:5
+ValueLine: 'hysteresis: 5'                                            hysteresis: 5
+ValueLine: 'heating_gain: 1'                                          heating_gain: 1
+EmptyLine: ''                                                         
+SectionLine: '[heater_bed]'                                           [heater_bed]
+ValueLine: 'heater_pin:PB10'                                          heater_pin:PB10
+ValueLine: 'sensor_type: EPCOS 100K B57560G104F'                      sensor_type: EPCOS 100K B57560G104F
+ValueLine: 'sensor_pin: PA0'                                          sensor_pin: PA0
+ValueLine: 'max_power: 1.0'                                           max_power: 1.0
+ValueLine: ';control = pid'                                           ;control = pid
+ValueLine: ';pid_kp = 71.039'                                         ;pid_kp = 71.039
+ValueLine: ';pid_ki = 2.223'                                          ;pid_ki = 2.223
+ValueLine: ';pid_kd = 567.421'                                        ;pid_kd = 567.421
+ValueLine: 'min_temp: -100'                                           min_temp: -100
+ValueLine: 'max_temp: 200'                                            max_temp: 200
+EmptyLine: ''                                                         
+EmptyLine: ''                                                         
+SectionLine: '[verify_heater heater_bed]'                             [verify_heater heater_bed]
+ValueLine: 'max_error: 120'                                           max_error: 120
+ValueLine: 'check_gain_time:300'                                      check_gain_time:300
+ValueLine: 'hysteresis: 3'                                            hysteresis: 3
+ValueLine: 'heating_gain: 1'                                          heating_gain: 1
+EmptyLine: ''                                                         
+CommentLine: '# shows temperatures of the STM32F402'                  # shows temperatures of the STM32F402
+SectionLine: '[temperature_sensor mcu_temp]'                          [temperature_sensor mcu_temp]
+ValueLine: 'sensor_type: temperature_mcu'                             sensor_type: temperature_mcu
+ValueLine: 'sensor_mcu: mcu'                                          sensor_mcu: mcu
+ValueLine: 'min_temp: 0'                                              min_temp: 0
+ValueLine: 'max_temp: 100'                                            max_temp: 100
+EmptyLine: ''                                                         
+CommentLine: '# shows temperatures of the Rockchip RK3328'            # shows temperatures of the Rockchip RK3328
+SectionLine: '[temperature_sensor rpi_cpu]'                           [temperature_sensor rpi_cpu]
+ValueLine: 'sensor_type: temperature_host'                            sensor_type: temperature_host
+ValueLine: 'min_temp: 0'                                              min_temp: 0
+ValueLine: 'max_temp: 100'                                            max_temp: 100
+EmptyLine: ''                                                         
+CommentLine: '#fan for printed model FAN1'                            #fan for printed model FAN1
+SectionLine: '[fan]'                                                  [fan]
+ValueLine: 'pin:PA4'                                                  pin:PA4
+ValueLine: 'max_power: 0.8'                                           max_power: 0.8
+ValueLine: 'shutdown_speed: 0'                                        shutdown_speed: 0
+ValueLine: 'cycle_time: 0.016'                                        cycle_time: 0.016
+ValueLine: 'hardware_pwm: False'                                      hardware_pwm: False
+ValueLine: 'kick_start_time: 0.100'                                   kick_start_time: 0.100
+ValueLine: 'off_below: 0.0'                                           off_below: 0.0
+EmptyLine: ''                                                         
+CommentLine: '#fan for heat break'                                    #fan for heat break
+SectionLine: '[heater_fan heatbreak_cooling_fan]'                     [heater_fan heatbreak_cooling_fan]
+ValueLine: 'pin: PC7'                                                 pin: PC7
+ValueLine: ';fan_speed: 0.9'                                          ;fan_speed: 0.9
+ValueLine: 'shutdown_speed: 1'                                        shutdown_speed: 1
+ValueLine: 'cycle_time: 0.016'                                        cycle_time: 0.016
+ValueLine: 'heater_temp: 45.0'                                        heater_temp: 45.0
+EmptyLine: ''                                                         
+CommentLine: '#fan for main board'                                    #fan for main board
+SectionLine: '[controller_fan mainboard_fan]'                         [controller_fan mainboard_fan]
+ValueLine: 'pin: PC9'                                                 pin: PC9
+ValueLine: 'shutdown_speed: 1'                                        shutdown_speed: 1
+ValueLine: 'fan_speed: 1.0'                                           fan_speed: 1.0
+ValueLine: 'idle_timeout: 180'                                        idle_timeout: 180
+ValueLine: ';idle_speed: 0.6'                                         ;idle_speed: 0.6
+ValueLine: 'heater: extruder,heater_bed'                              heater: extruder,heater_bed
+ValueLine: ';stepper: stepper_x,stepper_y,stepper_z'                  ;stepper: stepper_x,stepper_y,stepper_z
+EmptyLine: ''                                                         
+SectionLine: '[printer]'                                              [printer]
+ValueLine: 'kinematics:cartesian'                                     kinematics:cartesian
+ValueLine: 'max_velocity: 1000'                                       max_velocity: 1000
+ValueLine: 'max_accel: 6500'                                          max_accel: 6500
+ValueLine: ';max_accel_to_decel: 5000'                                ;max_accel_to_decel: 5000
+ValueLine: 'max_z_velocity: 30'                                       max_z_velocity: 30
+ValueLine: 'max_z_accel: 200'                                         max_z_accel: 200
+ValueLine: 'square_corner_velocity: 5.0'                              square_corner_velocity: 5.0
+EmptyLine: ''                                                         
+SectionLine: '[input_shaper]'                                         [input_shaper]
+ValueLine: ';shaper_type_x: mzv'                                      ;shaper_type_x: mzv
+ValueLine: ';shaper_freq_x: 99.6'                                     ;shaper_freq_x: 99.6
+EmptyLine: ''                                                         
+ValueLine: ';shaper_type_y: 2hump_ei'                                 ;shaper_type_y: 2hump_ei
+ValueLine: ';shaper_freq_y: 41.0'                                     ;shaper_freq_y: 41.0
+EmptyLine: ''                                                         
+CommentLine: '####################################################... ####################################################################
+CommentLine: '#\tHoming and Gantry Adjustment Routines'               #	Homing and Gantry Adjustment Routines
+CommentLine: '####################################################... #####################################################################
+SectionLine: '[idle_timeout]'                                         [idle_timeout]
+ValueLine: 'timeout: 36000'                                           timeout: 36000
+EmptyLine: ''                                                         
+SectionLine: ';[safe_z_home]'                                         ;[safe_z_home]
+ValueLine: ';home_xy_position: 215,215'                               ;home_xy_position: 215,215
+ValueLine: ';speed: 100'                                              ;speed: 100
+ValueLine: ';z_hop: 10'                                               ;z_hop: 10
+ValueLine: ';z_hop_speed: 5'                                          ;z_hop_speed: 5
+EmptyLine: ''                                                         
+SectionLine: '[gcode_macro G29]'                                      [gcode_macro G29]
+MultiLineStartLine: 'gcode:'                                          gcode:
+ContinuationLine: '\tBED_MESH_CLEAR'                                  	BED_MESH_CLEAR
+ContinuationLine: '\tG28'                                             	G28
+ContinuationLine: '\tBED_MESH_CALIBRATE'                              	BED_MESH_CALIBRATE
+ContinuationLine: '\tG0 Z50 F1800'                                    	G0 Z50 F1800
+ContinuationLine: '\tG0 X120 Y120 F12000'                             	G0 X120 Y120 F12000
+EmptyLine: ''                                                         
+SectionLine: ';[bed_mesh]'                                            ;[bed_mesh]
+ValueLine: ';speed:120'                                               ;speed:120
+ValueLine: ';horizontal_move_z:10'                                    ;horizontal_move_z:10
+CommentLine: '# #mesh_min:10,21'                                      # #mesh_min:10,21
+CommentLine: '# #mesh_max:210,211'                                    # #mesh_max:210,211
+ValueLine: ';mesh_min:10,21'                                          ;mesh_min:10,21
+ValueLine: ';mesh_max:405,409'                                        ;mesh_max:405,409
+ValueLine: ';probe_count:11,11'                                       ;probe_count:11,11
+ValueLine: ';algorithm:bicubic'                                       ;algorithm:bicubic
+ValueLine: ';bicubic_tension:0.2'                                     ;bicubic_tension:0.2
+ValueLine: ';mesh_pps: 4, 4'                                          ;mesh_pps: 4, 4
+ValueLine: ';fade_start: 1.0'                                         ;fade_start: 1.0
+ValueLine: ';fade_end: 2.0'                                           ;fade_end: 2.0
+EmptyLine: ''                                                         
+SectionLine: ';[gcode_macro FLASHLIGHT_ON]'                           ;[gcode_macro FLASHLIGHT_ON]
+ValueLine: ';description: Turn on Hotend LEDs'                        ;description: Turn on Hotend LEDs
+MultiLineStartLine: ';gcode:'                                         ;gcode:
+ContinuationCommentLine: '#   SET_PIN PIN=caselight VALUE=1'          #   SET_PIN PIN=caselight VALUE=1
+EmptyLine: ''                                                         
+EmptyLine: ''                                                         
+SectionLine: ';[gcode_macro FLASHLIGHT_OFF]'                          ;[gcode_macro FLASHLIGHT_OFF]
+ValueLine: ';description: Turn off Hotend LEDs'                       ;description: Turn off Hotend LEDs
+MultiLineStartLine: ';gcode:'                                         ;gcode:
+ContinuationCommentLine: '#   SET_PIN PIN=caselight VALUE=0'          #   SET_PIN PIN=caselight VALUE=0
+EmptyLine: ''                                                         
+EmptyLine: ''                                                         
+SectionLine: ';[gcode_macro MODLELIGHT_ON]'                           ;[gcode_macro MODLELIGHT_ON]
+ValueLine: ';description: Turn on Logo LEDs'                          ;description: Turn on Logo LEDs
+MultiLineStartLine: ';gcode:'                                         ;gcode:
+ContinuationCommentLine: '#   SET_PIN PIN=caselight1 VALUE=1'         #   SET_PIN PIN=caselight1 VALUE=1
+EmptyLine: ''                                                         
+EmptyLine: ''                                                         
+SectionLine: ';[gcode_macro MODLELIGHT_OFF]'                          ;[gcode_macro MODLELIGHT_OFF]
+ValueLine: ';description: Turn off Logo LEDs'                         ;description: Turn off Logo LEDs
+MultiLineStartLine: ';gcode:'                                         ;gcode:
+ContinuationCommentLine: '#   SET_PIN PIN=caselight1 VALUE=0'         #   SET_PIN PIN=caselight1 VALUE=0
+EmptyLine: ''                                                         
+SectionLine: '[filament_switch_sensor fila]'                          [filament_switch_sensor fila]
+ValueLine: 'pause_on_runout: True'                                    pause_on_runout: True
+MultiLineStartLine: 'runout_gcode:'                                   runout_gcode:
+ContinuationLine: '\tSET_FILAMENT_SENSOR SENSOR=fila ENABLE=1'        	SET_FILAMENT_SENSOR SENSOR=fila ENABLE=1
+ValueLine: 'event_delay: 5.0'                                         event_delay: 5.0
+ValueLine: 'pause_delay: 5.0'                                         pause_delay: 5.0
+ValueLine: 'switch_pin: PA6'                                          switch_pin: PA6
+EmptyLine: ''                                                         
+CommentLine: '########################################'               ########################################
+CommentLine: '# TMC UART configuration'                               # TMC UART configuration
+CommentLine: '########################################'               ########################################
+EmptyLine: ''                                                         
+SectionLine: '[tmc2209 stepper_x]'                                    [tmc2209 stepper_x]
+ValueLine: 'uart_pin: PB9'                                            uart_pin: PB9
+ValueLine: 'run_current: 1.1'                                         run_current: 1.1
+ValueLine: 'hold_current: 0.8'                                        hold_current: 0.8
+ValueLine: 'interpolate: True'                                        interpolate: True
+ValueLine: 'stealthchop_threshold: 0'                                 stealthchop_threshold: 0
+ValueLine: 'driver_SGTHRS:70'                                         driver_SGTHRS:70
+ValueLine: 'diag_pin:^PC0'                                            diag_pin:^PC0
+EmptyLine: ''                                                         
+SectionLine: '[tmc2209 stepper_y]'                                    [tmc2209 stepper_y]
+ValueLine: 'uart_pin: PB5'                                            uart_pin: PB5
+ValueLine: 'run_current: 1.1'                                         run_current: 1.1
+ValueLine: 'hold_current: 0.8'                                        hold_current: 0.8
+ValueLine: 'interpolate: True'                                        interpolate: True
+ValueLine: 'stealthchop_threshold: 0'                                 stealthchop_threshold: 0
+ValueLine: 'driver_SGTHRS:90'                                         driver_SGTHRS:90
+ValueLine: 'diag_pin:^PC1'                                            diag_pin:^PC1
+EmptyLine: ''                                                         
+SectionLine: ';[tmc2209 stepper_z]'                                   ;[tmc2209 stepper_z]
+ValueLine: ';uart_pin: PC12'                                          ;uart_pin: PC12
+ValueLine: ';run_current: 0.8'                                        ;run_current: 0.8
+ValueLine: ';hold_current: 0.8'                                       ;hold_current: 0.8
+ValueLine: ';interpolate: True'                                       ;interpolate: True
+ValueLine: ';stealthchop_threshold: 120'                              ;stealthchop_threshold: 120
+EmptyLine: ''                                                         
+SectionLine: '[tmc2209 stepper_z]'                                    [tmc2209 stepper_z]
+ValueLine: 'uart_pin: PC4'                                            uart_pin: PC4
+ValueLine: 'run_current: 1.1'                                         run_current: 1.1
+ValueLine: 'hold_current: 0.8'                                        hold_current: 0.8
+ValueLine: 'interpolate: True'                                        interpolate: True
+ValueLine: 'stealthchop_threshold: 0'                                 stealthchop_threshold: 0
+EmptyLine: ''                                                         
+SectionLine: '[tmc2209 extruder]'                                     [tmc2209 extruder]
+ValueLine: 'uart_pin: PC5'                                            uart_pin: PC5
+ValueLine: 'run_current: 0.8'                                         run_current: 0.8
+ValueLine: 'hold_current: 0.7'                                        hold_current: 0.7
+ValueLine: 'interpolate: True'                                        interpolate: True
+ValueLine: 'stealthchop_threshold: 0'                                 stealthchop_threshold: 0
+EmptyLine: ''                                                         
+SectionLine: '[mcu rpi]'                                              [mcu rpi]
+ValueLine: 'serial: /tmp/klipper_host_mcu'                            serial: /tmp/klipper_host_mcu
+EmptyLine: ''                                                         
+SectionLine: '[adxl345]'                                              [adxl345]
+ValueLine: 'cs_pin: rpi:None'                                         cs_pin: rpi:None
+ValueLine: 'spi_bus: spidev0.0'                                       spi_bus: spidev0.0
+ValueLine: 'axes_map:-x, -y, -z'                                      axes_map:-x, -y, -z
+EmptyLine: ''                                                         
+SectionLine: '[resonance_tester]'                                     [resonance_tester]
+ValueLine: 'accel_chip: adxl345'                                      accel_chip: adxl345
+MultiLineStartLine: 'probe_points:'                                   probe_points:
+ContinuationLine: '\t100, 100, 20  # an example'                      	100, 100, 20  # an example
+ValueLine: 'min_freq: 5'                                              min_freq: 5
+ValueLine: 'max_freq: 70'                                             max_freq: 70
+ValueLine: 'accel_per_hz:140'                                         accel_per_hz:140
+EmptyLine: ''                                                         
+SectionLine: '[force_move]'                                           [force_move]
+ValueLine: 'enable_force_move : true'                                 enable_force_move : true
+EmptyLine: ''                                                         
+SectionLine: '[virtual_sdcard]'                                       [virtual_sdcard]
+ValueLine: 'path: ~/gcode_files'                                      path: ~/gcode_files
+EmptyLine: ''                                                         
+SectionLine: '[gcode_macro nozzle_wipe]'                              [gcode_macro nozzle_wipe]
+MultiLineStartLine: 'gcode:'                                          gcode:
+ContinuationLine: '\tG1 X180 Y247 Z10 F5000'                          	G1 X180 Y247 Z10 F5000
+ContinuationLine: '\tSET_KINEMATIC_POSITION Y=0'                      	SET_KINEMATIC_POSITION Y=0
+EmptyLine: ''                                                         
+ContinuationLine: '\tG1 Y11 F6000'                                    	G1 Y11 F6000
+ContinuationLine: '\tG1 X180 F8000'                                   	G1 X180 F8000
+ContinuationLine: '\tG1 Z-1 F600'                                     	G1 Z-1 F600
+ContinuationLine: '\tG1 X230 F8000'                                   	G1 X230 F8000
+ContinuationLine: '\tG1 Y15 F8000'                                    	G1 Y15 F8000
+ContinuationLine: '\tG1 X180 F8000'                                   	G1 X180 F8000
+EmptyLine: ''                                                         
+ContinuationLine: '\tG92 E0'                                          	G92 E0
+ContinuationLine: '\tG1 Z10 F1200'                                    	G1 Z10 F1200
+ContinuationLine: '\tG1 Y0 F5000'                                     	G1 Y0 F5000
+ContinuationLine: '\tG1 E-1 F3000'                                    	G1 E-1 F3000
+ContinuationLine: '\tM400'                                            	M400
+ContinuationLine: '\tSET_KINEMATIC_POSITION Y=247'                    	SET_KINEMATIC_POSITION Y=247
+ContinuationLine: '\tG92 E-1'                                         	G92 E-1
+EmptyLine: ''                                                         
+SectionLine: '[gcode_macro nozzle_clean]'                             [gcode_macro nozzle_clean]
+MultiLineStartLine: 'gcode:'                                          gcode:
+ContinuationLine: '\tG28'                                             	G28
+ContinuationLine: '\tM109 S190'                                       	M109 S190
+ContinuationLine: '\tM104 S160'                                       	M104 S160
+ContinuationLine: '\tnozzle_wipe'                                     	nozzle_wipe
+EmptyLine: ''                                                         
+SectionLine: '[gcode_macro draw_line_only]'                           [gcode_macro draw_line_only]
+MultiLineStartLine: 'gcode:'                                          gcode:
+ContinuationLine: '\tG1 X180 Y244 Z0.8 F18000.0'                      	G1 X180 Y244 Z0.8 F18000.0
+ContinuationLine: '\tSET_KINEMATIC_POSITION Y=0'                      	SET_KINEMATIC_POSITION Y=0
+ContinuationLine: '\tG92 E0'                                          	G92 E0
+ContinuationLine: '\tG1 Z1.0 F600 ; move z up little to prevent sc... 	G1 Z1.0 F600 ; move z up little to prevent scratching of surface
+ContinuationLine: '\tG1 X180 Y2 Z0.4 F18000.0 ; move to start-line... 	G1 X180 Y2 Z0.4 F18000.0 ; move to start-line position
+ContinuationLine: '\tG1 E8 F300'                                      	G1 E8 F300
+ContinuationLine: '\tG92 E0'                                          	G92 E0
+ContinuationLine: '\tG1 X70  Y2 Z0.4 F1800.0 E11.0;draw line'         	G1 X70  Y2 Z0.4 F1800.0 E11.0;draw line
+EmptyLine: ''                                                         
+ContinuationLine: '\tG92 E0'                                          	G92 E0
+ContinuationLine: '\tG1 X70  Y0 Z0.4 F1800.0 E0.2;draw line'          	G1 X70  Y0 Z0.4 F1800.0 E0.2;draw line
+EmptyLine: ''                                                         
+ContinuationLine: '\tG92 E0'                                          	G92 E0
+ContinuationLine: '\tG1 X170 Y0 Z0.4 F1800.0 E10.0;draw line'         	G1 X170 Y0 Z0.4 F1800.0 E10.0;draw line
+EmptyLine: ''                                                         
+ContinuationLine: '\tG92 E0'                                          	G92 E0
+ContinuationLine: '\tG1 X170 Y4 Z0.4 F1800.0 E0.4;draw line'          	G1 X170 Y4 Z0.4 F1800.0 E0.4;draw line
+EmptyLine: ''                                                         
+ContinuationLine: '\tG92 E0'                                          	G92 E0
+ContinuationLine: '\tG1 X80  Y4 Z0.4 F1800.0 E9;draw line'            	G1 X80  Y4 Z0.4 F1800.0 E9;draw line
+EmptyLine: ''                                                         
+ContinuationLine: '\tG92 E0'                                          	G92 E0
+ContinuationLine: '\tG1 X80  Y0 Z0.4 F1800.0 E0.4;draw line'          	G1 X80  Y0 Z0.4 F1800.0 E0.4;draw line
+EmptyLine: ''                                                         
+ContinuationLine: '\tG92 E0 ; reset extruder'                         	G92 E0 ; reset extruder
+ContinuationLine: '\tG1 E-1 Z5 F18000 ; move z up little to preven... 	G1 E-1 Z5 F18000 ; move z up little to prevent scratching of surface
+ContinuationLine: '\tG92 E0'                                          	G92 E0
+EmptyLine: ''                                                         
+ContinuationLine: '\tG1 Y0 E1 F18000.0'                               	G1 Y0 E1 F18000.0
+ContinuationLine: '\tSET_KINEMATIC_POSITION Y=244'                    	SET_KINEMATIC_POSITION Y=244
+EmptyLine: ''                                                         
+SectionLine: '[gcode_macro draw_line]'                                [gcode_macro draw_line]
+MultiLineStartLine: 'gcode:'                                          gcode:
+ContinuationLine: '\tnozzle_wipe'                                     	nozzle_wipe
+ContinuationLine: '\tdraw_line_only'                                  	draw_line_only
+EmptyLine: ''                                                         
+SectionLine: '[gcode_macro PRINT_START]'                              [gcode_macro PRINT_START]
+MultiLineStartLine: 'gcode:'                                          gcode:
+ContinuationLine: '\tM220 S100'                                       	M220 S100
+ContinuationLine: '\tM221 S100'                                       	M221 S100
+ContinuationCommentLine: '\t#SAVE_VARIABLE VARIABLE=was_interrupte... 	#SAVE_VARIABLE VARIABLE=was_interrupted VALUE=True
+ContinuationCommentLine: '\t#save_last_file'                          	#save_last_file
+ContinuationLine: '\tCLEAR_PAUSE'                                     	CLEAR_PAUSE
+ContinuationCommentLine: '\t# M83'                                    	# M83
+ContinuationLine: '\tM117 Printing'                                   	M117 Printing
+EmptyLine: ''                                                         
+SectionLine: '[gcode_macro PRINT_END]'                                [gcode_macro PRINT_END]
+MultiLineStartLine: 'gcode:'                                          gcode:
+ContinuationCommentLine: '\t#SAVE_VARIABLE VARIABLE=was_interrupte... 	#SAVE_VARIABLE VARIABLE=was_interrupted VALUE=False
+ContinuationCommentLine: '\t#RUN_SHELL_COMMAND CMD=clear_plr'         	#RUN_SHELL_COMMAND CMD=clear_plr
+ContinuationCommentLine: '\t#clear_last_file'                         	#clear_last_file
+ContinuationLine: '\tM220 S100'                                       	M220 S100
+ContinuationLine: '\tM221 S100'                                       	M221 S100
+EmptyLine: ''                                                         
+SectionLine: '[pause_resume]'                                         [pause_resume]
+EmptyLine: ''                                                         
+SectionLine: '[gcode_macro CANCEL_PRINT]'                             [gcode_macro CANCEL_PRINT]
+ValueLine: 'rename_existing: BASE_CANCEL_PRINT'                       rename_existing: BASE_CANCEL_PRINT
+MultiLineStartLine: 'gcode:'                                          gcode:
+ContinuationLine: '\tPRINT_END'                                       	PRINT_END
+ContinuationLine: '\tSET_IDLE_TIMEOUT TIMEOUT={printer.configfile.... 	SET_IDLE_TIMEOUT TIMEOUT={printer.configfile.settings.idle_timeout.timeout}
+ContinuationLine: '\tSDCARD_RESET_FILE\t\t; wait for buffer to cle... 	SDCARD_RESET_FILE		; wait for buffer to clear
+ContinuationLine: '\tG92 E0\t\t\t\t\t; zero the extruder'             	G92 E0					; zero the extruder
+ContinuationLine: '\tG1 E-10.0 F1200'                                 	G1 E-10.0 F1200
+ContinuationLine: '\tG4 P2000\t\t\t\t; retract filament'              	G4 P2000				; retract filament
+ContinuationCommentLine: '\t# G28 Y'                                  	# G28 Y
+ContinuationLine: '\tG28 X'                                           	G28 X
+ContinuationCommentLine: '\t# G91'                                    	# G91
+ContinuationCommentLine: '\t# G1 Y220 F3000'                          	# G1 Y220 F3000
+ContinuationCommentLine: '\t# G90'                                    	# G90
+ContinuationLine: '\tTURN_OFF_HEATERS'                                	TURN_OFF_HEATERS
+ContinuationLine: '\tM107'                                            	M107
+ContinuationLine: '\tM84'                                             	M84
+EmptyLine: ''                                                         
+EmptyLine: ''                                                         
+SectionLine: '[output_pin BEEPER_pin]'                                [output_pin BEEPER_pin]
+ValueLine: 'pin: PA2'                                                 pin: PA2
+CommentLine: '# Passive buzzers (piezo beepers) require PWM signal... # Passive buzzers (piezo beepers) require PWM signal control, while active buzzers (DC buzzers) do not.
+ValueLine: 'pwm: True'                                                pwm: True
+ValueLine: 'value: 0'                                                 value: 0
+CommentLine: '#   Silent at power on, set to 1 if active low.'        #   Silent at power on, set to 1 if active low.
+ValueLine: 'shutdown_value: 0'                                        shutdown_value: 0
+CommentLine: '#   Disable at emergency shutdown (no PWM would be a... #   Disable at emergency shutdown (no PWM would be available anyway).
+ValueLine: 'cycle_time: 0.001'                                        cycle_time: 0.001
+CommentLine: '#   Default PWM frequency : 0.001 = 1ms will give a ... #   Default PWM frequency : 0.001 = 1ms will give a tone of 1kHz
+CommentLine: '#   Although not pitch perfect.'                        #   Although not pitch perfect.
+EmptyLine: ''                                                         
+CommentLine: '## Define M300 macro to realize Gcode function'         ## Define M300 macro to realize Gcode function
+SectionLine: '[gcode_macro M300]'                                     [gcode_macro M300]
+ValueLine: 'description: Play reminder tone'                          description: Play reminder tone
+MultiLineStartLine: 'gcode:'                                          gcode:
+ContinuationCommentLine: '\t# Use a default 1kHz tone if S is omit... 	# Use a default 1kHz tone if S is omitted.
+ContinuationCommentLine: '\t# {% set S = params.S|default(1000)|in... 	# {% set S = params.S|default(1000)|int %}
+ContinuationLine: '\t{% set S = 1000|int %}'                          	{% set S = 1000|int %}
+ContinuationCommentLine: '\t# Use a 10ms duration is P is omitted.... 	# Use a 10ms duration is P is omitted.
+ContinuationCommentLine: '\t# {% set P = params.P|default(100)|int... 	# {% set P = params.P|default(100)|int %}
+ContinuationLine: '\t{% set P = 100|int %}'                           	{% set P = 100|int %}
+EmptyLine: ''                                                         
+ContinuationLine: '\t{% set t = params.B|default(3)|int %}'           	{% set t = params.B|default(3)|int %}
+ContinuationLine: '\t{% for i in range(t|int) %}'                     	{% for i in range(t|int) %}
+ContinuationCommentLine: '\t\t# SET_PIN PIN=BEEPER_pin VALUE=0.5 C... 		# SET_PIN PIN=BEEPER_pin VALUE=0.5 CYCLE_TIME={ 1.0/S if S > 0 else 1 }
+ContinuationLine: '\t\tSET_PIN PIN=BEEPER_pin VALUE=0.9 CYCLE_TIME... 		SET_PIN PIN=BEEPER_pin VALUE=0.9 CYCLE_TIME={ 1.0/S if S > 0 else 1 }
+ContinuationLine: '\t\tG4 P{P}'                                       		G4 P{P}
+ContinuationLine: '\t\tSET_PIN PIN=BEEPER_pin VALUE=0'                		SET_PIN PIN=BEEPER_pin VALUE=0
+ContinuationLine: '\t\tG4 P{P}'                                       		G4 P{P}
+ContinuationLine: '\t{% endfor %}'                                    	{% endfor %}
+EmptyLine: ''                                                         
+SectionLine: '[gcode_macro M600]'                                     [gcode_macro M600]
+MultiLineStartLine: 'gcode:'                                          gcode:
+ContinuationLine: '\t{% set X = params.X|default(50)|float %}'        	{% set X = params.X|default(50)|float %}
+ContinuationLine: '\t{% set Y = params.Y|default(0)|float %}'         	{% set Y = params.Y|default(0)|float %}
+ContinuationLine: '\t{% set Z = params.Z|default(20)|float %}'        	{% set Z = params.Z|default(20)|float %}
+ContinuationLine: '\t{% set t = params.B|default(3)|int %}'           	{% set t = params.B|default(3)|int %}
+EmptyLine: ''                                                         
+ContinuationLine: '\t{% if params.X is defined %}'                    	{% if params.X is defined %}
+ContinuationLine: '\t\t{% if params.Y is defined %}'                  		{% if params.Y is defined %}
+ContinuationLine: '\t\t\tM300 B{t}'                                   			M300 B{t}
+ContinuationLine: '\t\t\tPAUSE X={X} Y={Y} Z={Z}'                     			PAUSE X={X} Y={Y} Z={Z}
+ContinuationLine: '\t\t{% else %}'                                    		{% else %}
+ContinuationLine: '\t\t\tM300 B{t}'                                   			M300 B{t}
+ContinuationLine: '\t\t\tPAUSE X={X} Z={Z}'                           			PAUSE X={X} Z={Z}
+ContinuationLine: '\t\t{% endif %}'                                   		{% endif %}
+ContinuationLine: '\t{% else %}'                                      	{% else %}
+ContinuationLine: '\t\t{% if params.Y is defined %}'                  		{% if params.Y is defined %}
+ContinuationLine: '\t\t\tM300 B{t}'                                   			M300 B{t}
+ContinuationLine: '\t\t\tPAUSE Y={Y} Z={Z}'                           			PAUSE Y={Y} Z={Z}
+ContinuationLine: '\t\t{% else %}'                                    		{% else %}
+ContinuationLine: '\t\t\tM300 B{t}'                                   			M300 B{t}
+ContinuationLine: '\t\t\tPAUSE Z={Z}'                                 			PAUSE Z={Z}
+ContinuationLine: '\t\t{% endif %}'                                   		{% endif %}
+ContinuationLine: '\t{% endif %}'                                     	{% endif %}
+EmptyLine: ''                                                         
+SectionLine: '[gcode_macro T600]'                                     [gcode_macro T600]
+ValueLine: 'variable_zhop: 0'                                         variable_zhop: 0
+ValueLine: 'variable_etemp: 0'                                        variable_etemp: 0
+MultiLineStartLine: 'gcode:'                                          gcode:
+ContinuationLine: '\tRESUME'                                          	RESUME
+EmptyLine: ''                                                         
+SectionLine: '[gcode_macro PAUSE]'                                    [gcode_macro PAUSE]
+ValueLine: 'rename_existing: BASE_PAUSE'                              rename_existing: BASE_PAUSE
+MultiLineStartLine: 'gcode:'                                          gcode:
+ContinuationLine: '\t{% set min_x = printer.toolhead.axis_minimum.... 	{% set min_x = printer.toolhead.axis_minimum.x + 1.0 %}
+ContinuationLine: '\t{% set min_y = printer.toolhead.axis_minimum.... 	{% set min_y = printer.toolhead.axis_minimum.y + 1.0 %}
+ContinuationLine: '\t{% set max_y = printer.toolhead.axis_maximum.... 	{% set max_y = printer.toolhead.axis_maximum.y - 1.0 %}
+ContinuationLine: '\t{% set X = params.X|default(min_x)|float %}'     	{% set X = params.X|default(min_x)|float %}
+ContinuationLine: '\t{% set Y = params.Y|default(max_y)|float %}'     	{% set Y = params.Y|default(max_y)|float %}
+EmptyLine: ''                                                         
+ContinuationCommentLine: '\t### Test for filament presence'           	### Test for filament presence
+ContinuationLine: '\t{% if printer["filament_switch_sensor fila"].... 	{% if printer["filament_switch_sensor fila"].enabled == True %}
+ContinuationCommentLine: '\t\t### Move printed object away from th... 		### Move printed object away from the nozzle, if filament is out
+ContinuationLine: '\t\t{% if printer["filament_switch_sensor fila"... 		{% if printer["filament_switch_sensor fila"].filament_detected == False %}
+ContinuationLine: '\t\t\t{% set X = min_x %}'                         			{% set X = min_x %}
+ContinuationLine: '\t\t\t{% set Y = min_y %}'                         			{% set Y = min_y %}
+ContinuationLine: '\t\t{% endif %}'                                   		{% endif %}
+ContinuationLine: '\t{% endif %}'                                     	{% endif %}
+EmptyLine: ''                                                         
+ContinuationLine: '\t{% set z = params.Z|default(20)|int %}'          	{% set z = params.Z|default(20)|int %}
+ContinuationLine: '\t{% set e = params.E|default(2.5) %}'             	{% set e = params.E|default(2.5) %}
+ContinuationLine: '\tSET_GCODE_VARIABLE MACRO=RESUME VARIABLE=zhop... 	SET_GCODE_VARIABLE MACRO=RESUME VARIABLE=zhop VALUE={z}
+ContinuationLine: "\tSET_GCODE_VARIABLE MACRO=RESUME VARIABLE=etem... 	SET_GCODE_VARIABLE MACRO=RESUME VARIABLE=etemp VALUE={printer['extruder'].target}
+ContinuationLine: '\tSAVE_GCODE_STATE NAME=PAUSE'                     	SAVE_GCODE_STATE NAME=PAUSE
+ContinuationLine: '\tM25'                                             	M25
+ContinuationLine: '\t{% if (printer.gcode_move.position.z + z) < p... 	{% if (printer.gcode_move.position.z + z) < printer.toolhead.axis_maximum.z %}
+ContinuationLine: '\t\tG91'                                           		G91
+ContinuationLine: '\t\tM83'                                           		M83
+ContinuationLine: '\t\tG1 E-{e} F2100'                                		G1 E-{e} F2100
+ContinuationLine: '\t\tG1 Z{z} F900'                                  		G1 Z{z} F900
+ContinuationLine: '\t{% else %}'                                      	{% else %}
+ContinuationLine: '\t\tSET_GCODE_VARIABLE MACRO=RESUME VARIABLE=zh... 		SET_GCODE_VARIABLE MACRO=RESUME VARIABLE=zhop VALUE=0
+ContinuationLine: '\t{% endif %}'                                     	{% endif %}
+ContinuationLine: '\tSAVE_GCODE_STATE NAME=PAUSEPARK'                 	SAVE_GCODE_STATE NAME=PAUSEPARK
+ContinuationLine: '\tG90'                                             	G90
+ContinuationLine: '\tG1 X{X} Y{Y} F3000'                              	G1 X{X} Y{Y} F3000
+ContinuationCommentLine: '\t#G1 X0 Y0 F6000'                          	#G1 X0 Y0 F6000
+ContinuationCommentLine: '\t#G1 E{e} F2100'                           	#G1 E{e} F2100
+ContinuationLine: '\tSET_IDLE_TIMEOUT TIMEOUT=43200'                  	SET_IDLE_TIMEOUT TIMEOUT=43200
+EmptyLine: ''                                                         
+SectionLine: '[gcode_macro RESUME]'                                   [gcode_macro RESUME]
+ValueLine: 'rename_existing: BASE_RESUME'                             rename_existing: BASE_RESUME
+ValueLine: 'variable_zhop: 0'                                         variable_zhop: 0
+ValueLine: 'variable_etemp: 0'                                        variable_etemp: 0
+MultiLineStartLine: 'gcode:'                                          gcode:
+ContinuationCommentLine: '\t#G28 X Y'                                 	#G28 X Y
+ContinuationLine: '\t{% set e = params.E|default(2.5)|int %}'         	{% set e = params.E|default(2.5)|int %}
+ContinuationLine: '\tSET_IDLE_TIMEOUT TIMEOUT={printer.configfile.... 	SET_IDLE_TIMEOUT TIMEOUT={printer.configfile.settings.idle_timeout.timeout}
+ContinuationLine: '\tG91'                                             	G91
+ContinuationLine: '\tM83'                                             	M83
+ContinuationCommentLine: '\t#G1 E-{e} F900'                           	#G1 E-{e} F900
+ContinuationLine: '\tRESTORE_GCODE_STATE NAME=PAUSEPARK MOVE=1 MOV... 	RESTORE_GCODE_STATE NAME=PAUSEPARK MOVE=1 MOVE_SPEED=100
+ContinuationLine: '\t{% if printer[printer.toolhead.extruder].temp... 	{% if printer[printer.toolhead.extruder].temperature >= printer.configfile.settings.extruder.min_extrude_temp %}
+ContinuationLine: '\t\tG1 Z{zhop * -1} F900'                          		G1 Z{zhop * -1} F900
+ContinuationLine: '\t\tG1 E{e+0.5} F900'                              		G1 E{e+0.5} F900
+ContinuationLine: '\t{% else %}'                                      	{% else %}
+ContinuationLine: '\t\tG1 Z{zhop * -1} F900'                          		G1 Z{zhop * -1} F900
+ContinuationLine: '\t{% endif %}'                                     	{% endif %}
+ContinuationLine: '\tRESTORE_GCODE_STATE NAME=PAUSE MOVE=1 MOVE_SP... 	RESTORE_GCODE_STATE NAME=PAUSE MOVE=1 MOVE_SPEED=60
+ContinuationLine: '\tM24'                                             	M24
+EmptyLine: ''                                                         
+EmptyLine: ''                                                         
+EmptyLine: ''                                                         
+SectionLine: '[display_status]'                                       [display_status]
+EmptyLine: ''                                                         
+EmptyLine: ''                                                         
+SectionLine: '[gcode_arcs]'                                           [gcode_arcs]
+EmptyLine: ''                                                         
+SectionLine: ';[output_pin LAMP]'                                     ;[output_pin LAMP]
+ValueLine: ';pin:PA8'                                                 ;pin:PA8
+ValueLine: ';shutdown_value: 0.0'                                     ;shutdown_value: 0.0
+EmptyLine: ''                                                         
+SectionLine: '[neopixel my_neopixel]'                                 [neopixel my_neopixel]
+ValueLine: 'pin:PA3'                                                  pin:PA3
+ValueLine: 'chain_count:1'                                            chain_count:1
+ValueLine: 'color_order:GRB'                                          color_order:GRB
+ValueLine: 'initial_RED: 1.0'                                         initial_RED: 1.0
+ValueLine: 'initial_GREEN: 1.0'                                       initial_GREEN: 1.0
+ValueLine: 'initial_BLUE: 1.0'                                        initial_BLUE: 1.0
+EmptyLine: ''                                                         
+SectionLine: '[gcode_macro NEOPIXEL_DISPLAY]'                         [gcode_macro NEOPIXEL_DISPLAY]
+MultiLineStartLine: 'gcode:'                                          gcode:
+ContinuationLine: '\t{% set led = params.LED %}'                      	{% set led = params.LED %}
+ContinuationLine: '\t{% set type = params.TYPE %}'                    	{% set type = params.TYPE %}
+ContinuationLine: '\t{% set mode = params.MODE %}'                    	{% set mode = params.MODE %}
+ContinuationLine: "\t{% set my_neopixel = printer.configfile.confi... 	{% set my_neopixel = printer.configfile.config['neopixel ' ~ led] %}
+EmptyLine: ''                                                         
+ContinuationLine: "\t{% if mode == 'progress' %}"                     	{% if mode == 'progress' %}
+ContinuationLine: '\t\t{% for i in range(my_neopixel.chain_count|i... 		{% for i in range(my_neopixel.chain_count|int) %}
+ContinuationLine: "\t\t\tSET_LED_TEMPLATE LED={led} INDEX={i+1} TE... 			SET_LED_TEMPLATE LED={led} INDEX={i+1} TEMPLATE={'led_' ~ type ~ '_' ~ mode} param_led_num={i+1} param_led_total={my_neopixel.chain_count|int}
+ContinuationLine: '\t\t{% endfor %}'                                  		{% endfor %}
+ContinuationLine: '\t{% endif %}'                                     	{% endif %}
+ContinuationLine: "\t{% if mode == 'glow' %}"                         	{% if mode == 'glow' %}
+ContinuationLine: "\t\tSET_LED_TEMPLATE LED={led} TEMPLATE={'led_'... 		SET_LED_TEMPLATE LED={led} TEMPLATE={'led_' ~ type ~ '_' ~ mode}
+ContinuationLine: '\t{% endif %}'                                     	{% endif %}
+EmptyLine: ''                                                         
+SectionLine: '[display_template led_extruder_temp_glow]'              [display_template led_extruder_temp_glow]
+MultiLineStartLine: 'text:'                                           text:
+ContinuationLine: '\t{% if printer.extruder.target > 0.0 %}'          	{% if printer.extruder.target > 0.0 %}
+ContinuationLine: '\t\t{%  set temp = printer.extruder.target %}'     		{%  set temp = printer.extruder.target %}
+ContinuationLine: '\t{% else %}'                                      	{% else %}
+ContinuationLine: '\t\t{% set temp = printer.configfile.config.ext... 		{% set temp = printer.configfile.config.extruder.max_temp %}
+ContinuationLine: '\t{% endif %}'                                     	{% endif %}
+ContinuationLine: '\t{% set ratio = printer.extruder.temperature /... 	{% set ratio = printer.extruder.temperature / temp|float %}
+ContinuationLine: '\t{0.5}, 0.0, {1-ratio}, 0.0'                      	{0.5}, 0.0, {1-ratio}, 0.0
+EmptyLine: ''                                                         
+SectionLine: '[display_template led_bed_temp_glow]'                   [display_template led_bed_temp_glow]
+MultiLineStartLine: 'text:'                                           text:
+ContinuationLine: '\t{% if printer.heater_bed.target > 0.0 %}'        	{% if printer.heater_bed.target > 0.0 %}
+ContinuationLine: '\t\t{%  set temp = printer.heater_bed.target %}... 		{%  set temp = printer.heater_bed.target %}
+ContinuationLine: '\t{% else %}'                                      	{% else %}
+ContinuationLine: '\t\t{% set temp = printer.configfile.config.hea... 		{% set temp = printer.configfile.config.heater_bed.max_temp %}
+ContinuationLine: '\t{% endif %}'                                     	{% endif %}
+ContinuationLine: '\t{% set ratio = printer.heater_bed.temperature... 	{% set ratio = printer.heater_bed.temperature / temp|float %}
+ContinuationLine: '\t{0.1}, 0.0, {0.5-ratio}, 0.0'                    	{0.1}, 0.0, {0.5-ratio}, 0.0
+EmptyLine: ''                                                         
+SectionLine: '[display_template led_print_percent_progress]'          [display_template led_print_percent_progress]
+ValueLine: 'param_led_num:  0'                                        param_led_num:  0
+ValueLine: 'param_led_total: 1'                                       param_led_total: 1
+MultiLineStartLine: 'text:'                                           text:
+ContinuationLine: '\t1, 1, 1, 0.0'                                    	1, 1, 1, 0.0
+EmptyLine: ''                                                         
+SectionLine: '[gcode_macro M109]'                                     [gcode_macro M109]
+ValueLine: 'rename_existing: M99109'                                  rename_existing: M99109
+MultiLineStartLine: 'gcode:'                                          gcode:
+ContinuationLine: "\t SAVE_VARIABLE VARIABLE=htemp VALUE='{printer... 	 SAVE_VARIABLE VARIABLE=htemp VALUE='{printer.extruder.temperature}'
+ContinuationLine: '\t NEOPIXEL_DISPLAY LED="my_neopixel" TYPE=extr... 	 NEOPIXEL_DISPLAY LED="my_neopixel" TYPE=extruder_temp MODE=glow
+ContinuationLine: '\t{% set s = params.S|float %}'                    	{% set s = params.S|float %}
+ContinuationLine: "\tM104 {% for p in params %}{'%s%s' % (p, param... 	M104 {% for p in params %}{'%s%s' % (p, params[p])}{% endfor %}  ; Set hotend temp
+ContinuationLine: '\t{% if s != 0 %}'                                 	{% if s != 0 %}
+ContinuationLine: '\t\tTEMPERATURE_WAIT SENSOR=extruder MINIMUM={s... 		TEMPERATURE_WAIT SENSOR=extruder MINIMUM={s-2} MAXIMUM={s+2}   ; Wait for hotend temp (within 1 degree)
+ContinuationCommentLine: '\t\t #NEOPIXEL_DISPLAY LED="my_neopixel"... 		 #NEOPIXEL_DISPLAY LED="my_neopixel" TYPE=extruder_temp MODE=glow
+ContinuationLine: '\t{% endif %}'                                     	{% endif %}
+ContinuationLine: '\tNEOPIXEL_DISPLAY LED="my_neopixel" TYPE=print... 	NEOPIXEL_DISPLAY LED="my_neopixel" TYPE=print_percent MODE=progress
+EmptyLine: ''                                                         
+SectionLine: '[gcode_macro M190]'                                     [gcode_macro M190]
+ValueLine: 'rename_existing: M99190'                                  rename_existing: M99190
+MultiLineStartLine: 'gcode:'                                          gcode:
+ContinuationLine: '\t NEOPIXEL_DISPLAY LED="my_neopixel" TYPE=bed_... 	 NEOPIXEL_DISPLAY LED="my_neopixel" TYPE=bed_temp MODE=glow
+ContinuationLine: '\t{% set s = params.S|float %}'                    	{% set s = params.S|float %}
+ContinuationLine: "\tM140 {% for p in params %}{'%s%s' % (p, param... 	M140 {% for p in params %}{'%s%s' % (p, params[p])}{% endfor %}   ; Set bed temp
+ContinuationLine: '\t{% if s != 0 %}'                                 	{% if s != 0 %}
+ContinuationLine: '\t\tTEMPERATURE_WAIT SENSOR=heater_bed MINIMUM=... 		TEMPERATURE_WAIT SENSOR=heater_bed MINIMUM={s-2} MAXIMUM={s+2}  ; Wait for bed temp (within 1 degree)
+ContinuationLine: '\t{% endif %}'                                     	{% endif %}
+EmptyLine: ''                                                         
+SectionLine: '[gcode_macro move_to_point_0]'                          [gcode_macro move_to_point_0]
+MultiLineStartLine: 'gcode:'                                          gcode:
+ContinuationLine: '\tG90'                                             	G90
+ContinuationLine: '\tG1 Z10 F600'                                     	G1 Z10 F600
+ContinuationLine: '\tM400'                                            	M400
+ContinuationLine: '\tG1 X25 Y25  F12000'                              	G1 X25 Y25  F12000
+ContinuationLine: '\tM400'                                            	M400
+ContinuationLine: '\tG1 Z0 F600'                                      	G1 Z0 F600
+ContinuationLine: '\tM400'                                            	M400
+EmptyLine: ''                                                         
+SectionLine: '[gcode_macro move_to_point_1]'                          [gcode_macro move_to_point_1]
+MultiLineStartLine: 'gcode:'                                          gcode:
+ContinuationLine: '\tG90'                                             	G90
+ContinuationLine: '\tG1 Z10 F600'                                     	G1 Z10 F600
+ContinuationLine: '\tM400'                                            	M400
+ContinuationLine: '\tG1 X220 Y25  F12000'                             	G1 X220 Y25  F12000
+ContinuationLine: '\tM400'                                            	M400
+ContinuationLine: '\tG1 Z0 F600'                                      	G1 Z0 F600
+ContinuationLine: '\tM400'                                            	M400
+EmptyLine: ''                                                         
+SectionLine: '[gcode_macro move_to_point_2]'                          [gcode_macro move_to_point_2]
+MultiLineStartLine: 'gcode:'                                          gcode:
+ContinuationLine: '\tG90'                                             	G90
+ContinuationLine: '\tG1 Z10 F600'                                     	G1 Z10 F600
+ContinuationLine: '\tM400'                                            	M400
+ContinuationLine: '\tG1 X25 Y220 F12000'                              	G1 X25 Y220 F12000
+ContinuationLine: '\tM400'                                            	M400
+ContinuationLine: '\tG1 Z0 F600'                                      	G1 Z0 F600
+ContinuationLine: '\tM400'                                            	M400
+EmptyLine: ''                                                         
+SectionLine: '[gcode_macro move_to_point_3]'                          [gcode_macro move_to_point_3]
+MultiLineStartLine: 'gcode:'                                          gcode:
+ContinuationLine: '\tG90'                                             	G90
+ContinuationLine: '\tG1 Z10 F600'                                     	G1 Z10 F600
+ContinuationLine: '\tM400'                                            	M400
+ContinuationLine: '\tG1 X220 Y220  F12000'                            	G1 X220 Y220  F12000
+ContinuationLine: '\tM400'                                            	M400
+ContinuationLine: '\tG1 Z0 F600'                                      	G1 Z0 F600
+ContinuationLine: '\tM400'                                            	M400
+EmptyLine: ''                                                         
+SectionLine: '[screws_tilt_adjust]'                                   [screws_tilt_adjust]
+ValueLine: 'screw1: 60, 25'                                           screw1: 60, 25
+ValueLine: 'screw1_name: front left'                                  screw1_name: front left
+ValueLine: 'screw2: 230, 25'                                          screw2: 230, 25
+ValueLine: 'screw2_name: front right'                                 screw2_name: front right
+ValueLine: 'screw3: 230, 195'                                         screw3: 230, 195
+ValueLine: 'screw3_name: rear right'                                  screw3_name: rear right
+ValueLine: 'screw4: 60, 195'                                          screw4: 60, 195
+ValueLine: 'screw4_name: rear left'                                   screw4_name: rear left
+ValueLine: 'screw_thread: CW-M4'                                      screw_thread: CW-M4
+EmptyLine: ''                                                         
+PersistenceLine: '#*# <---------------------- SAVE_CONFIG --------... #*# <---------------------- SAVE_CONFIG ---------------------->
+PersistenceLine: '#*# DO NOT EDIT THIS BLOCK OR BELOW. The content... #*# DO NOT EDIT THIS BLOCK OR BELOW. The contents are auto-generated.
+PersistenceLine: '#*#'                                                #*#
+PersistenceLine: '#*# [extruder]'                                     #*# [extruder]
+PersistenceLine: '#*# control = pid'                                  #*# control = pid
+PersistenceLine: '#*# pid_kp = 41.556'                                #*# pid_kp = 41.556
+PersistenceLine: '#*# pid_ki = 13.852'                                #*# pid_ki = 13.852
+PersistenceLine: '#*# pid_kd = 31.167'                                #*# pid_kd = 31.167
+PersistenceLine: '#*#'                                                #*#
+PersistenceLine: '#*# [heater_bed]'                                   #*# [heater_bed]
+PersistenceLine: '#*# control = pid'                                  #*# control = pid
+PersistenceLine: '#*# pid_kp = 68.837'                                #*# pid_kp = 68.837
+PersistenceLine: '#*# pid_ki = 0.719'                                 #*# pid_ki = 0.719
+PersistenceLine: '#*# pid_kd = 1646.929'                              #*# pid_kd = 1646.929
+PersistenceLine: '#*#'                                                #*#
+PersistenceLine: '#*# [probe]'                                        #*# [probe]
+PersistenceLine: '#*# z_offset = 1.265'                               #*# z_offset = 1.265
+PersistenceLine: '#*#'                                                #*#
+PersistenceLine: '#*# [bed_mesh default]'                             #*# [bed_mesh default]
+PersistenceLine: '#*# version = 1'                                    #*# version = 1
+PersistenceLine: '#*# points ='                                       #*# points =
+PersistenceLine: '#*# \t-0.025000, -0.008750, 0.013750, 0.027500, ... #*# 	-0.025000, -0.008750, 0.013750, 0.027500, 0.037500, -0.033750
+PersistenceLine: '#*# \t-0.058750, -0.033750, -0.005000, 0.003750,... #*# 	-0.058750, -0.033750, -0.005000, 0.003750, -0.021250, -0.053750
+PersistenceLine: '#*# \t-0.065000, -0.043750, -0.010000, 0.001250,... #*# 	-0.065000, -0.043750, -0.010000, 0.001250, -0.042500, -0.058750
+PersistenceLine: '#*# \t-0.056250, -0.028750, 0.005000, 0.011250, ... #*# 	-0.056250, -0.028750, 0.005000, 0.011250, -0.018750, -0.048750
+PersistenceLine: '#*# \t-0.031250, -0.016250, 0.006250, 0.013750, ... #*# 	-0.031250, -0.016250, 0.006250, 0.013750, -0.011250, -0.035000
+PersistenceLine: '#*# \t-0.021250, -0.012500, 0.005000, 0.008750, ... #*# 	-0.021250, -0.012500, 0.005000, 0.008750, -0.015000, -0.036250
+PersistenceLine: '#*# tension = 0.2'                                  #*# tension = 0.2
+PersistenceLine: '#*# min_x = 20.0'                                   #*# min_x = 20.0
+PersistenceLine: '#*# algo = bicubic'                                 #*# algo = bicubic
+PersistenceLine: '#*# y_count = 6'                                    #*# y_count = 6
+PersistenceLine: '#*# mesh_y_pps = 2'                                 #*# mesh_y_pps = 2
+PersistenceLine: '#*# min_y = 20.0'                                   #*# min_y = 20.0
+PersistenceLine: '#*# x_count = 6'                                    #*# x_count = 6
+PersistenceLine: '#*# max_y = 220.0'                                  #*# max_y = 220.0
+PersistenceLine: '#*# mesh_x_pps = 2'                                 #*# mesh_x_pps = 2
+PersistenceLine: '#*# max_x = 220.0'                                  #*# max_x = 220.0
+PersistenceLine: '#*#'                                                #*#
+PersistenceLine: '#*# [input_shaper]'                                 #*# [input_shaper]
+PersistenceLine: '#*# shaper_type_x = mzv'                            #*# shaper_type_x = mzv
+PersistenceLine: '#*# shaper_freq_x = 58.8'                           #*# shaper_freq_x = 58.8
+PersistenceLine: '#*# shaper_type_y = 2hump_ei'                       #*# shaper_type_y = 2hump_ei
+PersistenceLine: '#*# shaper_freq_y = 47.6'                           #*# shaper_freq_y = 47.6

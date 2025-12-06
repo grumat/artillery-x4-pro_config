@@ -20,16 +20,16 @@ class UserOptions(object):
 		self.reset = 0
 		self.model_attr = True
 		# gantry
-		self.stepper_z_current = 0
+		self.stepper_z_current = 1
 		# extruder
-		self.extruder_accel = True
+		self.extruder_accel = 1
 		self.extruder_current = 1
 		# probe
 		self.probe_offset = 1
-		self.probe_sampling = True
-		self.probe_validation = False
+		self.probe_sampling = 2
+		self.probe_validation = 1
 		# bed
-		self.screws_tilt_adjust = True
+		self.screws_tilt_adjust = 0
 		# fans
 		self.fan_rename = True
 		self.mb_fan_fix = True

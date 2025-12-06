@@ -9,6 +9,8 @@ from .parser import Context
 #from .sections import SecLabel
 from .libtools import StringEssence, EncodeMultiLine, DecodeMultiLine
 from . import commands
+from .line import Line, LineFactory
+from .contents import FileBuffer, Contents2
 
 
 def EditConfig(args : list[str]) -> Result:

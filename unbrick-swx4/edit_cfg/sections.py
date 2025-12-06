@@ -62,6 +62,12 @@ class Section(object):
 		self.name : SecLabel = isinstance(label, str) and SecLabel(label) or label
 		self.loc = Loc(lno, lno)
 		self.keys : list[Key] = []
+	def AddKey(self, k : Key):
+		if self.keys:
+			self.loc.idx_n = k.GetLoc().idx_n
+		else:
+			self.loc = k.GetLoc()
+		self.keys.append(k)
 	def GetLoc(self) -> Loc:
 		"""Returns the location inside the list of lines"""
 		return self.loc

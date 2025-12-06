@@ -17,12 +17,12 @@ TEST_MODE = os.getenv("USWX4_TEST")
 if TYPE_CHECKING:
 	from .user_options import UserOptions
 	from .i18n import _
-	from .my_env import Info, Error, GetBackupFolder
+	from .my_env import Info, Error, GetBackupFolder, YELLOW, NORMAL
 	from .my_shell import ArtillerySideWinder, DiskUsage
 else:
 	from user_options import UserOptions
 	from i18n import _
-	from my_env import Info, Error, GetBackupFolder
+	from my_env import Info, Error, GetBackupFolder, YELLOW, NORMAL
 	from my_shell import ArtillerySideWinder, DiskUsage
 
 
@@ -81,7 +81,7 @@ class Task:
 		if (TEST_MODE is None) and not TYPE_CHECKING:
 			self.workflow.UpdateUI(Message(MessageType.BOLD, msg))
 		else:
-			print('\033[1m' + msg + '\033[0m', end='')
+			print('\033[1m' + msg + NORMAL, end='')
 	def Info(self, msg : str) -> None:
 		if (TEST_MODE is None) and not TYPE_CHECKING:
 			self.workflow.UpdateUI(Message(MessageType.NORMAL, msg))
@@ -91,7 +91,7 @@ class Task:
 		if (TEST_MODE is None) and not TYPE_CHECKING:
 			self.workflow.UpdateUI(Message(MessageType.WARNING, msg))
 		else:
-			print('\033[33m' + msg + '\033[30m', end='')
+			print(YELLOW + msg + '\033[30m', end='')
 
 
 #class MinTemplate(Task):
@@ -134,9 +134,11 @@ class Workflow(ArtillerySideWinder):
 						StopUserInterface, StartUserInterface, EnableUserInterface, StopWebCam, StartWebCam, EnableWebCam, FixCardResizeBug
 				from task_erasefiles import EraseGcodeFiles, EraseMiniatures, EraseLogFiles, EraseOldConfig, EraseClutterFiles
 		if TYPE_CHECKING:
-			from .task_config import BackupConfig, ConfigReset, FixModelSettings
+			from .task_config import BackupConfig, ConfigReset, FixModelSettings, StepperZCurrent, ExtruderAccel, ExtruderCurrent, ProbeOffset, \
+						ProbeSampling, ProbeValidation, ScrewsTiltAdjust
 		else:
-			from task_config import BackupConfig, ConfigReset, FixModelSettings
+			from task_config import BackupConfig, ConfigReset, FixModelSettings, StepperZCurrent, ExtruderAccel, ExtruderCurrent, ProbeOffset, \
+						ProbeSampling, ProbeValidation, ScrewsTiltAdjust
 
 		if (TEST_MODE is None):
 			self.tasks.append(Connect(self))
@@ -158,6 +160,13 @@ class Workflow(ArtillerySideWinder):
 		self.tasks.append(BackupConfig(self))
 		self.tasks.append(ConfigReset(self))
 		self.tasks.append(FixModelSettings(self))
+		self.tasks.append(StepperZCurrent(self))
+		self.tasks.append(ExtruderAccel(self))
+		self.tasks.append(ExtruderCurrent(self))
+		self.tasks.append(ProbeOffset(self))
+		self.tasks.append(ProbeSampling(self))
+		self.tasks.append(ProbeValidation(self))
+		self.tasks.append(ScrewsTiltAdjust(self))
 
 		if (TEST_MODE is None):
 			self.tasks.append(TrimDisk(self))
@@ -202,6 +211,10 @@ class Workflow(ArtillerySideWinder):
 
 	if (TEST_MODE is None) and not TYPE_CHECKING:
 		def _worker_thread(self):
+			if TYPE_CHECKING:
+				from .task_config import HasUpdatedPersistence
+			else:
+				from task_config import HasUpdatedPersistence
 			cnt = 0
 			for i, task in enumerate(self.tasks):
 				self._update_states()
@@ -227,6 +240,10 @@ class Workflow(ArtillerySideWinder):
 						Error(f'{error_message}\n')
 						self.UpdateUI(Message(MessageType.ERROR, _('ERROR!') + '\n\t' + _(error_message) + '\n'))
 			self.UpdateUI(100)
+			if HasUpdatedPersistence():
+				msg = N_("Printer configuration has been reset, printer needs recalibration")
+				Warning(msg)
+				self.UpdateUI(Message(MessageType.BOLD, _(msg)))
 			self._update_states()
 			time.sleep(0.5)			# give time for user knowledge
 			self.UpdateUI(None)
@@ -239,14 +256,18 @@ class Workflow(ArtillerySideWinder):
 			self.thread.start()
 
 	def Test(self):
+		if TYPE_CHECKING:
+			from .task_config import HasUpdatedPersistence
+		else:
+			from task_config import HasUpdatedPersistence
 		for task in self.tasks:
 			self._update_states()
 			if task.CanRun():
 				try:
-					print('\033[1m' + f'Begin Step: {task.label}...' + '\033[0m')
+					print('\033[1m' + f'Begin Step: {task.label}...' + NORMAL)
 					self._set_task_state(task, TaskState.RUNNING)
 					task.Do()
-					print('\033[1m' + '  OK!' + '\033[0m')
+					print('\033[1m' + '  OK!' + NORMAL)
 					self._set_task_state(task, TaskState.DONE)
 				except Exception as e:
 					error_message = str(e)
@@ -254,4 +275,6 @@ class Workflow(ArtillerySideWinder):
 					self._set_task_state(task, TaskState.FAIL)
 					Error(f'{error_message}\n')
 					print('\033[31m' + f'\n\t{error_message}\n' + '\033[30m')
-
+		if HasUpdatedPersistence():
+			Warning("Printer configuration has been reset, printer needs recalibration")
+			print(YELLOW + "Printer configuration has been reset, printer needs recalibration" + NORMAL)

@@ -249,22 +249,22 @@ fields = [
 	{"type": "checkbox", 	"name": "model_attr", 			"text": N_("Fix Printer Model Settings"), "label": ""},
 
 	{"type": "title", 										"text": N_("Gantry")},
-	{"type": "combobox", 	"name": "stepper_z_current", 	"label": N_("Stepper Z Current"), "options": [N_("800mA"), N_("900mA")], },
+	{"type": "combobox", 	"name": "stepper_z_current", 	"label": N_("Stepper Z Hold Current"), "options": [N_("Do not change"), N_("800mA"), N_("900mA")], },
 
 	{"type": "title", 										"text": N_("Extruder")},
-	{"type": "checkbox", 	"name": "extruder_accel", 		"text": N_("Limits Extruder Acceleration"), "label": ""},
-	{"type": "combobox", 	"name": "extruder_current", 	"label": N_("Extruder Run Current"), "options": [N_("800mA (SW X4-Plus)"), N_("900mA (recommendation)"), N_("1000mA (SW X4-Pro)")], },
+	{"type": "combobox", 	"name": "extruder_accel", 		"label": N_("Extruder Acceleration Limit"), "options": [N_("Do not change"), N_("6000mm/s² (SW X4-Pro)"), N_("7000mm/s²"), N_("8000mm/s² (SW X4-Plus)")], },
+	{"type": "combobox", 	"name": "extruder_current", 	"label": N_("Extruder Run Current"), "options": [N_("Do not change"), N_("800mA (SW X4-Plus)"), N_("900mA (recommendation)"), N_("1000mA (SW X4-Pro)")], },
 	
 	{"type": "title", 										"text": N_("Z-Axis Distance Sensor")},
 	{"type": "combobox",  	"name": "probe_offset", 		"label": N_("Offset"), "options": [N_("Do not change"), N_("Factory Mount (default)"), N_("180° Mount")], },
-	{"type": "checkbox", 	"name": "probe_sampling", 		"text": N_("Improved Z-Offset Sampling"), "label": ""},
-	{"type": "checkbox", 	"name": "probe_validation", 	"text": N_("Improved Z-Offset Error Margin"), "label": ""},
+	{"type": "combobox", 	"name": "probe_sampling", 		"label": N_("Z-Offset Sampling"), "options": [N_("Do not change"), N_("Factory default"), N_("Improved")], },
+	{"type": "combobox", 	"name": "probe_validation", 	"label": N_("Z-Offset Error Margin"), "options": [N_("Do not change"), N_("Factory default"), N_("Higher precision")], },
 
 
 	{"column_break": True},  # Switch to the right column
 
 	{"type": "title", 										"text": N_("Print Bed")},
-	{"type": "checkbox", 	"name": "screws_tilt_adjust", 	"text": N_("Activate Manual Leveling Feature"), "label": ""},
+	{"type": "combobox", 	"name": "screws_tilt_adjust", 	"label": N_("Manual Leveling Feature"), "options": [N_("Do not change"), N_("Factory Mount (default)"), N_("180° Mount")], },
 
 	{"type": "title", 										"text": N_("Printer Fans")},
 	{"type": "checkbox", 	"name": "fan_rename", 			"text": N_("Rename Fans"), "label": ""},

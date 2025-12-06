@@ -22,6 +22,8 @@ class Key(object):
 			self.value = []
 	def __str__(self):
 		return f"{self.name}:{str(self.value)}"
+	def __repr__(self):
+		return f"Key({self.name}:{str(self.value)})"
 	def ShrinkIfEmpty(self):
 		"""Remove unnecessary lines of the key"""
 		# Remove every empty tail line, as long as a single entry exists
