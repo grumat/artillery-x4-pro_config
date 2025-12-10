@@ -1,24 +1,22 @@
 #
 # -*- coding: UTF-8 -*-
 #
-# Spellchecker: words MULT
+# Spellchecker: words MULT klipper
 
 import os
 from abc import ABC, abstractmethod
 
-from .sections import Section, SecLabel
 from .loc import Loc
-from .parser import CfgIterator, Context
 from .line import Line, AnyBuffer, LineFactory, EmptyLine, IncludeLine, CommentLine, SectionLine, ValueLine, \
-	MultiLineStartLine, ContinuationLine, ContinuationCommentLine, PersistenceLine, MLine
-from .result import Result, NO_SECTION, MULT_SECTION, INV_RANGE
-from .keys import Key
+	MultiLineStartLine, ContinuationEmptyLine, ContinuationLine, ContinuationCommentLine, PersistenceLine
 
 
 class FileBuffer(AnyBuffer):
 	" An instance of this class holds all files of a files "
 	def __init__(self) -> None:
 		super().__init__()
+	def GetTitle(self) -> str:
+		return "File Buffer"
 	def Link(self, l : Line) -> None:
 		assert False, "This is the root container and is not tracked"
 		pass
@@ -26,6 +24,7 @@ class FileBuffer(AnyBuffer):
 		assert False, "This is the root container and is not tracked"
 		pass
 	def Load(self, fname : str) -> None:
+		" Loads a Klipper-compatible file "
 		with open(fname, 'rt', encoding="utf-8") as fr:
 			factory = LineFactory()
 			prev_line : Line|None = None
@@ -34,20 +33,73 @@ class FileBuffer(AnyBuffer):
 				obj = factory.New(line, prev_line)
 				if obj is not None:
 					self.lines.append(obj)
-					prev_line = obj
+					if not isinstance(obj, EmptyLine):
+						prev_line = obj
 	def Save(self, fname : str) -> None:
+		" Store all contents to a Klipper-compatible file "
 		with open(fname, 'wt', encoding="utf-8") as fh:
 			for line in self.lines:
 				print(line.raw_content, file=fh)
+	def UpdateLineNumbers(self):
+		" Should be called to re-sequence the line numbers after contents edition "
+		for i, l in enumerate(self.lines):
+			l.line_no = i+1
+	def _remove_line_(self, idx : int) -> None:
+		" Unregister a line and removes one line of the file buffer "
+		l = self.lines[idx]
+		if l.buffer is not None:
+			l.buffer.Unlink(l)
+		self.lines.remove(l)
+	def RemoveLine(self, idx : int):
+		self._remove_line_(idx)
+		self.UpdateLineNumbers()
+	def RemoveLines(self, i_from : int, i_to : int):
+		" Removes the range of lines indexed between i_from and i_to, inclusive "
+		while i_from <= i_to:
+			self._remove_line_(i_from)
+			i_from += 1
+		self.UpdateLineNumbers()
+	def _insert_line_(self, idx : int, l : Line, reg : AnyBuffer) -> None:
+		l.line_no = idx+1
+		self.lines.insert(idx, l)
+		reg.Link(l)
+	def InsertLine(self, idx : int, l : Line, reg : AnyBuffer) -> None:
+		self._insert_line_(idx, l, reg)
+		self.UpdateLineNumbers()
+	def GetInsertIdxAtTop(self) -> int:
+		pos = None
+		for i, l in enumerate(self.lines):
+			if isinstance(l, (CommentLine, EmptyLine)):
+				if pos is None:
+					pos = i
+			elif isinstance(l, (SectionLine, PersistenceLine)):
+				break
+			else:
+				pos = None
+		return (pos is not None) and pos or 0
+	def GetInsertIdxAtBottom(self) -> int:
+		pos = None
+		for i, l in enumerate(self.lines):
+			if isinstance(l, (CommentLine, EmptyLine)):
+				if pos is None:
+					pos = i
+			elif isinstance(l, PersistenceLine):
+				break
+			else:
+				pos = None
+		if pos is None:
+			return len(self.lines)
+		return pos
 
 
 class SectionBuffer(AnyBuffer):
 	" This holds all lines belonging to a section"
-	def __init__(self) -> None:
+	def __init__(self, file_buffer : FileBuffer) -> None:
 		super().__init__()
 		self.header : SectionLine | None = None
+		self.file_buffer = file_buffer
 	def Link(self, l : Line) -> None:
-		assert isinstance(l, (EmptyLine, CommentLine, SectionLine, ValueLine, MultiLineStartLine, ContinuationLine, ContinuationCommentLine))
+		assert isinstance(l, (EmptyLine, CommentLine, SectionLine, ValueLine, MultiLineStartLine, ContinuationEmptyLine, ContinuationLine, ContinuationCommentLine))
 		super().Link(l)
 		# Got a section header line
 		if isinstance(l, SectionLine):
@@ -58,12 +110,138 @@ class SectionBuffer(AnyBuffer):
 		super().Unlink(l)
 		if l is self.header:
 			self.header = None
-	def __repr__(self) -> str:
+	def GetTitle(self) -> str:
 		if self.header is None:
 			return "Unknown section"
 		else:
 			return "S: " + self.header.section_name
+	def FindValue(self, key : str) -> ValueLine | None:
+		" Find key/value value, spot on. An active entry has priority over inactive ones. "
+		inactive = None
+		for l in self.lines:
+			if isinstance(l, ValueLine):
+				if l.key == key:
+					if l.inactive:
+						inactive = l
+					else:
+						return l
+		# fallback to inactive line option
+		return inactive
+	def FindValueRange(self, key : str) -> list[Line]:
+		" Find key/value value, including prologue comments and blank lines "
+		top = None
+		for i, l in enumerate(self.lines):
+			if (top is None) and isinstance(l, (EmptyLine, CommentLine) ):
+				top = i
+			if isinstance(l, ValueLine):
+				if l.key == key:
+					if top is None:
+						return self.lines[i:i+1]
+					else:
+						return self.lines[top:i+1]
+				top = None
+			elif isinstance(l, (SectionLine, MultiLineStartLine, ContinuationLine, ContinuationCommentLine)):
+				top = None
+		return []
+	def UpdateValue(self, key : str, value) -> bool:
+		" Update simple values "
+		v = self.FindValue(key)
+		if v:
+			if v.inactive:
+				v.ActivateLine()
+			# Update value
+			v.value = value
+			# Apply to buffer
+			v._update_(f"{v.key}: {v.value}")
+			return True
+		return False
+	def FindMultiLineKey(self, key : str) -> MultiLineStartLine | None:
+		" Find key value of a multiline entry, spot on. An active entry has priority over inactive ones. "
+		inactive = None
+		for l in self.lines:
+			if isinstance(l, MultiLineStartLine):
+				if l.key == key:
+					if l.inactive:
+						inactive = l
+					else:
+						return l
+		# fallback to inactive line option
+		return inactive
+	def FindMultiLine(self, key : str) -> tuple[MultiLineStartLine, list[Line]] | None:
+		head = self.FindMultiLineKey(key)
+		if head is not None:
+			top = self.GetPrologue(self.lines.index(head))
+			i = top + 1
+			while i < len(self.lines):
+				if not isinstance(self.lines[i], (ContinuationLine, ContinuationCommentLine, ContinuationEmptyLine)):
+					break
+				i += 1
+			return (head, self.lines[top:i])
+		return None
+	def GetMultiLine(self, key : str, skip_head = False) -> list[Line]|None:
+		" Return the range of lines belonging to multi-line key. Lines are uncommented "
+		ml = self.FindMultiLine(key)
+		if ml is not None:
+			head, lines = ml
+			i = skip_head and lines.index(head) or 0
+			assert i >= 0, "FindMultiLine() implementation fault"
+			return lines[i:]
+	def DeleteMultiLine(self, key : str) -> int|None:
+		" Removes the entire contents of a multi-line value. This includes head comments and keys "
+		ml = self.FindMultiLine(key)
+		if ml is not None:
+			lines : list[Line]
+			head, lines = ml
+			assert len(lines) > 0, "FindMultiLine() implementation fault"
+			pos = lines[0].line_no-1
+			self.file_buffer.RemoveLines(pos, lines[-1].line_no-1)
+			return pos
+	@staticmethod
+	def FixContents(buffer : FileBuffer, i:int, edge:int) -> int:
+		" Eventually reclassify a file buffer according to value type "
+		while i < edge:
+			obj = buffer.lines[i]
+			if isinstance(obj, MultiLineStartLine):
+				top_ml = i
+				i2 = i + 1
+				while i2 < edge:
+					obj2 = buffer.lines[i2]
+					if isinstance(obj2, (ContinuationLine, ContinuationCommentLine, CommentLine, EmptyLine, ContinuationEmptyLine)):
+						i2 += 1
+					else:
+						break
+				i = i2
+				# since we captured comment lines and empty lines, they could belong to the next value, just go watch back a bit
+				while (top_ml < i2):
+					i2 -= 1
+					if not isinstance(buffer.lines[i2], (CommentLine, EmptyLine)):
+						# Makes sure that the range of multi-lines have only "continuation lines"
+						while top_ml < i2:
+							obj2 = buffer.lines[top_ml]
+							if isinstance(obj2, CommentLine):
+								nl = ContinuationCommentLine(obj2.line_no, obj2.raw_content, obj2.uncommented)
+								nl.Parse()
+								buffer.lines[top_ml] = nl
+							elif isinstance(obj2, EmptyLine):
+								nl = ContinuationEmptyLine(obj2.line_no, obj2.raw_content, obj2.uncommented)
+								nl.Parse()
+								buffer.lines[top_ml] = nl
+							top_ml += 1
+						break
+				i = i2 + 1
+			elif isinstance(obj, (ValueLine, EmptyLine, CommentLine, ContinuationCommentLine)):
+				i += 1
+			else:
+				break
+		# continue from...
+		return i
 
+	def UpdateMultiline(self, key : str, lines : list[str]):
+		" Replaces an entire Multi-line value by a new contents "
+		pos = self.DeleteMultiLine(key)
+		if pos is None:
+			pos = self.file_buffer.GetInsertIdxAtBottom()
+		assert True, "TODO"
 
 class IncludeBuffer(AnyBuffer):
 	" This holds all lines belonging to the include block "
@@ -78,7 +256,7 @@ class IncludeBuffer(AnyBuffer):
 				self.header = l
 	def Unlink(self, l : Line) -> None:
 		super().Unlink(l)
-	def __repr__(self) -> str:
+	def GetTitle(self) -> str:
 		if self.header is None:
 			return "Unknown include"
 		else:
@@ -93,11 +271,11 @@ class PersistenceBuffer(AnyBuffer):
 		super().Link(l)
 	def Unlink(self, l : Line) -> None:
 		super().Unlink(l)
-	def __repr__(self) -> str:
+	def GetTitle(self) -> str:
 		return "Persistence"
 
 
-class Contents2(object):
+class Contents(object):
 	def __init__(self) -> None:
 		self.file_buffer = FileBuffer()
 		self.includes : list[IncludeBuffer] = []
@@ -111,24 +289,9 @@ class Contents2(object):
 		self.includes.append(include)
 		return i
 	
-	def _collect_section_(self, start : int, i : int) -> int:
+	def _collect_section_(self, start : int, i : int, head : SectionLine) -> int:
 		top = i
-		i += 1
-		while i < len(self.file_buffer.lines):
-			obj = self.file_buffer.lines[i]
-			if isinstance(obj, MultiLineStartLine):
-				i2 = i + 1
-				while i2 < len(self.file_buffer.lines):
-					obj2 = self.file_buffer.lines[i2]
-					if isinstance(obj2, (ContinuationLine, ContinuationCommentLine, CommentLine, EmptyLine)):
-						i2 += 1
-					else:
-						break
-				i = i2
-			elif isinstance(obj, (ValueLine, EmptyLine, CommentLine, ContinuationCommentLine)):
-				i += 1
-			else:
-				break
+		i = SectionBuffer.FixContents(self.file_buffer, i + 1, len(self.file_buffer.lines))
 		# Strip at the end; blank lines and comments are always header of the next section
 		while i >= top:
 			i -= 1
@@ -136,7 +299,8 @@ class Contents2(object):
 			if not isinstance(obj, (EmptyLine, CommentLine)):
 				i += 1
 				break
-		sec = SectionBuffer()
+		# Klipper allows split of sections
+		sec = self.FindSection(head.section_name) or SectionBuffer(self.file_buffer)
 		sec.LinkList(self.file_buffer.lines[start:i])
 		self.sections.append(sec)
 		return i
@@ -162,161 +326,24 @@ class Contents2(object):
 			elif isinstance(obj, IncludeLine):
 				start = i = self._collect_include_(start, i)
 			elif isinstance(obj, SectionLine):
-				start = i = self._collect_section_(start, i)
+				start = i = self._collect_section_(start, i, obj)
 			elif isinstance(obj, PersistenceLine):
 				start = i = self._collect_persistence_(start, i)
 			else:
 				raise ValueError(f"Line {i + 1}: Unexpected line type found in file: '{repr(obj)}'")
-				
 
 	def Load(self, fname : str) -> None:
+		" Loads a Klipper-compatible file and groups line in logical structure "
 		assert len(self.file_buffer.lines) == 0, "Object already has contents"
 		self.file_buffer.Load(fname)
 		self._collect0_()
 
-
-class Contents(object):
-	"""Store the entire metadata contents of the configuration file"""
-	def __init__(self, ctx : Context):
-		self.ctx = ctx
-		self.sections : list[Section] = []
-		self.save = Loc()
-		self.cur_sect = None
-		self.cur_key = None
-	def UpdLineNo_(self, lno : int):
-		"""This callback updates line counters of section/keys being parsed"""
-		if self.cur_sect:
-			self.cur_sect.loc.idx_n = lno
-		if self.cur_key:
-			self.cur_key.loc.idx_n = lno
-		if self.save.idx_0 is not None:
-			self.save.idx_n = lno
-	def CloseData_(self, it : CfgIterator):
-		# Just don't forget to add remainder instances
-		if self.cur_sect:
-			if self.cur_key:
-				self.cur_sect.AddKey(self.cur_key)
-				self.cur_key = None
-			self.sections.append(self.cur_sect)
-			self.cur_sect = None
-		# Read until the end
-		while True:
-			it.NextLine()
-	def Load(self) -> None:
-		"""Identifies the contents of the configuration file and populate itself"""
-		# Configuration iterator
-		it = CfgIterator(self.ctx.raw_lines, self.UpdLineNo_)
-		# First line
-		it.NextLine()
-		while True:
-			try:
-				# Persistence block?
-				if it.IsPersistenceBlock():
-					self.save.idx_0 = it.lno
-					self.CloseData_(it)
-				# Ignore empty lines, on the file scope
-				elif it.IsLineEmpty():
-					it.NextLine()
-				elif it.MatchesSection():
-					# A section was found. Now gathers all lines belonging to this section
-					self.cur_sect = it.CreateSection()
-					try:
-						it.NextLine()
-						while(True):
-							# Persistence block?
-							if it.IsPersistenceBlock():
-								self.save.idx_0 = it.lno
-								self.CloseData_(it)
-							# Ignore 'non-key' patterns (or a syntax error?)
-							elif it.IsLineEmpty() or it.HasLeadingBlanks():
-								it.NextLine()
-							elif it.HasKeyPattern():
-								# Found a "key:..." pattern
-								self.cur_key = it.CreateKey()
-								if self.cur_key.loc.idx_n is None:
-									raise ValueError("Key location has an unexpected state")
-								it.NextLine()
-								# If the key is multi-line mode, we have to fetch all lines
-								if it.IsLineEmpty() or it.HasLeadingBlanks():
-									try:
-										# This flag marks True if the last line that was seen is blank
-										while True:
-											if it.rl is None:
-												raise ValueError("Line instance shall have a contents")
-											has_raw_data = (it.rl.raw.strip() != '')
-											if it.rl.raw:
-												if it.rl.raw[0].isspace():
-													# This collect even commented out lines
-													self.cur_key.value.append(MLine(it.rl.unc+'\n', it.lno, has_raw_data))
-												else:
-													break
-											else:
-												self.cur_key.value.append(MLine('\n', it.lno, has_raw_data))
-											it.NextLine()
-										self.cur_key.ShrinkIfEmpty()
-									except StopIteration:
-										self.cur_key.ShrinkIfEmpty()
-										raise
-								self.cur_sect.AddKey(self.cur_key)
-								self.cur_key = None
-							else:
-								self.sections.append(self.cur_sect)
-								self.cur_sect = None
-								break
-					except StopIteration:
-						if self.cur_sect:
-							if self.cur_key:
-								self.cur_key.ShrinkIfEmpty()
-								self.cur_sect.AddKey(self.cur_key)
-								self.cur_key = None
-							self.cur_sect.GetLoc().idx_n
-							self.sections.append(self.cur_sect)
-							self.cur_sect = None
-						raise
-				else:
-					it.NextLine()
-			except StopIteration:
-				break
-	def MatchSections(self, pat :SecLabel) -> list[Section]:
-		"""Returns a list of sections matching the section pattern"""
-		return [s for s in self.sections if s.name.Match(pat)]
-	def GetSingleSection(self, pat :SecLabel) -> Result:
-		"""Makes sure that a single section matches the input pattern"""
-		sec = self.MatchSections(pat)
-		if not sec:
-			return NO_SECTION
-		if len(sec) > 1:
-			return MULT_SECTION
-		return Result('s', sec[0])
-	def GetSectionOfLine(self, lno : int) -> Result:
-		"""Searches the section that is on the given line number"""
-		rng = Loc(lno)
-		if not self.ctx.IsRangeValid(rng):
-			return INV_RANGE(rng)
-		for s in self.sections:
-			if s.GetLoc().IsInRange(lno):
-				return Result('s', s)
-		return NO_SECTION
-	def GetFirstSection(self) -> Section | None:
-		for s in self.sections:
-			if not s.name.IsInclude():
-				return s
+	def FindSection(self, label : str) -> SectionBuffer | None:
+		for sec in self.sections:
+			if sec.header is None:
+				loc = sec.GetSingleLocation()
+				raise RuntimeError("Section in line range {str(loc)} was not correctly parsed")
+			if sec.header.section_name == label:
+				return sec
 		return None
-	def GetPersistence(self) -> list[str]:
-		if self.save.idx_0 is None:
-			raise ValueError("Unexpected type for 'Loc")
-		return self.ctx.GetLines(self.save)
-	def ReplacePersistence(self, data : list[str]) -> None:
-		if self.save.idx_0 is None:
-			raise ValueError("Unexpected type for 'Loc")
-		self.ctx.DeleteRange(self.save)
-		self.save.idx_n = self.save.idx_0
-		self.ctx.AddLines(self.save, data)
-		self.save.idx_n = self.save.idx_0 + len(data)
-	def AddSectionLines(self, loc : Loc, data : list[str]) -> None:
-		if (self.save.idx_0 is None) or (loc.idx_0 is None):
-			raise ValueError("Unexpected type for 'Loc")
-		if self.save.idx_0 <= loc.idx_0:
-			loc = Loc(self.save.idx_0 - 1)
-		self.ctx.AddSectionLines(loc, data)
-
+	

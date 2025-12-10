@@ -1,11 +1,10 @@
 #!/usr/bin/python3
 # -*- coding: UTF-8 -*-
 #
-# Spellchecker: words gcode grumat endstop tupg
+# Spellchecker: words gcode grumat endstop gcode tupg
 
 import sys
 import os
-import re
 from typing import TYPE_CHECKING
 
 # Get the directory of the current script
@@ -26,81 +25,85 @@ if TYPE_CHECKING:
 else:
 	from edit_cfg import *
 
-def GetML(fh, var : str, cmd_line : list[str]):
-	res = EditConfig(cmd_line)
-	if res.code != '*':
-		raise Exception(f"{res}")
-	fh.write(f"{var} = '{res.value}'\n")
+def GetLine(fh, var : str, section : str, key : str, cmd : Commands) -> None:
+	res = cmd.GetLine(section, key)
+	if not isinstance(res, str):
+		raise res
+	fh.write(f"{var} = '{res}'\n")
 
-def GetLine(fh, var : str, cmd_line : list[str]) -> None:
-	res = EditConfig(cmd_line)
-	if res.code != '=':
-		raise Exception(f"{res}")
-	fh.write(f"{var} = '{res.value}'\n")
+def GetML(fh, var : str, section : str, key : str, cmd : Commands):
+	res = cmd.GetKeyML(section, key)
+	if not isinstance(res, str):
+		raise res
+	fh.write(f"{var} = '{res}'\n")
 
-def GetCRC(fh, var : str, section : str, key : str, fname : str) -> None:
-	res = EditConfig(["ListKey", section, key, fname])
-	ld = res.GetSingleKeyList()
-	fh.write(f"{var} = '{ld.crc}'\n")
+def GetSave(fh, var : str, cmd : Commands):
+	res = cmd.GetSave()
+	fh.write(f"{var} = '{res}'\n")
 
-def GetSecCRC(fh, var : str, section : str, fname : str) -> None:
-	res = EditConfig(["ListSec", section, fname])
-	lines = res.GetKeyList()
-	if len(lines) != 1:
-		raise ValueError("Invalid section '{section}'")
-	fh.write(f"{var} = '{lines[0].crc}'\n")
+def GetCRC(fh, var : str, section : str, key : str, cmd : Commands) -> None:
+	res = cmd.GetKeyCRC(section, key)
+	if not isinstance(res, str):
+		raise res
+	fh.write(f"{var} = '{res}'\n")
 
-def GetSecML(fh, var : str, section : str, fname : str) -> None:
-	res = EditConfig(["ReadSec", section, fname])
-	if res.code != '*':
-		raise Exception(f"{res}")
-	fh.write(f"{var} = '{res.value}'\n")
+def GetSecCRC(fh, var : str, section : str, cmd : Commands) -> None:
+	res = cmd.GetSecCRC(section)
+	if not isinstance(res, str):
+		raise res
+	fh.write(f"{var} = '{res}'\n")
+
+def GetSecML(fh, var : str, section : str, cmd : Commands) -> None:
+	res = cmd.GetSec(section)
+	if not isinstance(res, str):
+		raise res
+	fh.write(f"{var} = '{res}'\n")
 
 
 
 def main():
+	fn_x4pro_grumat = Commands(os.path.join(assets_dir, "artillery_X4_pro.grumat.cfg"))
+	fn_x4plus_grumat = Commands(os.path.join(assets_dir, "artillery_X4_plus.grumat.cfg"))
+	fn_x4pro_upg = Commands(os.path.join(assets_dir, "artillery_X4_pro.upg.cfg"))
+	fn_x4plus_upg = Commands(os.path.join(assets_dir, "artillery_X4_plus.upg.cfg"))
+	fn_x4pro_def = Commands(os.path.join(assets_dir, "artillery_X4_pro.def.cfg"))
+	fn_x4plus_def = Commands(os.path.join(assets_dir, "artillery_X4_plus.def.cfg"))
+	fn_x4pro_extra = Commands(os.path.join(assets_dir, "extras.pro.cfg"))
+	fn_x4plus_extra = Commands(os.path.join(assets_dir, "extras.plus.cfg"))
 	fn = os.path.join(project_dir, "encoded_data.py")
 	with open(fn, 'wt', encoding="utf-8") as fh:
 		fh.write("#!/usr/bin/python3\n")
 		fh.write("# -*- coding: UTF-8 -*-\n")
 		fh.write("# This file is auto-generated: DO NOT EDIT!\n")
 		fh.write("\n")
-		fn_x4pro_grumat = os.path.join(assets_dir, "artillery_X4_pro.grumat.cfg")
-		fn_x4plus_grumat = os.path.join(assets_dir, "artillery_X4_plus.grumat.cfg")
-		fn_x4pro_upg = os.path.join(assets_dir, "artillery_X4_pro.upg.cfg")
-		fn_x4plus_upg = os.path.join(assets_dir, "artillery_X4_plus.upg.cfg")
-		fn_x4pro_def = os.path.join(assets_dir, "artillery_X4_pro.def.cfg")
-		fn_x4plus_def = os.path.join(assets_dir, "artillery_X4_plus.def.cfg")
-		fn_x4pro_extra = os.path.join(assets_dir, "extras.pro.cfg")
-		fn_x4plus_extra = os.path.join(assets_dir, "extras.plus.cfg")
 
-		GetML(fh, 'M600', ["GetKey", "gcode_macro M600", "gcode", fn_x4plus_grumat])
+		GetML(fh, 'M600', "gcode_macro M600", "gcode", fn_x4plus_grumat)
 
 		## Factory default persistence
 		fh.write("\n")
 		fh.write("# def:\t\tupg\n")
 		fh.write("# upg:\t\tY\n")
 		fh.write("# grumat:\tupg\n")
-		GetML(fh, 'RESET_CFG_PRO', ["GetSave", fn_x4pro_upg])
-		GetML(fh, 'RESET_CFG_PLUS', ["GetSave", fn_x4plus_upg])
+		GetSave(fh, 'RESET_CFG_PRO', fn_x4pro_upg)
+		GetSave(fh, 'RESET_CFG_PLUS', fn_x4plus_upg)
 
 		## stepper_x / stepper_y / stepper_z ranges
 		fh.write("\n")
 		fh.write("# def:\t\tupg\n")
 		fh.write("# upg:\t\tY\n")
 		fh.write("# grumat:\tupg\n")
-		GetLine(fh, 'X_MAX_PRO', ["GetKey", "stepper_x", "position_max", fn_x4pro_upg ])
-		GetLine(fh, 'X_MAX_PLUS', ["GetKey", "stepper_x", "position_max", fn_x4plus_upg ])
-		GetLine(fh, 'Y_DIR_PRO', ["GetKey", "stepper_y", "dir_pin", fn_x4pro_upg ])
-		GetLine(fh, 'Y_DIR_PLUS', ["GetKey", "stepper_y", "dir_pin", fn_x4plus_upg ])
-		GetLine(fh, 'Y_MIN_PRO', ["GetKey", "stepper_y", "position_min", fn_x4pro_upg ])
-		GetLine(fh, 'Y_MIN_PLUS', ["GetKey", "stepper_y", "position_min", fn_x4plus_upg ])
-		GetLine(fh, 'Y_STOP_PRO', ["GetKey", "stepper_y", "position_endstop", fn_x4pro_upg ])
-		GetLine(fh, 'Y_STOP_PLUS', ["GetKey", "stepper_y", "position_endstop", fn_x4plus_upg ])
-		GetLine(fh, 'Y_MAX_PRO', ["GetKey", "stepper_y", "position_max", fn_x4pro_upg ])
-		GetLine(fh, 'Y_MAX_PLUS', ["GetKey", "stepper_y", "position_max", fn_x4plus_upg ])
-		GetLine(fh, 'Z_MAX_PRO', ["GetKey", "stepper_z", "position_max", fn_x4pro_upg ])
-		GetLine(fh, 'Z_MAX_PLUS', ["GetKey", "stepper_z", "position_max", fn_x4plus_upg ])
+		GetLine(fh, 'X_MAX_PRO', "stepper_x", "position_max", fn_x4pro_upg )
+		GetLine(fh, 'X_MAX_PLUS', "stepper_x", "position_max", fn_x4plus_upg )
+		GetLine(fh, 'Y_DIR_PRO', "stepper_y", "dir_pin", fn_x4pro_upg )
+		GetLine(fh, 'Y_DIR_PLUS', "stepper_y", "dir_pin", fn_x4plus_upg )
+		GetLine(fh, 'Y_MIN_PRO', "stepper_y", "position_min", fn_x4pro_upg )
+		GetLine(fh, 'Y_MIN_PLUS', "stepper_y", "position_min", fn_x4plus_upg )
+		GetLine(fh, 'Y_STOP_PRO', "stepper_y", "position_endstop", fn_x4pro_upg )
+		GetLine(fh, 'Y_STOP_PLUS', "stepper_y", "position_endstop", fn_x4plus_upg )
+		GetLine(fh, 'Y_MAX_PRO', "stepper_y", "position_max", fn_x4pro_upg )
+		GetLine(fh, 'Y_MAX_PLUS', "stepper_y", "position_max", fn_x4plus_upg )
+		GetLine(fh, 'Z_MAX_PRO', "stepper_z", "position_max", fn_x4pro_upg )
+		GetLine(fh, 'Z_MAX_PLUS', "stepper_z", "position_max", fn_x4plus_upg )
 
 		## homing_override / gcode
 		fh.write("\n")
@@ -109,16 +112,16 @@ def main():
 		fh.write("# grumat:\tY\n")
 		GetCRC(fh, 'HOME_OVR_PRO_CRC', "homing_override", "gcode", fn_x4pro_grumat)
 		GetCRC(fh, 'HOME_OVR_PLUS_CRC', "homing_override", "gcode", fn_x4plus_grumat)
-		GetML(fh, 'HOME_OVR_PRO', ["GetKey", "homing_override", "gcode", fn_x4pro_grumat])
-		GetML(fh, 'HOME_OVR_PLUS', ["GetKey", "homing_override", "gcode", fn_x4plus_grumat])
+		GetML(fh, 'HOME_OVR_PRO', "homing_override", "gcode", fn_x4pro_grumat)
+		GetML(fh, 'HOME_OVR_PLUS', "homing_override", "gcode", fn_x4plus_grumat)
 
 		## bed_mesh / mesh_max
 		fh.write("\n")
 		fh.write("# def:\t\tupg\n")
 		fh.write("# upg:\t\tY\n")
 		fh.write("# grumat:\tupg\n")
-		GetLine(fh, 'MESH_MAX_PRO', ["GetKey", "bed_mesh", "mesh_max", fn_x4pro_upg ])
-		GetLine(fh, 'MESH_MAX_PLUS', ["GetKey", "bed_mesh", "mesh_max", fn_x4plus_upg ])
+		GetLine(fh, 'MESH_MAX_PRO', "bed_mesh", "mesh_max", fn_x4pro_upg )
+		GetLine(fh, 'MESH_MAX_PLUS', "bed_mesh", "mesh_max", fn_x4plus_upg )
 
 		## gcode_macro G29 / gcode
 		fh.write("\n")
@@ -127,22 +130,22 @@ def main():
 		fh.write("# grumat:\tY\n")
 		GetCRC(fh, 'G29_PRO_CRC', "gcode_macro G29", "gcode", fn_x4pro_grumat )
 		GetCRC(fh, 'G29_PLUS_CRC', "gcode_macro G29", "gcode", fn_x4plus_grumat )
-		GetML(fh, 'G29_PRO', ["GetKey", "gcode_macro G29", "gcode", fn_x4pro_grumat])
-		GetML(fh, 'G29_PLUS', ["GetKey", "gcode_macro G29", "gcode", fn_x4plus_grumat])
+		GetML(fh, 'G29_PRO', "gcode_macro G29", "gcode", fn_x4pro_grumat)
+		GetML(fh, 'G29_PLUS', "gcode_macro G29", "gcode", fn_x4plus_grumat)
 
 		## gcode_macro nozzle_wipe / gcode
 		fh.write("\n")
 		fh.write("# def:\t\tY\n")
 		GetCRC(fh, 'WIPE_PRO_CRC_DEF', "gcode_macro nozzle_wipe", "gcode", fn_x4pro_def )
 		GetCRC(fh, 'WIPE_PLUS_CRC_DEF', "gcode_macro nozzle_wipe", "gcode", fn_x4plus_def )
-		GetML(fh, 'WIPE_PRO_DEF', ["GetKey", "gcode_macro nozzle_wipe", "gcode", fn_x4pro_def])
-		GetML(fh, 'WIPE_PLUS_DEF', ["GetKey", "gcode_macro nozzle_wipe", "gcode", fn_x4plus_def])
+		GetML(fh, 'WIPE_PRO_DEF', "gcode_macro nozzle_wipe", "gcode", fn_x4pro_def)
+		GetML(fh, 'WIPE_PLUS_DEF', "gcode_macro nozzle_wipe", "gcode", fn_x4plus_def)
 		fh.write("# upg:\t\tY\n")
 		fh.write("# grumat:\tupg\n")
 		GetCRC(fh, 'WIPE_PRO_CRC_UPG', "gcode_macro nozzle_wipe", "gcode", fn_x4pro_upg )
 		GetCRC(fh, 'WIPE_PLUS_CRC_UPG', "gcode_macro nozzle_wipe", "gcode", fn_x4plus_upg )
-		GetML(fh, 'WIPE_PRO_UPG', ["GetKey", "gcode_macro nozzle_wipe", "gcode", fn_x4pro_upg])
-		GetML(fh, 'WIPE_PLUS_UPG', ["GetKey", "gcode_macro nozzle_wipe", "gcode", fn_x4plus_upg])
+		GetML(fh, 'WIPE_PRO_UPG', "gcode_macro nozzle_wipe", "gcode", fn_x4pro_upg)
+		GetML(fh, 'WIPE_PLUS_UPG', "gcode_macro nozzle_wipe", "gcode", fn_x4plus_upg)
 
 		## gcode_macro draw_line_only / gcode
 		fh.write("\n")
@@ -151,8 +154,8 @@ def main():
 		fh.write("# grumat:\tupg\n")
 		GetCRC(fh, 'LINE_ONLY_PRO_CRC', "gcode_macro draw_line_only", "gcode", fn_x4pro_upg )
 		GetCRC(fh, 'LINE_ONLY_PLUS_CRC', "gcode_macro draw_line_only", "gcode", fn_x4plus_upg )
-		GetML(fh, 'LINE_ONLY_PRO', ["GetKey", "gcode_macro draw_line_only", "gcode", fn_x4pro_upg])
-		GetML(fh, 'LINE_ONLY_PLUS', ["GetKey", "gcode_macro draw_line_only", "gcode", fn_x4plus_upg])
+		GetML(fh, 'LINE_ONLY_PRO', "gcode_macro draw_line_only", "gcode", fn_x4pro_upg)
+		GetML(fh, 'LINE_ONLY_PLUS', "gcode_macro draw_line_only", "gcode", fn_x4plus_upg)
 
 		## gcode_macro draw_line / gcode
 		fh.write("\n")
@@ -171,8 +174,8 @@ def main():
 		fh.write("# grumat:\tupg\n")
 		GetCRC(fh, 'POINT0_PRO_CRC', "gcode_macro move_to_point_0", "gcode", fn_x4pro_upg )
 		GetCRC(fh, 'POINT0_PLUS_CRC', "gcode_macro move_to_point_0", "gcode", fn_x4plus_upg )
-		GetML(fh, 'POINT0_PRO', ["GetKey", "gcode_macro move_to_point_0", "gcode", fn_x4pro_upg])
-		GetML(fh, 'POINT0_PLUS', ["GetKey", "gcode_macro move_to_point_0", "gcode", fn_x4plus_upg])
+		GetML(fh, 'POINT0_PRO', "gcode_macro move_to_point_0", "gcode", fn_x4pro_upg)
+		GetML(fh, 'POINT0_PLUS', "gcode_macro move_to_point_0", "gcode", fn_x4plus_upg)
 
 		## gcode_macro move_to_point_1 / gcode
 		fh.write("\n")
@@ -181,8 +184,8 @@ def main():
 		fh.write("# grumat:\tupg\n")
 		GetCRC(fh, 'POINT1_PRO_CRC', "gcode_macro move_to_point_1", "gcode", fn_x4pro_upg )
 		GetCRC(fh, 'POINT1_PLUS_CRC', "gcode_macro move_to_point_1", "gcode", fn_x4plus_upg )
-		GetML(fh, 'POINT1_PRO', ["GetKey", "gcode_macro move_to_point_1", "gcode", fn_x4pro_upg])
-		GetML(fh, 'POINT1_PLUS', ["GetKey", "gcode_macro move_to_point_1", "gcode", fn_x4plus_upg])
+		GetML(fh, 'POINT1_PRO', "gcode_macro move_to_point_1", "gcode", fn_x4pro_upg)
+		GetML(fh, 'POINT1_PLUS', "gcode_macro move_to_point_1", "gcode", fn_x4plus_upg)
 
 		## gcode_macro move_to_point_2 / gcode
 		fh.write("\n")
@@ -191,8 +194,8 @@ def main():
 		fh.write("# grumat:\tupg\n")
 		GetCRC(fh, 'POINT2_PRO_CRC', "gcode_macro move_to_point_2", "gcode", fn_x4pro_upg )
 		GetCRC(fh, 'POINT2_PLUS_CRC', "gcode_macro move_to_point_2", "gcode", fn_x4plus_upg )
-		GetML(fh, 'POINT2_PRO', ["GetKey", "gcode_macro move_to_point_2", "gcode", fn_x4pro_upg])
-		GetML(fh, 'POINT2_PLUS', ["GetKey", "gcode_macro move_to_point_2", "gcode", fn_x4plus_upg])
+		GetML(fh, 'POINT2_PRO', "gcode_macro move_to_point_2", "gcode", fn_x4pro_upg)
+		GetML(fh, 'POINT2_PLUS', "gcode_macro move_to_point_2", "gcode", fn_x4plus_upg)
 
 		## gcode_macro move_to_point_3 / gcode
 		fh.write("\n")
@@ -201,8 +204,8 @@ def main():
 		fh.write("# grumat:\tupg\n")
 		GetCRC(fh, 'POINT3_PRO_CRC', "gcode_macro move_to_point_3", "gcode", fn_x4pro_upg )
 		GetCRC(fh, 'POINT3_PLUS_CRC', "gcode_macro move_to_point_3", "gcode", fn_x4plus_upg )
-		GetML(fh, 'POINT3_PRO', ["GetKey", "gcode_macro move_to_point_3", "gcode", fn_x4pro_upg])
-		GetML(fh, 'POINT3_PLUS', ["GetKey", "gcode_macro move_to_point_3", "gcode", fn_x4plus_upg])
+		GetML(fh, 'POINT3_PRO', "gcode_macro move_to_point_3", "gcode", fn_x4pro_upg)
+		GetML(fh, 'POINT3_PLUS', "gcode_macro move_to_point_3", "gcode", fn_x4plus_upg)
 
 		## gcode_macro move_to_point_4 / gcode
 		fh.write("\n")
@@ -210,8 +213,8 @@ def main():
 		fh.write("# upg:\t\tY\n")
 		fh.write("# grumat:\tupg\n")
 		GetCRC(fh, 'POINT4_PLUS_CRC', "gcode_macro move_to_point_4", "gcode", fn_x4plus_upg )
-		GetML(fh, 'POINT4_PLUS', ["GetKey", "gcode_macro move_to_point_4", "gcode", fn_x4plus_upg])
-		GetML(fh, 'POINT4_SEC_PLUS', ["ReadSec", "gcode_macro move_to_point_4", fn_x4plus_upg])
+		GetML(fh, 'POINT4_PLUS', "gcode_macro move_to_point_4", "gcode", fn_x4plus_upg)
+		GetSecML(fh, 'POINT4_SEC_PLUS', "gcode_macro move_to_point_4", fn_x4plus_upg)
 
 		## gcode_macro move_to_point_5 / gcode
 		fh.write("\n")
@@ -219,8 +222,8 @@ def main():
 		fh.write("# upg:\t\tY\n")
 		fh.write("# grumat:\tupg\n")
 		GetCRC(fh, 'POINT5_PLUS_CRC', "gcode_macro move_to_point_5", "gcode", fn_x4plus_upg )
-		GetML(fh, 'POINT5_PLUS', ["GetKey", "gcode_macro move_to_point_5", "gcode", fn_x4plus_upg])
-		GetML(fh, 'POINT5_SEC_PLUS', ["ReadSec", "gcode_macro move_to_point_5", fn_x4plus_upg])
+		GetML(fh, 'POINT5_PLUS', "gcode_macro move_to_point_5", "gcode", fn_x4plus_upg)
+		GetSecML(fh, 'POINT5_SEC_PLUS', "gcode_macro move_to_point_5", fn_x4plus_upg)
 
 		## gcode_macro move_to_point_6 / gcode
 		fh.write("\n")
@@ -228,16 +231,16 @@ def main():
 		fh.write("# upg:\t\tY\n")
 		fh.write("# grumat:\tupg\n")
 		GetCRC(fh, 'POINT6_PLUS_CRC', "gcode_macro move_to_point_6", "gcode", fn_x4plus_upg )
-		GetML(fh, 'POINT6_PLUS', ["GetKey", "gcode_macro move_to_point_6", "gcode", fn_x4plus_upg])
-		GetML(fh, 'POINT6_SEC_PLUS', ["ReadSec", "gcode_macro move_to_point_6", fn_x4plus_upg])
+		GetML(fh, 'POINT6_PLUS', "gcode_macro move_to_point_6", "gcode", fn_x4plus_upg)
+		GetSecML(fh, 'POINT6_SEC_PLUS', "gcode_macro move_to_point_6", fn_x4plus_upg)
 
 		## tmc2209 stepper_z / hold_current
 		fh.write("\n")
 		fh.write("# def:\t\tupg\n")
 		fh.write("# upg:\t\tY\n")
 		fh.write("# grumat:\tupg\n")
-		GetLine(fh, 'HOLD_CURRENT_Z_LOW', ["GetKey", "tmc2209 stepper_z", "hold_current", fn_x4plus_upg ])
-		GetLine(fh, 'HOLD_CURRENT_Z_HI', ["GetKey", "tmc2209 stepper_z", "hold_current", fn_x4pro_upg ])
+		GetLine(fh, 'HOLD_CURRENT_Z_LOW', "tmc2209 stepper_z", "hold_current", fn_x4plus_upg )
+		GetLine(fh, 'HOLD_CURRENT_Z_HI', "tmc2209 stepper_z", "hold_current", fn_x4pro_upg )
 
 		##  extruder / max_extrude_only_accel
 		fh.write("\n")

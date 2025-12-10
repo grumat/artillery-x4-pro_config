@@ -34,10 +34,10 @@ def main():
 	buffer.Load(source)
 	with open(ftest, 'wt', encoding="utf-8") as fw:
 		for line in buffer.lines:
-			lt = repr(line)
-			if len(lt) > 66:
-				lt = lt[:66] + '...'
-			print(f"{lt:69} {line.raw_content}", file=fw)
+			lt = expand_tabs(line.raw_content)
+			if len(lt) > 46:
+				lt = lt[:46] + '...'
+			print(f"{lt:49} {repr(line)}", file=fw)
 	if files_equal(ftest, os.path.join(current_dir, "results", "test_line-001.txt")):
 		print(GREEN + "Test PASSED!" + NORMAL)
 	else:

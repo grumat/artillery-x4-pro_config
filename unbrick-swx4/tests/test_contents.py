@@ -22,29 +22,32 @@ sys.path.append(lib_dir)
 sys.path.append(assets_dir)
 # Now you can import helper_functions as if it were a module
 if TYPE_CHECKING:
-	from ..edit_cfg import Contents2
+	from ..edit_cfg import Contents
 else:
-	from edit_cfg import Contents2
+	from edit_cfg import Contents
 
 
 def main():
 	ftest = os.path.join(current_dir, "test_contents.txt")
 	source = os.path.join(assets_dir, "artillery_X4_pro.grumat.cfg")
-	contents = Contents2()
+	contents = Contents()
 	contents.Load(source)
 	with open(ftest, 'wt', encoding="utf-8") as fw:
 		for line in contents.file_buffer.lines:
+			s = ''
+			if line.buffer is not None:
+				s = line.buffer.GetTitle()
 			msg = ""
-			if line.buffer is None:
-				msg += ' '*36
+			if len(s) > 32:
+				msg += s[:32] + '... '
 			else:
-				msg += f"{repr(line.buffer):35} "
-			lt = repr(line)
-			if len(lt) > 56:
-				msg += lt[:56] + '...'
+				msg += f"{s:35} "
+			lt = expand_tabs(line.raw_content)
+			if len(lt) > 46:
+				msg += lt[:46] + '...'
 			else:
-				msg += f"{lt:59}"
-			print(f"{msg} {line.raw_content}", file=fw)
+				msg += f"{lt:49}"
+			print(f"{msg} {repr(line)}", file=fw)
 	if files_equal(ftest, os.path.join(current_dir, "results", "test_contents-001.txt")):
 		print(GREEN + "Test PASSED!" + NORMAL)
 	else:
