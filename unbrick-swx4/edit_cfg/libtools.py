@@ -1,7 +1,7 @@
 #
 # -*- coding: UTF-8 -*-
 #
-# Spellchecker: words mline mlines gcode
+# Spellchecker: words mline mlines gcode klipper bltouch
 
 import zlib
 import bz2
@@ -10,8 +10,10 @@ import base64
 from unidecode import unidecode
 
 
-def EncodeB64(info) -> str:
-	payload = repr(info)
+DEBUG_IS_LIKE_GCODE = 0
+
+
+def EncodeB64(payload : str) -> str:
 	# BZ2 compressor...
 	pk = bz2.compress(payload.encode('utf-8'))
 	# ...then BASE64 encoder
@@ -19,12 +21,11 @@ def EncodeB64(info) -> str:
 	# Finally, back to internal string representation
 	return enc.decode('utf-8')
 
-def DecodeB64(b64 : str):
+def DecodeB64(b64 : str) -> str:
 	# Decode BASE64
 	ba = base64.b64decode(b64.encode('utf-8'))
 	# Decompress BZ2
-	payload = bz2.decompress(ba).decode('utf-8')
-	return eval(payload)
+	return bz2.decompress(ba).decode('utf-8')
 
 
 PRINT = re.compile(r'M117\s+(.*)')
@@ -40,10 +41,101 @@ NUMBER = re.compile(r'(\d+(?:\.\d+)?)\s*(.*)')
 QUOTE1 = re.compile(r'(.*?)(".*?")(.*)')
 QUOTE2 = re.compile(r"(.*?)('.*?')(.*)")
 
-RESERVED = (
+RESERVED = {
 	'False',
 	'True',
-)
+}
+
+KNOWN_GCODE = {
+	# Standard G-codes
+	"G0",
+	"G1", 
+	"G10", 
+	"G11", 
+	"G28", 
+	"G4", 
+	"G90", 
+	"G91", 
+	"G92", 
+	"M104", 
+	"M106", 
+	"M107", 
+	"M109", 
+	"M112",
+	"M114", 
+	"M115", 
+	"M117", 
+	"M140", 
+	"M18", 
+	"M190", 
+	"M25", 
+	"M220", 
+	"M221",
+	"M400",
+	"M82", 
+	"M83", 
+	"M84", 
+	# Klipper extended commands
+	"ACCELEROMETER_MEASURE", 
+	"ACCELEROMETER_QUERY",
+	"ACTIVATE_EXTRUDER", 
+	"AXIS_TWIST_COMPENSATION_CALIBRATE",
+	"BED_MESH_CALIBRATE", 
+	"BED_MESH_CLEAR",
+	"BED_MESH_MAP", 
+	"BED_MESH_OFFSET", 
+	"BED_MESH_OUTPUT", 
+	"BED_MESH_PROFILE", 
+	"BED_SCREWS_ADJUST",
+	"BED_TILT_CALIBRATE", 
+	"BLTOUCH_DEBUG", 
+	"CALC_MEASURED_SKEW", 
+	"CLEAR_LAST_FILE", 
+	"DELTA_CALIBRATE", 
+	"END_PRINT", 
+	"EXCLUDE_OBJECT_DEFINE", 
+	"EXCLUDE_OBJECT_END",
+	"EXCLUDE_OBJECT_START", 
+	"EXCLUDE_OBJECT", 
+	"FIRMWARE_RESTART", 
+	"FORCE_MOVE", 
+	"GET_CURRENT_SKEW",
+	"GET_RETRACTION",
+	"NEOPIXEL_DISPLAY", 
+	"QUERY_FILAMENT_SENSOR", 
+	"RESTORE_DUAL_CARRIAGE_STATE",
+	"RESTORE_GCODE_STATE",
+	"SAVE_CONFIG",
+	"SAVE_DUAL_CARRIAGE_STATE", 
+	"SAVE_GCODE_STATE", 
+	"SAVE_LAST_FILE", 
+	"SAVE_VARIABLE", 
+	"SET_DISPLAY_GROUP",
+	"SET_DISPLAY_TEXT", 
+	"SET_DUAL_CARRIAGE", 
+	"SET_EXTRUDER_ROTATION_DISTANCE",
+	"SET_FAN_SPEED", 
+	"SET_FILAMENT_SENSOR",
+	"SET_GCODE_VARIABLE",
+	"SET_IDLE_TIMEOUT",
+	"SET_KINEMATIC_POSITION",
+	"SET_PIN",
+	"SET_PRESSURE_ADVANCE", 
+	"SET_RETRACTION", 
+	"SET_SERVO", 
+	"SET_SKEW", 
+	"SET_TMC_CURRENT", 
+	"SET_TMC_FIELD", 
+	"SET_VELOCITY_LIMIT", 
+	"SKEW_PROFILE", 
+	"START_PRINT", 
+	"STATUS", 
+	"STEPPER_BUZZ", 
+	"SYNC_EXTRUDER_MOTION", 
+	"TUNING_TOWER", 
+	"UPDATE_DELAYED_GCODE", 
+}
+
 
 def _eval_i18n_(txt : str) -> tuple[str, str]:
 	txt = txt.strip().replace(r'\"', '`').replace(r"\'", '`')
@@ -65,22 +157,38 @@ def _eval_i18n_(txt : str) -> tuple[str, str]:
 	return (s, unidecode(out))
 
 
+def _count_triplets_(txt :str, any_of_1 : str, center : str, any_of_2 : str) -> int:
+	cnt = 0
+	i = 1
+	while (i + 2) < len(txt):
+		if txt[i-1] in any_of_1 \
+			and txt[i] == center \
+			and txt[i+1] in any_of_2:
+			cnt += 1
+		i += 1
+	return cnt
+
 def IsLikeGCode(txt : str) -> bool:
-	#orig = txt
+	if DEBUG_IS_LIKE_GCODE:
+		orig = txt
 	s, txt = _eval_i18n_(txt)
 	# English chars only
 	while len(txt) > 0:
 		if txt[0].isspace():
 			txt = txt.lstrip()
 		elif txt.startswith(('{%', '%}')):
-			s += 'g'
+			s += 'gg'
 			txt = txt[2:]
 		elif (m := PRINT.match(txt)):
 			s = s.replace('x', '')	# cancel i18n occurrences
-			s += 'gggg'
+			s += 'gg'
 			txt = txt[2:]
-		elif (m := GCODE.match(txt)) \
-			or (m := GCODE2.match(txt)) \
+		elif (m := GCODE.match(txt)):
+			s += 'g'
+			if (len(s) == 0) and (m[1].upper() in KNOWN_GCODE):
+				s += 'g'
+			txt = m[2]
+		elif (m := GCODE2.match(txt)) \
 			or (m := GCODE3.match(txt)) \
 			or (m := GCODE4.match(txt)):
 			s += 'g'
@@ -89,6 +197,8 @@ def IsLikeGCode(txt : str) -> bool:
 			if WORD_LIKE.match(m[1]) \
 				and (m[1] not in RESERVED):
 				s += len(m[1]) == 1 and 'w' or 'W'
+			elif (len(s) == 0) and (m[1].upper() in KNOWN_GCODE):
+				s += 'gg'
 			else:
 				s += 'i'
 			txt = m[2]
@@ -113,34 +223,39 @@ def IsLikeGCode(txt : str) -> bool:
 				s += 'x'
 			txt = txt[1:]
 		else:
-			#print (txt[0])
+			if DEBUG_IS_LIKE_GCODE:
+				print (txt[0])
 			s += txt[0]
 			txt = txt[1:]
 	pgm = 0
 	nat = 0
-	pgm += 3*s.count('g')
-	pgm += 2*s.count('i')
-	pgm += s.count('o')
+	pgm += 5*s.count('g')
+	pgm += 3*s.count('i')
+	pgm += 2*s.count('o')
 	pgm += s.count('n')
-	pgm += s.count('-n')
+	pgm += 3*s.count('-n')
 	pgm += s.count('w')
-	pgm += 2*s.count('i=n')
-	pgm += 2*s.count('i=w')
-	pgm += 2*s.count('i=W')
-	pgm += s.count('w=n')
-	pgm += s.count('W=n')
-	pgm += s.count('w=w')
-	pgm += s.count('w=W')
-	pgm += s.count('W=w')
-	pgm += 2*s.count('w=i')
-	pgm += 2*s.count('W=i')
+	pgm += 6*_count_triplets_(s, "i", '=',  "i")
+	pgm += 5*_count_triplets_(s, "i", '=',  "inw")
+	pgm += 5*_count_triplets_(s, "inwW", '=',  "i")
+	pgm += 4*_count_triplets_(s, "i", '=',  "W")
+	pgm += 5*_count_triplets_(s, "w", '=',  "in")
+	pgm += 4*_count_triplets_(s, "w", '=',  "w")
+	pgm += 3*_count_triplets_(s, "W", '=',  "Winw")
+	pgm += 3*_count_triplets_(s, "w", '=',  "W")
+	pgm += 5*_count_triplets_(s, "i", '.',  "Ww")
+	pgm += 5*_count_triplets_(s, "Ww", '.',  "i")
+	pgm += 4*_count_triplets_(s, "W", '.',  "w")
+	pgm += 4*_count_triplets_(s, "w", '.',  "W")
+	pgm += 3*_count_triplets_(s, "W", '.',  "W")
 	nat += s.count('W')
 	nat += s.count('w')
 	nat += s.count('x')
 	nat += ((n := s.count('W')) > 3) and (2*n) or 0
 	nat += ((n := s.count('n')) <= 3) and n or 0
 	nat += s.endswith(('...', '.', ',', '!', '?'))
-	#print (f'{s:20}: {pgm}:{nat}: {orig.strip()}')
+	if DEBUG_IS_LIKE_GCODE:
+		print (f'{s:20}: {pgm}:{nat}: {orig.strip()}')
 	return pgm >= nat
 
 

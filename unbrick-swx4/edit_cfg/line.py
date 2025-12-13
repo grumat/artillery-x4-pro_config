@@ -5,6 +5,7 @@
 
 import re
 from abc import ABC, abstractmethod
+from typing import final
 #from typing import Optional, List
 
 from .loc import Loc
@@ -32,6 +33,8 @@ class AnyBuffer(ABC):
 		assert l.buffer is self, "Line does not belong to this collection"
 		self.lines.remove(l)
 		l.buffer = None
+	def Sort(self):
+		self.lines.sort(key = lambda line : line.line_no)
 	def GetLocation(self) -> list[Loc]:
 		" Returns the line locations that buffer owns "
 		res = []
@@ -83,8 +86,11 @@ class AnyBuffer(ABC):
 	@staticmethod
 	def GetCrucialLines(lines : list[Line]) -> list[Line]:
 		return [l for l in lines if (isinstance(l, ToggleableLine) and (l.inactive == False)) or isinstance(l, PersistenceLine)]
+	@staticmethod
+	def GetLinesEssence(lines : list[Line]) -> str:
+		return '\n'.join([l.uncommented for l in AnyBuffer.GetCrucialLines(lines)])
 	def GetLineEssence(self) -> str:
-		return '\n'.join([l.uncommented for l in self.GetCrucialLines(self.lines)])
+		return AnyBuffer.GetLinesEssence(self.lines)
 
 class Line(ABC):	# ABC = Abstract Base Class
 	COMMENT_EXTRACT = re.compile(r'^([^#;]*)[#;]?.*$')
@@ -94,7 +100,7 @@ class Line(ABC):	# ABC = Abstract Base Class
 		self.raw_content = raw_content
 		self.uncommented = uncommented
 	@abstractmethod
-	def Parse(self) -> None:
+	def _parse_(self) -> None:
 		pass
 	@abstractmethod
 	def Update(self) -> None:
@@ -119,24 +125,36 @@ class Line(ABC):	# ABC = Abstract Base Class
 		self.uncommented = uncomment
 		self.raw_content = uncomment + tail
 
+@final
 class EmptyLine(Line):
-	def Parse(self) -> None:
+	def __init__(self, line_no : int, raw_content: str, uncommented : str):
+		super().__init__(line_no, raw_content, uncommented)
+		self._parse_()
+	def _parse_(self) -> None:
 		assert not self.raw_content.strip()
 	def Update(self) -> None:
 		raise RuntimeError("Empty lines are immutable")
 	def __repr__(self):
 		return f"EmptyLine(0, {repr(self.raw_content)}, {repr(self.uncommented)})"
 
+@final
 class CommentLine(Line):
-	def Parse(self) -> None:
+	def __init__(self, line_no : int, raw_content: str, uncommented : str):
+		super().__init__(line_no, raw_content, uncommented)
+		self._parse_()
+	def _parse_(self) -> None:
 		assert self.raw_content.startswith(("#", ";"))
 	def Update(self) -> None:
 		raise RuntimeError("Only replacement allowed for this element")
 	def __repr__(self):
 		return f"CommentLine(0, {repr(self.raw_content)}, {repr(self.uncommented)})"
 
+@final
 class PersistenceLine(Line):
-	def Parse(self) -> None:
+	def __init__(self, line_no : int, raw_content: str, uncommented : str):
+		super().__init__(line_no, raw_content, uncommented)
+		self._parse_()
+	def _parse_(self) -> None:
 		assert self.raw_content.startswith("#*#")
 	def Update(self) -> None:
 		raise RuntimeError("Only replacement allowed for this element")
@@ -170,9 +188,10 @@ class ToggleableLine(Line):
 			self.raw_content = new_pre + self.raw_content[l:]
 	def GetWouldBeRaw(self) -> str:
 		if self.inactive:
+			pre = self.prefix.replace(';', '')
 			l = len(self.prefix)
 			if len(self.raw_content) >= l:
-				return self.raw_content[l:]
+				return pre + self.raw_content[l:]
 		return self.raw_content
 	def GetWouldBeUnc(self) -> str:
 		if self.inactive:
@@ -182,14 +201,16 @@ class ToggleableLine(Line):
 				return pre + self.uncommented[l:]
 		return self.uncommented
 
+@final
 class SectionLine(ToggleableLine):
 	PATTERN = re.compile(r'^\[([a-zA-Z0-9_\-\ ]+)\]\s*$')
 	def __init__(self, line_no : int, raw_content: str, uncommented : str, inactive = False):
 		super().__init__(line_no, raw_content, uncommented, inactive)
 		self.section_name = ""
+		self._parse_()
 	def __repr__(self):
-		return f"SectionLine(0, {repr(self.raw_content)}, {repr(self.uncommented)}, {repr(self.inactive)})"
-	def Parse(self) -> None:
+		return f"SectionLine(0, {repr(self.GetWouldBeRaw())}, {repr(self.GetWouldBeUnc())}, {repr(self.inactive)})"
+	def _parse_(self) -> None:
 		match = self.PATTERN.match(self.GetWouldBeUnc())
 		if not match:
 			raise ValueError(f"Invalid section line: {self.raw_content}")
@@ -197,14 +218,16 @@ class SectionLine(ToggleableLine):
 	def Update(self) -> None:
 		self._update_(f'[{self.section_name}]')
 
+@final
 class IncludeLine(ToggleableLine):
 	PATTERN = re.compile(r'^\[include\s+([^\s\[\]]+)\]\s*$')
 	def __init__(self, line_no : int, raw_content: str, uncommented : str, inactive = False):
 		super().__init__(line_no, raw_content, uncommented, inactive)
 		self.filename = ""
+		self._parse_()
 	def __repr__(self):
-		return f"IncludeLine(0, {repr(self.raw_content)}, {repr(self.uncommented)}, {repr(self.inactive)})"
-	def Parse(self) -> None:
+		return f"IncludeLine(0, {repr(self.GetWouldBeRaw())}, {repr(self.GetWouldBeUnc())}, {repr(self.inactive)})"
+	def _parse_(self) -> None:
 		match = self.PATTERN.match(self.GetWouldBeUnc())
 		if not match:
 			raise ValueError(f"Invalid include line: {self.raw_content}")
@@ -212,45 +235,60 @@ class IncludeLine(ToggleableLine):
 	def Update(self) -> None:
 		self._update_(f'[include {self.filename}]')
 
+@final
 class ValueLine(ToggleableLine):
 	PATTERN = re.compile(r'^([a-zA-Z0-9_]+)\s*[:=]\s*(.*)$')
 	def __init__(self, line_no : int, raw_content: str, uncommented : str, inactive = False):
 		super().__init__(line_no, raw_content, uncommented, inactive)
 		self.key = ""
 		self.value = ""
+		self._parse_()
 	def __repr__(self):
-		return f"ValueLine(0, {repr(self.raw_content)}, {repr(self.uncommented)}, {repr(self.inactive)})"
-	def Parse(self) -> None:
+		return f"ValueLine(0, {repr(self.GetWouldBeRaw())}, {repr(self.GetWouldBeUnc())}, {repr(self.inactive)})"
+	def _parse_(self) -> None:
 		match = self.PATTERN.match(self.GetWouldBeUnc())
 		if not match:
 			raise ValueError(f"Invalid value line: {self.raw_content}")
 		self.key, self.value = match.groups()
 	def Update(self) -> None:
 		self._update_(f"{self.key}: {self.value}")
+	def SetValue(self, value : str):
+		self.value = value
+		self.Update()
 
+@final
 class MultiLineStartLine(ToggleableLine):
 	PATTERN = re.compile(r'^([a-zA-Z0-9_]+)\s*[:=]\s*$')
 	def __init__(self, line_no : int, raw_content: str, uncommented : str, inactive = False):
 		super().__init__(line_no, raw_content, uncommented, inactive)
 		self.key = ""
+		self._parse_()
 	def __repr__(self):
-		return f"MultiLineStartLine(0, {repr(self.raw_content)}, {repr(self.uncommented)}, {repr(self.inactive)})"
-	def Parse(self) -> None:
+		return f"MultiLineStartLine(0, {repr(self.GetWouldBeRaw())}, {repr(self.GetWouldBeUnc())}, {repr(self.inactive)})"
+	def _parse_(self) -> None:
 		match = self.PATTERN.match(self.GetWouldBeUnc())
 		if not match:
 			raise ValueError(f"Invalid multi-line start line: {self.raw_content}")
 		self.key = match.group(1)
+	def SetKey(self, key : str):
+		self._update_(f"{key}:")
+		self._parse_()
 	def Update(self) -> None:
 		raise RuntimeError("Only replacement allowed for this element")
 
+@final
 class ContinuationEmptyLine(Line):
+	def __init__(self, line_no : int, raw_content: str, uncommented : str):
+		super().__init__(line_no, raw_content, uncommented)
+		self._parse_()
 	def __repr__(self):
 		return f"ContinuationEmptyLine(0, {repr(self.raw_content)}, {repr(self.uncommented)})"
-	def Parse(self) -> None:
+	def _parse_(self) -> None:
 		assert not self.raw_content.strip()
 	def Update(self) -> None:
 		raise RuntimeError("Empty lines are immutable")
 
+@final
 class ContinuationLine(ToggleableLine):
 	PATTERN = re.compile(r'^(\s+).*$')
 	def __init__(self, line_no : int, raw_content: str, uncommented : str, inactive = False):
@@ -258,9 +296,10 @@ class ContinuationLine(ToggleableLine):
 		assert m is not None, "Invalid continuation line"
 		super().__init__(line_no, raw_content, uncommented, inactive, m[1]+';')
 		self.content = ""
+		self._parse_()
 	def __repr__(self):
-		return f"ContinuationLine(0, {repr(self.raw_content)}, {repr(self.uncommented)}, {repr(self.inactive)})"
-	def Parse(self) -> None:
+		return f"ContinuationLine(0, {repr(self.GetWouldBeRaw())}, {repr(self.GetWouldBeUnc())}, {repr(self.inactive)})"
+	def _parse_(self) -> None:
 		test = self.GetWouldBeUnc()
 		if not test.startswith((" ", "\t")):
 			raise ValueError(f"Invalid continuation line: {self.raw_content}")
@@ -268,12 +307,16 @@ class ContinuationLine(ToggleableLine):
 	def Update(self) -> None:
 		raise RuntimeError("Only replacement allowed for this element")
 
+@final
 class ContinuationCommentLine(Line):
 	PATTERN = re.compile(r'^\s+[#;]')
 	PATTERN_POST = re.compile(r'^[;#]+(?=.*(\t.*\s|\s.*\t|\t{1,}| {3,}))')	# this is allowed only if previous line is also a continuation
+	def __init__(self, line_no : int, raw_content: str, uncommented : str):
+		super().__init__(line_no, raw_content, uncommented)
+		self._parse_()
 	def __repr__(self):
 		return f"ContinuationCommentLine(0, {repr(self.raw_content)}, {repr(self.uncommented)})"
-	def Parse(self) -> None:
+	def _parse_(self) -> None:
 		match = self.PATTERN.match(self.raw_content)
 		if not match:
 			# For the case a continuation line was commented at the head of the line
@@ -362,8 +405,6 @@ class LineFactory(object):
 			raise ValueError(f"Unrecognized line: {raw_content}")
 	def New(self, raw_content: str, pre_line : Line|None) -> Line | None:
 		obj = self._new_(raw_content, pre_line)
-		if obj is not None:
-			obj.Parse()
 		return obj
 
 

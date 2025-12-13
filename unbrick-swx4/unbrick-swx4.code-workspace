@@ -16,6 +16,9 @@
 	"settings": {
 		"editor.insertSpaces": false,
 		"editor.tabSize": 4,
+		"files.exclude": {
+			".deprecated/**": true
+		},
 		"python.autoComplete.extraPaths":[
 			"${workspaceFolder}",
 			"${workspaceFolder:assets}",
@@ -39,5 +42,8 @@
 			"editor.defaultFormatter": "ms-python.python"
 		},
 		"C_Cpp.codeAnalysis.clangTidy.headerFilter": "",
-	}
+		"search.exclude": {
+			".deprecated/**": true
+		}
+	},
 }

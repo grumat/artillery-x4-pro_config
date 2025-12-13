@@ -1,34 +1,34 @@
  ____________________________________________________________________ 
 |                                                                    |
-                         === ListSec Test ===                         
+                     === ListSectionsB64 Test ===                     
 
-Q: ListSec
-PASSED: !ARG
+Q: cmd.ListSectionsB64('no_no_no',)
+PASSED: QlpoOTFBWSZTWR+mXYgAAAACAAAKIAAhAIKxdyRThQkB+mXYgA==
+  Expands to:
+    <empty list>
 -------------------------
-Q: ListSec abcdefg
-PASSED: !SEC
+Q: cmd.ListSectionsB64('include *',)
+PASSED: QlpoOTFBWSZTWR+mXYgAAAACAAAKIAAhAIKxdyRThQkB+mXYgA==
+  Expands to:
+    <empty list>
 -------------------------
-Q: ListSec abcdefg extra-arg
-PASSED: !ARG+
+Q: cmd.ListSectionsB64('printer',)
+PASSED: QlpoOTFBWSZTWWrTk+gAAA6fgEDkMwAJIAwKCyHWACAAUKAAAMmQNU9Rmpp6aRptRp5SQB/bTybESWBqFQbztnFA11gNFMa9+O5XSHCRUfi7kinChINWnJ9A
+  Expands to:
+    SectionInfo('printer', 265, True, True, 'F162CFF2')
 -------------------------
-Q: ListSec printer
-PASSED: =printer @264 :2098A795
-
+Q: cmd.ListSectionsB64('stepper_?',)
+PASSED: QlpoOTFBWSZTWb4EwIAAACufgEDkf+A+IAwKiyHecCAAaFekCZDQ0NAAA0I9VAAAAAA0eokwD6S+jFYYOg0bghMY4nrqetyClJ8EMvPcpqbYKM5fhjPAjXZtKiJvawuFQ4FPiMbMzo9Ph8iQYhSKKToKfi7kinChIXwJgQA=
+  Expands to:
+    SectionInfo('stepper_x', 6, True, True, 'D5A31D8C')
+    SectionInfo('stepper_y', 23, True, True, 'EC287C19')
+    SectionInfo('stepper_z', 40, True, True, '048BC1DC')
 -------------------------
-Q: ListSec 'include *'
-PASSED: *QlpoOTFBWSZTWf3RPOAAADbfgAAQQAF/8F8iAgC/r94AIABkJVTZE8npCNPSehNMgPFNBqmjTJkaNDTTIA0AVuY0Y1ewahLCa3pBT3qVY9b8IY38bqKr0d0bdbikAGVZ5o6wt0r56SyjRFewSCPrcIh5ScgmE9/wJL44DaWkAsKWNTDIYm1E05zAfi7kinChIfuiecA=
-Expands to:
-include plr.cfg @0 :7802D9D6
-include MCU_ID.cfg @1 :E0927B98
-include moonraker_obico_macros.cfg @2 :F55F8C53
-include timelapse.cfg @3 :43891572
--------------------------
-Q: ListSec 'stepper_?'
-PASSED: *QlpoOTFBWSZTWZf5u8gAAB9fgAAQQAB/8H8AAACCAFxwIABBGqGhhAemSGyhQADQAAR56nvJndIFKqHjlgZrAliqz1QhY9K2pQrhwxBiFw4cfi7kinChIS/zd5A=
-Expands to:
-stepper_x @5 :66645A8B
-stepper_y @22 :FA26D0CC
-stepper_z @39 :E6218736
+Q: cmd.ListSectionsB64('*home*',)
+PASSED: QlpoOTFBWSZTWceZWQcAABtfgAQAQORxwAEgDAqrZ54QIABISoEyZMgADIAlKNAAAA0ejUaNQCjQYNJjhgkS+MFwEVEXjpSWiZkozs+IkDVJRRzSHp0PLx4w5OQeUikBeyKRGuPxdyRThQkMeZWQcA==
+  Expands to:
+    SectionInfo('safe_z_home', 161, False, False, '00000000')
+    SectionInfo('safe_z_home', 287, False, True, '00000000')
 -------------------------
 
                               NO ERRORS                               
@@ -39,33 +39,36 @@ stepper_z @39 :E6218736
 |                                                                    |
                         === ListKeys Test ===                         
 
-Q: ListKeys
-PASSED: !ARG
+Q: cmd.ListKeysB64('no_no_no',)
+PASSED: QlpoOTFBWSZTWR+mXYgAAAACAAAKIAAhAIKxdyRThQkB+mXYgA==
+  Expands to:
+    <empty list>
 -------------------------
-Q: ListKeys abcdefg
-PASSED: !SEC
+Q: cmd.ListKeysB64('pause_resume',)
+PASSED: QlpoOTFBWSZTWR+mXYgAAAACAAAKIAAhAIKxdyRThQkB+mXYgA==
+  Expands to:
+    <empty list>
 -------------------------
-Q: ListKeys abcdefg extra-arg
-PASSED: !ARG+
+Q: cmd.ListKeysB64('idle_timeout',)
+PASSED: QlpoOTFBWSZTWXLnGZ4AABCfgEDkU8AVKAQKpyeeICAAQNU0PRGmnqAGgzJDGmIwjTAAAW1AkFhMk2LAx8CM25GMsydTivnY3erSaDxdYhEeJKYSGIXCkw78XckU4UJBy5xmeA==
+  Expands to:
+    KeyInfo('idle_timeout', 'timeout', 285, True, False, '6B28FD70')
 -------------------------
-Q: ListKeys pause_resume
-PASSED: !KEY
+Q: cmd.ListKeysB64('gcode_macro nozzle_wipe',)
+PASSED: QlpoOTFBWSZTWXCY3XgAABEfgEDkRKAXKAQKr6fSsCAAVESaBkDR6IDJhkGqeo9T1DJtQAGJoBzCLdgYQ0MgTWIrnOrRTt9yYM8FEXjfESf4Clz24COURMiBZpMLwVzkNRdyRThQkHCY3Xg=
+  Expands to:
+    KeyInfo('gcode_macro nozzle_wipe', 'gcode', 409, True, True, 'B77EDF4D')
 -------------------------
-Q: ListKeys idle_timeout
-PASSED: =timeout @284 :58D59594
--------------------------
-Q: ListKeys 'gcode_macro nozzle_wipe'
-PASSED: =gcode @408 :B77EDF4D
--------------------------
-Q: ListKeys printer
-PASSED: *QlpoOTFBWSZTWRavpJYAAENfgAAQQAB/8H8AAACqL79wIABkNRkaDRR6mjygaAPUDKjEeoNAAAAyQnaElfKVKP851a1p2bfdXZoGI6yVwdRtBk+bItVxCF76YcaG8kwAyN4zFFUzNIopXjn9qRfCHUZ9MHccj0s7RYefg9yy6kGABE+LHRNatFIX0FQE5hH4u5IpwoSAtX0ksA==
-Expands to:
-kinematics @265 :032E315C
-max_velocity @266 :B7A7E158
-max_accel @267 :D82F5DF4
-max_z_velocity @269 :AFD8AC22
-max_z_accel @270 :6884A877
-square_corner_velocity @271 :29FB8E65
+Q: cmd.ListKeysB64('printer',)
+PASSED: QlpoOTFBWSZTWVz1CAAAAHmfgEDkf+A/KAQKry//cDAA22wRE2kNGIAAAAAChNqaYgBpoAAAANqShtE9TJk0AANNGIxMokKLRRnpdqsC3CtMzQESg1gTBUDIGDdQhzSSxslKgUiGGMsr4xlcOla51O0oUmiFsjcIhQAchgAYKBYobEz7pRMlaDiwtpSTmLSqAACUhLWAAl0nvxZ6KjD0cvJxSWFyKz3BlAfa1QRswoWPSxP2INcDA694RHeYNKSZwps30HBeEm0keE8iSz4BTgh8aSj0g/XKYzoyGUUxKGRfxdyRThQkFz1CAAA=
+  Expands to:
+    KeyInfo('printer', 'kinematics', 266, True, False, '032E315C')
+    KeyInfo('printer', 'max_velocity', 267, True, False, '74E07851')
+    KeyInfo('printer', 'max_accel', 268, True, False, 'BB393EF7')
+    KeyInfo('printer', 'max_accel_to_decel', 269, False, False, '076E7A3E')
+    KeyInfo('printer', 'max_z_velocity', 270, True, False, '14590883')
+    KeyInfo('printer', 'max_z_accel', 271, True, False, 'C346F46C')
+    KeyInfo('printer', 'square_corner_velocity', 272, True, False, '6ADF659B')
 -------------------------
 
                               NO ERRORS                               
@@ -76,26 +79,14 @@ square_corner_velocity @271 :29FB8E65
 |                                                                    |
                          === ListKey Test ===                         
 
-Q: ListKey
-PASSED: !ARG
+Q: cmd.ListKey('no_no_no', 'no_no_no')
+PASSED: None
 -------------------------
-Q: ListKey abcdefg
-PASSED: !ARG
+Q: cmd.ListKey('printer', 'kinematics')
+PASSED: KeyInfo('printer', 'kinematics', 266, True, False, '032E315C')
 -------------------------
-Q: ListKey abcdefg dummy
-PASSED: !SEC
--------------------------
-Q: ListKey abcdefg dummy extra-arg
-PASSED: !ARG+
--------------------------
-Q: ListKey pause_resume extra-arg
-PASSED: !KEY
--------------------------
-Q: ListKey printer kinematics
-PASSED: =kinematics @265 :032E315C
--------------------------
-Q: ListKey 'gcode_macro G29' gcode
-PASSED: =gcode @293 :F8CEE4BF
+Q: cmd.ListKey('gcode_macro G29', 'gcode')
+PASSED: KeyInfo('gcode_macro G29', 'gcode', 294, True, False, 'F8CEE4BF')
 -------------------------
 
                               NO ERRORS                               
@@ -106,167 +97,177 @@ PASSED: =gcode @293 :F8CEE4BF
 |                                                                    |
                          === GetKey Test ===                          
 
-Q: GetKey
-PASSED: !ARG
+Q: cmd.GetKey('no_no_no', 'no_no_no')
+PASSED: None
 -------------------------
-Q: GetKey stepper_x
-PASSED: !ARG
+Q: cmd.GetKey('stepper_?', 'step_pin')
+PASSED: None
 -------------------------
-Q: GetKey stepper_x no_key
-PASSED: !KEY
+Q: cmd.GetKey('stepper_x', 'no_no_no')
+PASSED: None
 -------------------------
-Q: GetKey no_no_no no_key
-PASSED: !SEC
+Q: cmd.GetKey('stepper_x', 'step_pin')
+PASSED: PC14
 -------------------------
-Q: GetKey no_no_no no_key extra-arg
-PASSED: !ARG+
+Q: cmd.GetKey('stepper_x', 'enable_pin')
+PASSED: !PC15
 -------------------------
-Q: GetKey stepper_x step_pin
-PASSED: =PC14
+Q: cmd.GetKey('stepper_x', 'step_pulse_duration')
+PASSED: 0.000002
 -------------------------
-Q: GetKey stepper_x enable_pin
-PASSED: =!PC15
+Q: cmd.GetKey('stepper_y', 'full_steps_per_rotation')
+PASSED: 200
 -------------------------
-Q: GetKey stepper_x step_pulse_duration
-PASSED: =0.000002
+Q: cmd.GetKey('stepper_y', 'endstop_pin')
+PASSED: tmc2209_stepper_y:virtual_endstop
 -------------------------
-Q: GetKey stepper_y full_steps_per_rotation
-PASSED: =200
+Q: cmd.GetKey('stepper_y', 'step_pulse_duration')
+PASSED: 0.000002
 -------------------------
-Q: GetKey stepper_y endstop_pin
-PASSED: =tmc2209_stepper_y:virtual_endstop
+Q: cmd.GetKey('extruder', 'sensor_type')
+PASSED: EPCOS 100K B57560G104F
 -------------------------
-Q: GetKey stepper_y step_pulse_duration
-PASSED: =0.000002
+Q: cmd.GetKey('homing_override', 'gcode')
+FAILED: QlpoOTFBWSZTWT56r1cABKMfgFLne3I/79x+v+feXlAEHgAAAABzAJpgEyGAAJgmAAAHMAmmATIYAAmCYAAAcwCaYBMhgACYJgAABzAJpgEyGAAJgmAAABUUiGimMmoyNTZQ0NGmmmmQxA8jKeDYbDtfxH7xYsWLFsYWMRYsM0QfMqQcTTTGMY3mcQdaugcSjMphPwFO5HAkns9i/rbcLgwwuGKxhW9JOw4nwN5oNpGacDnNjvIMEHTzzfU5TmN7IzK2uVUj51H25M9WeNWjM0mqNSKVmyykmypnZt2twg4Fe8xJB1nAxJBo2L57aq2qqrbaUpSqpSlKqqqrbbFi2lLFiqtqrbFiqtttt86QWJMlEcTvPIknWeM2lO0+B6Ifg5UpuXLLFMmGK9EkGH3lpaetJmjzHUet50aiME6k3DynIRqSODqPW6jQ8h0GD3PcNT2jRIP0ep7n6vUNH8DYk3LEG4SZP5HQ/cYGQ+I5mx3JBp27xrerkGg4PkwPkNaK2jRsHm8g2DMcr+UUlRSVFSPKen824qklUtKpaSSUknrKYKRYLFiyLVqhVSVKiirVttqVQp+nQOx8R8na9p4inoU4h2RBme1JMn0STm70g+L3joKd5Gp1vo1G1JO4qa3lffJ9VVaotpZJPmLJBwiHNVqSd55GeonQZskk3GbiawbUk4DYc7cJ6SSbXMTxHOZJJ4ydbWajY2m7kSTkSTQdx6RDCSajwPMMEg1pJrPEeDic55Yg6ZOpJhBrM0gzI8aSZJCZFCpBUg8RGjYTMzSDI7Eg5DkSTidJ/ZkZnSYO0pvcwqScCS+hypJuSTUdRkbDzRBR0jsKa3jPqMDWo8ESdNCD2VqGriYSDekG41GhSCmaQaNT27zlIyDQwcTBuIPefA7vBcz6H2KIqif+LuSKcKEgfPVerg==
+  Expands to:
+    gcode:
+    	bed_mesh_clear
+    	G91
+    	G1 Z5 F120
+    	G90
+    	{% if params.X is defined %}
+    		{% if params.Y is undefined %}
+    			{% if params.Z is undefined %}
+    				G28 X
+    			{% endif %}
+    		{% endif %}
+    	{% endif %}
+    	{% if params.Y is defined %}
+    		{% if params.X is undefined %}
+    			{% if params.Z is undefined %}
+    				G28 Y
+    			{% endif %}
+    		{% endif %}
+    	{% endif %}
+    	{% if params.Z is defined %}
+    		{% if params.X is undefined %}
+    			{% if params.Y is undefined %}
+    				G28 Y
+    				G28 X
+    				G1 X120 Y120 F3000
+    				{% set z_max = printer.toolhead.axis_maximum.z-6|int %}
+    				SET_KINEMATIC_POSITION Z={z_max}
+    				probe probe_speed=5 samples=5
+    				{% set probe_offset=-(printer.configfile.settings['probe'].z_offset) %}
+    				G91
+    				G1 Z{probe_offset}  F300
+    				G90
+    				SET_KINEMATIC_POSITION Z=0
+    				G91
+    				G1 Z5 F300
+    				G90
+    				;G28 Z
+    			{% endif %}
+    		{% endif %}
+    	{% endif %}
+    	{% if params.X is defined %}
+    		{% if params.Y is defined %}
+    			{% if params.Z is undefined %}
+    				G28 Y
+    				G28 X
+    			{% endif %}
+    		{% endif %}
+    	{% endif %}
+    	{% if params.X is undefined %}
+    		{% if params.Y is undefined %}
+    			{% if params.Z is undefined %}
+    				G28 Y
+    				G28 X
+    				G1 X120 Y120 F3000
+    				;G28 Z
+    				{% set z_max = printer.toolhead.axis_maximum.z-5|int %}
+    				SET_KINEMATIC_POSITION Z={z_max}
+    				probe probe_speed=5 samples=5
+    				{% set probe_offset=-(printer.configfile.settings['probe'].z_offset) %}
+    				G91
+    				G1 Z{probe_offset} F300
+    				G90
+    				SET_KINEMATIC_POSITION Z=0
+    				G91
+    				G1 Z5 F300
+    				G90
+    			{% endif %}
+    		{% endif %}
+    	{% endif %}
+    	G90
+    	BED_MESH_PROFILE LOAD="default"
 -------------------------
-Q: GetKey extruder sensor_type
-PASSED: =EPCOS 100K B57560G104F
+Q: cmd.GetKey('gcode_macro G29', 'gcode')
+PASSED: QlpoOTFBWSZTWQw3laoAAHUfgEDkclA/5hx+rqWeADAAtmwlKAmNBMAIwAACRSnlMQaGhoBkADAVUkPUaHpDQ0DJo0ABFASBiYtFcDLmbhGMMYLwChO22223kQ0JKGpeTIlCE0k2BWrVFKE6xhX1CpSpfTeuNcES1Y4HEignQtIsqx6gj5kXRFEAfWB8TO0QuyDILBIfEODokE8E6F1HyhEYj8KidFaTQ0fxo3olcK4RfzxZ0SQ0dMBdyRThQkAw3lao
+  Expands to:
+    gcode:
+    	BED_MESH_CLEAR
+    	G28
+    	BED_MESH_CALIBRATE
+    	G0 Z50 F1800
+    	G0 X120 Y120 F12000
 -------------------------
-Q: GetKey homing_override gcode
-PASSED: *QlpoOTFBWSZTWZrMpygAAGHfgEAwUuN7Yj/v3Hq/595eQAIcCgASkkyABoGmgBoNBkepoZGQA5gE0wCZDAAEwTAAADmATTAJkMAATBMAAACpIgiaYInoKYjQ0aPKGjJvVB6NT9FKAWRFRQqlFJUVUUlKqqlUfi1nunnG1KUo6Gd1ZMcZJhla3hqul6lK/iNz6LR/MVFI/5ry3WaHs+o1qLrT8injHBJN/vrpWtUtZTZJPsb3FsaDSjCY+SDcgzfB62TJ5NEk6na0KfR8nA0PwWp99Wqx7S6l475O/rdbtjAYJpdsp0tQxkcHfwZvQuDAtYauIcNC4XgodAsIlPeVFIiKFIKZ6heiBgXOJt07C/MYGzjY4mMVrM8zeZFzSfGKSopUVDg+DYdnyOPh3M1PTTuF3dJLcpJ+/6G1Tkj19mDOSf6qf1yHCqKD5nJSdC15Jkw2OgM5J7jNt6Cckk0701OS8k6UxYMtDVJNUkyPBUk53m6jGSYuZ5bm15zrk6oMl0b5JaSYqHMjJLtDnapJudLyXe17Fngpt2FSTck2yTTJMHWuyT0HpUx3uxY7KLG9kuc+ppRYYLNaz1JJuPe+Lz8fGHqVCbH/i7kinChITWZTlAA=
-Expands to:
-	bed_mesh_clear
-	G91
-	G1 Z5 F120
-	G90
-	{% if params.X is defined %}
-		{% if params.Y is undefined %}
-			{% if params.Z is undefined %}
-				G28 X
-			{% endif %}
-		{% endif %}
-	{% endif %}
-	{% if params.Y is defined %}
-		{% if params.X is undefined %}
-			{% if params.Z is undefined %}
-				G28 Y
-			{% endif %}
-		{% endif %}
-	{% endif %}
-	{% if params.Z is defined %}
-		{% if params.X is undefined %}
-			{% if params.Y is undefined %}
-				G28 Y
-				G28 X
-				G1 X120 Y120 F3000
-				{% set z_max = printer.toolhead.axis_maximum.z-6|int %}
-				SET_KINEMATIC_POSITION Z={z_max}
-				probe probe_speed=5 samples=5
-				{% set probe_offset=-(printer.configfile.settings['probe'].z_offset) %}
-				G91
-				G1 Z{probe_offset}  F300
-				G90
-				SET_KINEMATIC_POSITION Z=0
-				G91
-				G1 Z5 F300
-				G90
+Q: cmd.GetKey('gcode_macro M600', 'gcode')
+FAILED: QlpoOTFBWSZTWRm7/KQAA3gfgELnf/I/r99+r+fePlADPg5AAAOYACZMACYTBMIYAjABzAATJgATCYJhDAEYAEqn+qqMAAEyMATTBMABMmAHMABMmABMJgmEMARgAKkiCCaCniTxRk9pR6j1HlPSe1Q2kNqep4puHgPKLSqsUUWNBCU/R2u5/zgGUE4SzkexhEnSncsk8mTeYmhZndUsqWqqXeY4gb7fKKKfc4hShSYI0shT1RHGJORJsjXxbDoUcHZbKojbUJVFsVMMss8MqaUiNb5oShQmtSKCAsIgkK+8ECAqqqqoIIiqqqqqgICIiIiIqqqrVgBKkRpPe4ETEdKk6qVRv+/K1rSkJqG1nkzyq91+HJXYMnY2tRk7WDrMFxd1vsdbeZOpqXaDeaVPc5kZuU/VTpNp1l6K7TW3O8o+LUUTwO42DkcKXXgnAmt+zSaEYm8YNyxgm8eBip/smcQ/Enin8FNZZ+5m4HrJpRGjypJqYnCeNzU8U5kzG00JguchKOE992SnIZmLU0lJONgT3F2KlynMKSngllhSUsliWLE/rvIj46jnKHVEnoifJE4/RPWCfNHm+sMHsjifBSlVVVVVIGb5RUlFKKUFeS8FImAYI6QaETNPqeTZoDQHRITfDMxQTALp5xJskcclkTgglxvBskgvBKgnqnotBNsE9WLWie0mqROdJmF0TTEmKMZyypVmtGCPYnPSSdV8oJnBOiTFEfAYQTNJiju1Dlkp1rIim5Tco3KR3i65Zg+9GDBctVKrIvHqkliixUlV/4u5IpwoSAzd/lIA
+  Expands to:
+    gcode:
+    	{% set X = params.X|default(50)|float %}
+    	{% set Y = params.Y|default(0)|float %}
+    	{% set Z = params.Z|default(20)|float %}
+    	{% set t = params.B|default(3)|int %}
+    
+    	{% if params.X is undefined %}
+    	{% if params.Y is undefined %}
+    	M300 B{t}
+    	PAUSE Z={Z}
+    	{% endif %}
+    	{% endif %}
+    
+    	{% if params.X is defined %}
+    	{% if params.Y is undefined %}
+    	M300 B{t}
+    	PAUSE X={X} Z={Z}
+    	{% endif %}
+    	{% endif %}
+    
+    	{% if params.X is undefined %}
+    	{% if params.Y is defined %}
+    	M300 B{t}
+    	PAUSE Y={Y} Z={Z}
+    	{% endif %}
+    	{% endif %}
+    
+    	{% if params.X is defined %}
+    	{% if params.Y is defined %}
+    	M300 B{t}
+    	PAUSE X={X} Y={Y} Z={Z}
+    	{% endif %}
+    	{% endif %}
+    
+    	;{% set z = params.Z|default(20)|int %}
+    	;SET_GCODE_VARIABLE MACRO=T600 VARIABLE=zhop VALUE={Z}
+    
+    	;SAVE_GCODE_STATE NAME=PAUSE
+    	;M25
+    	;G91
+    	;M83
+    	;G1 E-2.5 F2700
+    	;G1 Z{Z} F900
+    
+    	;SAVE_GCODE_STATE NAME=PAUSEPARK
+    	;G90
+    	;G1 X{X} Y{Y} F3000
+    	;M83
+    	;G1 E-70 F1000
+    	;SET_IDLE_TIMEOUT TIMEOUT=43200
+-------------------------
 
-			{% endif %}
-		{% endif %}
-	{% endif %}
-	{% if params.X is defined %}
-		{% if params.Y is defined %}
-			{% if params.Z is undefined %}
-				G28 Y
-				G28 X
-			{% endif %}
-		{% endif %}
-	{% endif %}
-	{% if params.X is undefined %}
-		{% if params.Y is undefined %}
-			{% if params.Z is undefined %}
-				G28 Y
-				G28 X
-				G1 X120 Y120 F3000
-
-				{% set z_max = printer.toolhead.axis_maximum.z-5|int %}
-				SET_KINEMATIC_POSITION Z={z_max}
-				probe probe_speed=5 samples=5
-				{% set probe_offset=-(printer.configfile.settings['probe'].z_offset) %}
-				G91
-				G1 Z{probe_offset} F300
-				G90
-				SET_KINEMATIC_POSITION Z=0
-				G91
-				G1 Z5 F300
-				G90
-			{% endif %}
-		{% endif %}
-	{% endif %}
-	G90
-	BED_MESH_PROFILE LOAD="default"
--------------------------
-Q: GetKey 'gcode_macro G29' gcode
-PASSED: *QlpoOTFBWSZTWXKzBDMAAADeAAAwQAByQD/mHHCgAECUgmJpoNDT01CgAADJkOQnEt49Epry90JQVbm6TzKF7W4PWIjLgyYKIxpstR1Kj6Iwx+LuSKcKEg5WYIZg
-Expands to:
-	BED_MESH_CLEAR
-	G28
-	BED_MESH_CALIBRATE
-	G0 Z50 F1800
-	G0 X120 Y120 F12000
--------------------------
-Q: GetKey 'gcode_macro M600' gcode
-PASSED: *QlpoOTFBWSZTWU+3oFIAAAxfgAAwQmFaAjICSnAnJ94OMAD4AwaaNNMJiZMBA0wwaaNNMJiZMBA0wKoUaTUaYjTJmUAejUkiNQkkmR1MyTSKiZnp1y3l/NM41NS0NwbGKUuXiTJK8xwO5DgQuNscrEUc+POxTqTibm96GRedMzoPczLWJTxVRKaVCqOxHYjtHU/BqY95mZmYH0RQyNAwIwiwsNguoVGp2IkwGyDvGBFiLhqRcXRtrAwOBYvPUh+jUyyrPU0NCxQX4TP+LuSKcKEgn29ApA==
-Expands to:
-	{% set X = params.X|default(50)|float %}
-	{% set Y = params.Y|default(0)|float %}
-	{% set Z = params.Z|default(20)|float %}
-	{% set t = params.B|default(3)|int %}
-
-	{% if params.X is undefined %}
-	{% if params.Y is undefined %}
-	M300 B{t}
-	PAUSE Z={Z}
-	{% endif %}
-	{% endif %}
-
-	{% if params.X is defined %}
-	{% if params.Y is undefined %}
-	M300 B{t}
-	PAUSE X={X} Z={Z}
-	{% endif %}
-	{% endif %}
-
-	{% if params.X is undefined %}
-	{% if params.Y is defined %}
-	M300 B{t}
-	PAUSE Y={Y} Z={Z}
-	{% endif %}
-	{% endif %}
-
-	{% if params.X is defined %}
-	{% if params.Y is defined %}
-	M300 B{t}
-	PAUSE X={X} Y={Y} Z={Z}
-	{% endif %}
-	{% endif %}
-
--------------------------
-Q: GetKey 'stepper_?' step_pin
-PASSED: !SEC+
--------------------------
-
-                              NO ERRORS                               
+                ######## TOTAL ERROR COUNT: 2 ########                
 |____________________________________________________________________|
 
 
@@ -274,48 +275,39 @@ PASSED: !SEC+
 |                                                                    |
                          === EditKey Test ===                         
 
-Q: EditKey
-PASSED: !ARG
+Q: cmd.EditKey('no_no_no', 'no_no_no', '999')
+PASSED: None
 -------------------------
-Q: EditKey stepper_z
-PASSED: !ARG
+Q: cmd.EditKey('stepper_?', 'new_key', '999')
+PASSED: None
 -------------------------
-Q: EditKey stepper_z endstop_pin
-PASSED: !ARG
+Q: cmd.EditKey('stepper_z', 'endstop_pin', 'PROBE:Z_VIRTUAL_ENDSTOP')
+PASSED: True
 -------------------------
-Q: EditKey no_no_no no_key 999
-PASSED: !SEC
+Q: cmd.GetKey('stepper_z', 'endstop_pin')
+PASSED: PROBE:Z_VIRTUAL_ENDSTOP
 -------------------------
-Q: EditKey no_no_no no_key 999 extra-arg
-PASSED: !ARG+
+Q: cmd.EditKey('stepper_x', 'full_steps_per_rotation', '201')
+PASSED: True
 -------------------------
-Q: EditKey stepper_z endstop_pin PROBE:Z_VIRTUAL_ENDSTOP
-PASSED: .OK
+Q: cmd.GetKey('stepper_x', 'full_steps_per_rotation')
+PASSED: 201
 -------------------------
-Q: GetKey stepper_z endstop_pin
-PASSED: =PROBE:Z_VIRTUAL_ENDSTOP
+Q: cmd.EditKey('gcode_macro M600', 'gcode', 'QlpoOTFBWSZTWaUYWRwABKUfgFLne3o/79x+v+feXlAEHgAAAABzAATJgATCYJhDAEYAOYACZMACYTBMIYAjABzAATJgATCYJhDAEYAOYACZMACYTBMIYAjAAVFIgKYyajI0aQ000aMNTAIHkZTuajUdb4x8IsWLFi2MLGIsWGaIPsVIOBr14xjG4ziDyq5hwKMymE9Ap2I3kk9nsX223C4MMLhisYVuST8DgfM3GsbCM03nKanaQYIOflm7cwnIbjBmVscapH2qPyyZ6M8aK1MzVNEZilZsspJqqZ2bNjaIN5XvMSQdJvMSQa2pfJbVW1VVVW20pSlKUpVVVVbbYsW0pYsVVtVbYsVVtttvkSCxJkojgdp4Ek6Tvmwp1nzPND9HGlNq5ZYpkwxXmkgw85aWnqSZo8R0HqeRGgjBOhNo8JxEaEje8J0HqYNZ4DmMHue4aHUNaQet6Xue16RrfEakm1Yg2pJ1FSM3yHO+AwMh9Bua3YkGvr3jS/fjGscr6sD6jSitg1tQ6OYahmON8kUlRSVFSPEfrsP4UqiVS0qlpJJSSeopgpFgsWLItWqFVJUqKKtW22pVCnr5h+D6D6ut1HeKfmpwDyxBmdSSZPuknJ2pB9HvHMU7SNDpfdoNiSdhU0vC88njqrVFtLJJ9hZIN8Q5KtSTtPAz0E5jNkkm0zcDSDYkm8ajlbRPQSTY5Cd45TJJO+TpaTQamw28SScSSax2HoEMJJoO48QwSDSkmk7x3OBynhiDnk6EmEGkzSDMjvpJkkJkUKkFSDvEa2omZmkGR5Ug4jiSTgc5/ZkZnOYOspucgqSbyS+ZxpJtSTQdBkajxRBRzjylNLvnjMDSp3FKkTnoQeutA0cDCQbkg2mg1lIKZpBraHVuOMjINZg4GDaQe8+Z2dy5n3PxURVE/8XckU4UJClGFkcA')
+PASSED: False
 -------------------------
-Q: EditKey stepper_x full_steps_per_rotation 201
-PASSED: .OK
+Q: cmd.GetKey('stepper_z', 'new_key')
+PASSED: None
 -------------------------
-Q: GetKey stepper_x full_steps_per_rotation
-PASSED: =201
+Q: cmd.EditKey('stepper_z', 'new_key', '999')
+PASSED: True
 -------------------------
-Q: EditKey 'gcode_macro M600' gcode QlpoOTFBWSZTWd/Tm3kAABPfgAAwQmFaAjICSnAnJ94OMADarYRRRDTQAaNABtII9VNPU0AAAAAAqp6pT2pNMRgDaSaDaT1IIIpFEiIhmElGFpJMaZUYWx2ivkRnmZZwdaGYsutiCCsLMUdqMhobrVkdOPSpcsTSe74bzEvMOxgPk7FaxOCZIIklJkKLRaN4dn8Fji3sPlahqDAGg0eHh8dYMFPkTwGD6J6NBQdPgUVEU13aC82lTjRT9GZa12OZkZFS6hfoT/F3JFOFCQ39ObeQ
-PASSED: !ML
+Q: cmd.GetKey('stepper_z', 'new_key')
+PASSED: 999
 -------------------------
-Q: GetKey stepper_z new_key
-PASSED: !KEY
--------------------------
-Q: EditKey stepper_z new_key 999
-PASSED: .OK
--------------------------
-Q: GetKey stepper_z new_key
-PASSED: =999
--------------------------
-Q: EditKey 'stepper_?' new_key 999
-PASSED: !SEC+
--------------------------
+
+PASSED: Comparing 'P:\github.com\artillery-sw-x4-klipper-images-code\unbrick-swx4\tests\test.cfg'
+        with 'P:\github.com\artillery-sw-x4-klipper-images-code\unbrick-swx4\tests\results\test_edit_cfg-001.cfg'
 
                               NO ERRORS                               
 |____________________________________________________________________|
@@ -325,88 +317,33 @@ PASSED: !SEC+
 |                                                                    |
                         === EditKeyML Test ===                        
 
-Q: EditKeyML
-PASSED: !ARG
+Q: cmd.EditKeyML('no_no_no', 'no_no_no', 'QlpoOTFBWSZTWQEQaJAAAHUfgEDkctA/5hx+rqWeADAA1iGNNBoAZNAZGmhiaMEiVPSYjIA0aAAA0BVJTT1CPCTamEPTTSbSME0kgKC+QJiyaoKq24lKJwXYFFLbbbbeFEkerW0pJlaJVJaWtc3si1oei9QZ0ljatWv4+nI2QmYL1xwJoaEYE1K92hPrUcpqVZ7UKkc+CGGJiXIs8w7PC1HlHhkpT2JMR8FTQixJoaPo0a0TXCuEft16tEyGjf/F3JFOFCQARBokAA==')
+PASSED: None
 -------------------------
-Q: EditKeyML stepper_z
-PASSED: !ARG
+Q: cmd.EditKeyML('gcode_macro *', 'new_key', 'QlpoOTFBWSZTWQw3laoAAHUfgEDkclA/5hx+rqWeADAAtmwlKAmNBMAIwAACRSnlMQaGhoBkADAVUkPUaHpDQ0DJo0ABFASBiYtFcDLmbhGMMYLwChO22223kQ0JKGpeTIlCE0k2BWrVFKE6xhX1CpSpfTeuNcES1Y4HEignQtIsqx6gj5kXRFEAfWB8TO0QuyDILBIfEODokE8E6F1HyhEYj8KidFaTQ0fxo3olcK4RfzxZ0SQ0dMBdyRThQkAw3lao')
+PASSED: None
 -------------------------
-Q: EditKeyML stepper_z endstop_pin
-PASSED: !ARG
+Q: cmd.ListKey('gcode_macro G29', 'gcode')
+PASSED: KeyInfo('gcode_macro G29', 'gcode', 295, True, False, 'F8CEE4BF')
 -------------------------
-Q: EditKeyML no_no_no no_key 999
-PASSED: !ENC
+Q: cmd.EditKeyML('gcode_macro G29', 'gcode', 'QlpoOTFBWSZTWQEQaJAAAHUfgEDkctA/5hx+rqWeADAA1iGNNBoAZNAZGmhiaMEiVPSYjIA0aAAA0BVJTT1CPCTamEPTTSbSME0kgKC+QJiyaoKq24lKJwXYFFLbbbbeFEkerW0pJlaJVJaWtc3si1oei9QZ0ljatWv4+nI2QmYL1xwJoaEYE1K92hPrUcpqVZ7UKkc+CGGJiXIs8w7PC1HlHhkpT2JMR8FTQixJoaPo0a0TXCuEft16tEyGjf/F3JFOFCQARBokAA==')
+PASSED: True
 -------------------------
-Q: EditKeyML no_no_no no_key QlpoOTFBWSZTWd/Tm3kAABPfgAAwQmFaAjICSnAnJ94OMADarYRRRDTQAaNABtII9VNPU0AAAAAAqp6pT2pNMRgDaSaDaT1IIIpFEiIhmElGFpJMaZUYWx2ivkRnmZZwdaGYsutiCCsLMUdqMhobrVkdOPSpcsTSe74bzEvMOxgPk7FaxOCZIIklJkKLRaN4dn8Fji3sPlahqDAGg0eHh8dYMFPkTwGD6J6NBQdPgUVEU13aC82lTjRT9GZa12OZkZFS6hfoT/F3JFOFCQ39ObeQ
-PASSED: !SEC
+Q: cmd.ListKey('gcode_macro G29', 'gcode')
+PASSED: KeyInfo('gcode_macro G29', 'gcode', 295, True, False, '7E1AC1F9')
 -------------------------
-Q: EditKeyML no_no_no no_key QlpoOTFBWSZTWd/Tm3kAABPfgAAwQmFaAjICSnAnJ94OMADarYRRRDTQAaNABtII9VNPU0AAAAAAqp6pT2pNMRgDaSaDaT1IIIpFEiIhmElGFpJMaZUYWx2ivkRnmZZwdaGYsutiCCsLMUdqMhobrVkdOPSpcsTSe74bzEvMOxgPk7FaxOCZIIklJkKLRaN4dn8Fji3sPlahqDAGg0eHh8dYMFPkTwGD6J6NBQdPgUVEU13aC82lTjRT9GZa12OZkZFS6hfoT/F3JFOFCQ39ObeQ extra-arg
-PASSED: !ARG+
+Q: cmd.ListKey('gcode_macro G29', 'new_key')
+PASSED: None
 -------------------------
-Q: EditKeyML 'gcode_macro M600' gcode QlpoOTFBWSZTWd/Tm3kAABPfgAAwQmFaAjICSnAnJ94OMADarYRRRDTQAaNABtII9VNPU0AAAAAAqp6pT2pNMRgDaSaDaT1IIIpFEiIhmElGFpJMaZUYWx2ivkRnmZZwdaGYsutiCCsLMUdqMhobrVkdOPSpcsTSe74bzEvMOxgPk7FaxOCZIIklJkKLRaN4dn8Fji3sPlahqDAGg0eHh8dYMFPkTwGD6J6NBQdPgUVEU13aC82lTjRT9GZa12OZkZFS6hfoT/F3JFOFCQ39ObeQ
-PASSED: .OK
+Q: cmd.EditKeyML('gcode_macro G29', 'new_key', 'QlpoOTFBWSZTWQw3laoAAHUfgEDkclA/5hx+rqWeADAAtmwlKAmNBMAIwAACRSnlMQaGhoBkADAVUkPUaHpDQ0DJo0ABFASBiYtFcDLmbhGMMYLwChO22223kQ0JKGpeTIlCE0k2BWrVFKE6xhX1CpSpfTeuNcES1Y4HEignQtIsqx6gj5kXRFEAfWB8TO0QuyDILBIfEODokE8E6F1HyhEYj8KidFaTQ0fxo3olcK4RfzxZ0SQ0dMBdyRThQkAw3lao')
+PASSED: True
 -------------------------
-Q: GetKey 'gcode_macro M600' gcode
-PASSED: *QlpoOTFBWSZTWd/Tm3kAABPfgAAwQmFaAjICSnAnJ94OMADarYRRRDTQAaNABtII9VNPU0AAAAAAqp6pT2pNMRgDaSaDaT1IIIpFEiIhmElGFpJMaZUYWx2ivkRnmZZwdaGYsutiCCsLMUdqMhobrVkdOPSpcsTSe74bzEvMOxgPk7FaxOCZIIklJkKLRaN4dn8Fji3sPlahqDAGg0eHh8dYMFPkTwGD6J6NBQdPgUVEU13aC82lTjRT9GZa12OZkZFS6hfoT/F3JFOFCQ39ObeQ
-Expands to:
-	{% set X = params.X|default(50)|float %}
-	{% set Y = params.Y|default(0)|float %}
-	{% set Z = params.Z|default(20)|float %}
-	{% set t = params.B|default(3)|int %}
+Q: cmd.ListKey('gcode_macro G29', 'new_key')
+PASSED: KeyInfo('gcode_macro G29', 'new_key', 301, True, False, '9DF557ED')
+-------------------------
 
-	{% if params.X is defined %}
-		{% if params.Y is defined %}
-			M300 B{t}
-			PAUSE X={X} Y={Y} Z={Z}
-		{% else %}
-			M300 B{t}
-			PAUSE X={X} Z={Z}
-		{% endif %}
-	{% else %}
-		{% if params.Y is defined %}
-			M300 B{t}
-			PAUSE Y={Y} Z={Z}
-		{% else %}
-			M300 B{t}
-			PAUSE Z={Z}
-		{% endif %}
-	{% endif %}
--------------------------
-Q: GetKey 'gcode_macro M600' new_key
-PASSED: !KEY
--------------------------
-Q: EditKeyML 'gcode_macro M600' new_key QlpoOTFBWSZTWd/Tm3kAABPfgAAwQmFaAjICSnAnJ94OMADarYRRRDTQAaNABtII9VNPU0AAAAAAqp6pT2pNMRgDaSaDaT1IIIpFEiIhmElGFpJMaZUYWx2ivkRnmZZwdaGYsutiCCsLMUdqMhobrVkdOPSpcsTSe74bzEvMOxgPk7FaxOCZIIklJkKLRaN4dn8Fji3sPlahqDAGg0eHh8dYMFPkTwGD6J6NBQdPgUVEU13aC82lTjRT9GZa12OZkZFS6hfoT/F3JFOFCQ39ObeQ
-PASSED: .OK
--------------------------
-Q: GetKey 'gcode_macro M600' new_key
-PASSED: *QlpoOTFBWSZTWd/Tm3kAABPfgAAwQmFaAjICSnAnJ94OMADarYRRRDTQAaNABtII9VNPU0AAAAAAqp6pT2pNMRgDaSaDaT1IIIpFEiIhmElGFpJMaZUYWx2ivkRnmZZwdaGYsutiCCsLMUdqMhobrVkdOPSpcsTSe74bzEvMOxgPk7FaxOCZIIklJkKLRaN4dn8Fji3sPlahqDAGg0eHh8dYMFPkTwGD6J6NBQdPgUVEU13aC82lTjRT9GZa12OZkZFS6hfoT/F3JFOFCQ39ObeQ
-Expands to:
-	{% set X = params.X|default(50)|float %}
-	{% set Y = params.Y|default(0)|float %}
-	{% set Z = params.Z|default(20)|float %}
-	{% set t = params.B|default(3)|int %}
-
-	{% if params.X is defined %}
-		{% if params.Y is defined %}
-			M300 B{t}
-			PAUSE X={X} Y={Y} Z={Z}
-		{% else %}
-			M300 B{t}
-			PAUSE X={X} Z={Z}
-		{% endif %}
-	{% else %}
-		{% if params.Y is defined %}
-			M300 B{t}
-			PAUSE Y={Y} Z={Z}
-		{% else %}
-			M300 B{t}
-			PAUSE Z={Z}
-		{% endif %}
-	{% endif %}
--------------------------
-Q: EditKeyML 'gcode_macro *' new_key QlpoOTFBWSZTWd/Tm3kAABPfgAAwQmFaAjICSnAnJ94OMADarYRRRDTQAaNABtII9VNPU0AAAAAAqp6pT2pNMRgDaSaDaT1IIIpFEiIhmElGFpJMaZUYWx2ivkRnmZZwdaGYsutiCCsLMUdqMhobrVkdOPSpcsTSe74bzEvMOxgPk7FaxOCZIIklJkKLRaN4dn8Fji3sPlahqDAGg0eHh8dYMFPkTwGD6J6NBQdPgUVEU13aC82lTjRT9GZa12OZkZFS6hfoT/F3JFOFCQ39ObeQ
-PASSED: !SEC+
--------------------------
+PASSED: Comparing 'P:\github.com\artillery-sw-x4-klipper-images-code\unbrick-swx4\tests\test.cfg'
+        with 'P:\github.com\artillery-sw-x4-klipper-images-code\unbrick-swx4\tests\results\test_edit_cfg-002.cfg'
 
                               NO ERRORS                               
 |____________________________________________________________________|
@@ -416,42 +353,27 @@ PASSED: !SEC+
 |                                                                    |
                          === DelKey Test ===                          
 
-Q: DelKey
-PASSED: !ARG
+Q: cmd.DelKey('no_no_no', 'no_no_no')
+PASSED: None
 -------------------------
-Q: DelKey 'gcode_macro move_to_point_3'
-PASSED: !ARG
+Q: cmd.DelKey('stepper_?', 'position_max')
+PASSED: None
 -------------------------
-Q: DelKey 'gcode_macro move_to_point_3' abcd
-PASSED: !KEY
+Q: cmd.DelKey('stepper_z', 'new_key')
+PASSED: True
 -------------------------
-Q: DelKey abcdefg abcd
-PASSED: !SEC
+Q: cmd.GetKey('stepper_z', 'new_key')
+PASSED: None
 -------------------------
-Q: DelKey abcdefg abcd extra-arg
-PASSED: !ARG+
+Q: cmd.DelKey('gcode_macro G29', 'new_key')
+PASSED: True
 -------------------------
-Q: GetKey stepper_z homing_speed
-PASSED: =20
+Q: cmd.GetKey('gcode_macro G29', 'new_key')
+PASSED: None
 -------------------------
-Q: DelKey stepper_z new_key
-PASSED: .OK
--------------------------
-Q: GetKey stepper_z new_key
-PASSED: !KEY
--------------------------
-Q: GetKey stepper_z homing_speed
-PASSED: =20
--------------------------
-Q: DelKey 'gcode_macro M600' new_key
-PASSED: .OK
--------------------------
-Q: GetKey 'gcode_macro M600' new_key
-PASSED: !KEY
--------------------------
-Q: GetKey 'stepper_?' position_max
-PASSED: !SEC+
--------------------------
+
+PASSED: Comparing 'P:\github.com\artillery-sw-x4-klipper-images-code\unbrick-swx4\tests\test.cfg'
+        with 'P:\github.com\artillery-sw-x4-klipper-images-code\unbrick-swx4\tests\results\test_edit_cfg-003.cfg'
 
                               NO ERRORS                               
 |____________________________________________________________________|
@@ -461,35 +383,27 @@ PASSED: !SEC+
 |                                                                    |
                          === RenSec Test ===                          
 
-Q: RenSec
-PASSED: !ARG
+Q: cmd.RenSec('no_no_no', 'abcdefg')
+PASSED: None
 -------------------------
-Q: RenSec abcdefg
-PASSED: !ARG
+Q: cmd.RenSec('stepper_?', 'abcdefg')
+PASSED: None
 -------------------------
-Q: RenSec abcdefg defgh
-PASSED: !SEC
+Q: cmd.ListSection('controller_fan mainboard_fan',)
+PASSED: SectionInfo('controller_fan mainboard_fan', 243, True, True, '0DABA107')
 -------------------------
-Q: RenSec abcdefg defgh extra-arg
-PASSED: !ARG+
+Q: cmd.RenSec('controller_fan mainboard_fan', 'controller_fan motherboard_fan')
+PASSED: 1
 -------------------------
-Q: ListSec 'controller_fan mainboard_fan'
-PASSED: =controller_fan mainboard_fan @242 :9971A484
+Q: cmd.ListSection('controller_fan mainboard_fan',)
+PASSED: None
+-------------------------
+Q: cmd.ListSection('controller_fan motherboard_fan',)
+PASSED: SectionInfo('controller_fan motherboard_fan', 243, True, True, '4C733D2B')
+-------------------------
 
--------------------------
-Q: RenSec 'controller_fan mainboard_fan' 'controller_fan motherboard_fan'
-PASSED: .OK
--------------------------
-Q: ListSec 'controller_fan mainboard_fan'
-PASSED: !SEC
--------------------------
-Q: ListSec 'controller_fan motherboard_fan'
-PASSED: =controller_fan motherboard_fan @242 :97664E5B
-
--------------------------
-Q: RenSec 'stepper_?' abcdefgh
-PASSED: !SEC+
--------------------------
+PASSED: Comparing 'P:\github.com\artillery-sw-x4-klipper-images-code\unbrick-swx4\tests\test.cfg'
+        with 'P:\github.com\artillery-sw-x4-klipper-images-code\unbrick-swx4\tests\results\test_edit_cfg-004.cfg'
 
                               NO ERRORS                               
 |____________________________________________________________________|
@@ -499,41 +413,33 @@ PASSED: !SEC+
 |                                                                    |
                          === DelSec Test ===                          
 
-Q: DelSec
-PASSED: !ARG
+Q: cmd.DelSec('no_no_no',)
+PASSED: None
 -------------------------
-Q: DelSec abcdefg
-PASSED: !SEC
+Q: cmd.DelSec('stepper_?',)
+PASSED: None
 -------------------------
-Q: DelSec abcdefg extra-arg
-PASSED: !ARG+
+Q: cmd.ListSection('neopixel my_neopixel',)
+PASSED: SectionInfo('neopixel my_neopixel', 676, True, True, '1804619F')
 -------------------------
-Q: DelSec @9999
-PASSED: !RANGE
+Q: cmd.DelSec('neopixel my_neopixel',)
+PASSED: 674
 -------------------------
-Q: ListSec 'neopixel my_neopixel'
-PASSED: =neopixel my_neopixel @648 :60C51F9E
+Q: cmd.ListSection('neopixel my_neopixel',)
+PASSED: None
+-------------------------
+Q: cmd.ListSection('probe',)
+PASSED: SectionInfo('probe', 167, True, True, '6C3A1993')
+-------------------------
+Q: cmd.DelSec('probe',)
+PASSED: 165
+-------------------------
+Q: cmd.ListSection('probe',)
+PASSED: None
+-------------------------
 
--------------------------
-Q: DelSec 'neopixel my_neopixel'
-PASSED: .OK
--------------------------
-Q: ListSec 'neopixel my_neopixel'
-PASSED: !SEC
--------------------------
-Q: DelSec 'stepper_?'
-PASSED: !SEC+
--------------------------
-Q: ListSec probe
-PASSED: =probe @166 :014F644B
-
--------------------------
-Q: DelSec @166
-PASSED: .OK
--------------------------
-Q: ListSec probe
-PASSED: !SEC
--------------------------
+PASSED: Comparing 'P:\github.com\artillery-sw-x4-klipper-images-code\unbrick-swx4\tests\test.cfg'
+        with 'P:\github.com\artillery-sw-x4-klipper-images-code\unbrick-swx4\tests\results\test_edit_cfg-005.cfg'
 
                               NO ERRORS                               
 |____________________________________________________________________|
@@ -543,279 +449,64 @@ PASSED: !SEC
 |                                                                    |
                          === ReadSec Test ===                         
 
-Q: ReadSec
-PASSED: !ARG
+Q: cmd.ReadSec('no_no_no',)
+PASSED: None
 -------------------------
-Q: ReadSec abcdefg
-PASSED: !SEC
+Q: cmd.ReadSec('pause_resume',)
+PASSED: QlpoOTFBWSZTWQ84ZHcAAA+fgEDkQAADBAgKqifeICAAVDVNMAAAGglU/Smj1MmQBpoQLkMZjGpek4h3J4/dNFyJkidRnLVEb2LDuSGS79gP4CWJgq0EBHwu5IpwoSAecMju
+  Expands to:
+    
+    [pause_resume]
 -------------------------
-Q: ReadSec abcdefg extra-arg
-PASSED: !ARG+
+Q: cmd.ReadSec('input_shaper',)
+PASSED: QlpoOTFBWSZTWUpxYmUAAEsfgEDlW1ADBA0Kq2f/cDAAswYaGTIGRiDEyaGmBKeqJBoZqAA0ADQFUlMgA0MgANBmoqIjMDECEgmGuuv4TnIngIOAGFhUnCqquRUEKFpYWRCYyglC8vhXfUSO9oUQbNT6qkXpFzGkk49S1CjPETicoTPGYwIWmFDzEVtXqFqdyHApQmqa0ReXE6nIWJ1qSwxFD8UjajsfxdyRThQkEpxYmUA=
+  Expands to:
+    
+    [input_shaper]
+    ;shaper_type_x: zv
+    ;shaper_freq_x: 65.2
+    
+    ;shaper_type_y: zv
+    ;shaper_freq_y: 38.0
 -------------------------
-Q: ReadSec @9999
-PASSED: !RANGE
--------------------------
-Q: ReadSec pause_resume
-PASSED: *QlpoOTFBWSZTWUjA7v4AAAFDgAAQAAqiAloAIAAiAaaaCAaaaJhgxKXapI7xdyRThQkEjA7v4A==
-Expands to:
-[pause_resume]
-
--------------------------
-Q: ReadSec input_shaper
-PASSED: *QlpoOTFBWSZTWRAC6zkAABlfgAAwSAFbUGDAEAqn8/9wIABoNTUwgaGmmgAA00CUKZI0ekZGhpo0YMgdKlp6eHHYwQwfogKNQDEA6xoa4nLgClCBaU3pqSJflV/vBDTxIjQMg7EX4hCfG6aWcUqbPT0TIQeiRKG6WhrOpUzjXt12HFinMtNxdyRThQkBAC6zkA==
-Expands to:
-[input_shaper]
-#shaper_type_x: zv
-#shaper_freq_x: 65.2
-
-#shaper_type_y: zv
-#shaper_freq_y: 38.0
-
-####################################################################
-#	Homing and Gantry Adjustment Routines
-#####################################################################
--------------------------
-Q: ReadSec extruder
-PASSED: *QlpoOTFBWSZTWXzF8oUAAH3fgCAwaAd/8D+IyAq/79/wQAGkquaDTSIyp7VPGqfpGmmiep6j1Mmj1AeoNAanpMSbUE1DRoyaDQGgGmg9QYAAAAAaDQBoBoBJIJ6kbTSQ9TRp6gAAGIBp0Ckw0ZVxfNW4AlFIU+DJ5b9U+RuA0KHJQmspn5x09uHvJ4xxqDBfYdiB267F6O2hb1RUxK7lQdzqWIaAFirCZsSapWCxEJqVq27KzsBF2xO9kWlnWo7LsJ45qXtRXmyIUNICBIR2teMKyQjm4R0iCU3Is8jvYBphwWfBzH5oDYq17eph5KOUx8s8LK6hEj6i1n6AzijEegQ8blAq56PPxDire8qbR+3gkVlYhO0S3CoG99Y39Ig0/hTmgvBmFpFBgH1mmkka4i2Vqosy8/HZa54cUuDSxcXYrIZGw4LAccEh+RnB0cQzWhdF4i8DJyCIlkUTTl961XadW7dlMbFVqJzJQXjxlqpYDDMxCwItWCeRNpyjeWQD0wWihiUIuGYuxw4cykMIZXIoSQmC0BQCYyVhbqTsFQ/p75B0KGhJPoNlttozYl1TAjIlNyTDNE5JKIOXzJEFVn6hZydRcVaULoDuRzioLQYJsp/4u5IpwoSD5i+UKA==
-Expands to:
-[extruder]
-step_pin:PB1
-dir_pin:!PB2
-enable_pin:!PB0
-microsteps:16
-rotation_distance: 4.706#31.4	#Bondtech 5mm Drive Gears
-#gear_ratio: 52:10
-full_steps_per_rotation: 200	#200 for 1.8 degree, 400 for 0.9 degree
-nozzle_diameter: 0.400
-filament_diameter: 1.750
-min_temp: -100
-max_temp: 330
-heater_pin: PA7
-sensor_type:EPCOS 100K B57560G104F
-sensor_pin: PA1
-max_power: 1
-#control :pid
-#pid_kp : 26.213
-#pid_ki : 1.304
-#pid_kd : 131.721
-pressure_advance: 0.03
-pressure_advance_smooth_time: 0.02
-max_extrude_cross_section:500
-instantaneous_corner_velocity: 5.000
-max_extrude_only_distance: 500
-max_extrude_only_velocity:500
-max_extrude_only_accel:6000
-step_pulse_duration:0.000002
-min_extrude_temp:0
-smooth_time: 2.0
-
--------------------------
-Q: ReadSec @464
-PASSED: *QlpoOTFBWSZTWa7s9hUAADJfgAAwSAB40jonXwqvp9+AIACSEU9JiADQAAaA0Mg1MVPU2SeU9R6geo2ImgDQEpUF4Brkxz0t8aX2YuepBBYK4SRAYih62DgKqok7ZB53VIMqqYoxipvwMZg4gYk5b9F98GtsI5xYUcstwdsUVIcnSCzpYMATfIV6YzBWItEWEOZJKjIzGhkoGAuP4u5IpwoSFd2ewqA=
-Expands to:
-[gcode_macro PRINT_START]
-gcode:
-	M220 S100
-	M221 S100
-	#SAVE_VARIABLE VARIABLE=was_interrupted VALUE=True
-	#save_last_file
-	CLEAR_PAUSE
-	# M83
-	M117 Printing
-
+Q: cmd.ReadSec('extruder',)
+PASSED: QlpoOTFBWSZTWUomKqQAAdjfgCAAaOd/8D+MzQ6/79/wUAM+roAAAGppT1GjTCaaMmmNIDJkNMJo00MOYAAAAAAAAAAOf/qqgAAAAAAAAAA5gAAAAAAAAAAKkiAmmhCaaTID00jRpiaaNA2k4NEknkHypK/BYl6T3/s9r5Pi9L+NIT4aloYAJSwEAWpLSNYnZgyhYtxGEJKkY8UQUtRJkOggR1KWqXpamWGOmG1TXLbXcknGSTekkrNVVVVRAQAAAAAAABVWqE+6oqJMG7vZJyaLK2VFo8Mb3jj12emr1GWVsaxy75JMG0mLXa2lUzwWXq+F5ptVUwYWNl3UxZTXPw3vVr3aSpxeCz1sVmDPT02tbB6qcXJZzc81bsWd2TFUwWVZm4WqVLOC2OVVsycHJqllPvdp4HBSln9LMF3ip/jEYKbPsWyqvBmu0e5FOyy3N8POvCdiqcNNYk9jE9jVT2vewkHp723Htd/Judij1OjBd4i71JdMmhZTzMlLGDB3M2S72mRqxfwnrhPjEmr3nzcylG0cFlKe8nyNh/bLvO5yNmE/5YfNHoUxMlGtOBy1wkk7TOolFC+7dSjysYk6Hc62iyWZLPm93mdub5as2jmZJ1szk6MEeKminRg4GR2I9Tg7VHkcuBd3OJq4jxZFkXP9kkzYSMk0N9087i7nnfR9HoYn1wllRJ2p05k0MEsnu8xon5bsxRSpRdmL3kks5rpoxMVMWC7kZLQ+HROpueVuXZjU2eV0dzVMDvbP0dSWJRgY3arilObqWXUweRPwbnzyed1Gbi4YE8Y69WynY8siatSlPIcXM6F2BgxZn0YrFKYH14pcaHNiYFk6Smb8ibG+TnByiTzMG7c4rGmhdsTcnXHBKfYxf+LuSKcKEglExVSA
+  Expands to:
+    
+    [extruder]
+    step_pin:PB1
+    dir_pin:!PB2
+    enable_pin:!PB0
+    microsteps:16
+    rotation_distance: 4.706#31.4	#Bondtech 5mm Drive Gears
+    ;gear_ratio: 52:10
+    full_steps_per_rotation: 200	#200 for 1.8 degree, 400 for 0.9 degree
+    nozzle_diameter: 0.400
+    filament_diameter: 1.750
+    min_temp: -100
+    max_temp: 330
+    heater_pin: PA7
+    sensor_type:EPCOS 100K B57560G104F
+    sensor_pin: PA1
+    max_power: 1
+    ;control :pid
+    ;pid_kp : 26.213
+    ;pid_ki : 1.304
+    ;pid_kd : 131.721
+    pressure_advance: 0.03
+    pressure_advance_smooth_time: 0.02
+    max_extrude_cross_section:500
+    instantaneous_corner_velocity: 5.000
+    max_extrude_only_distance: 500
+    max_extrude_only_velocity:500
+    max_extrude_only_accel:6000
+    step_pulse_duration:0.000002
+    min_extrude_temp:0
+    smooth_time: 2.0
 -------------------------
 
                               NO ERRORS                               
 |____________________________________________________________________|
 
 
- ____________________________________________________________________ 
-|                                                                    |
-                         === AddSec Test ===                          
-
-Q: AddSec
-PASSED: !ARG
--------------------------
-Q: AddSec abcdefg
-PASSED: !ARG
--------------------------
-Q: AddSec abcdefg bad-data
-PASSED: !ENC
--------------------------
-Q: AddSec abcdefg bad-data extra-arg
-PASSED: !ARG+
--------------------------
-Q: AddSec abcdefg QlpoOTFBWSZTWWzKVXcAAALLgAAQIBAACgoAzgAgACIJ6Ix6oQNA0IiViwtg6eF8XckU4UJBsylV3A==
-PASSED: !SEC
--------------------------
-Q: AddSec @top QlpoOTFBWSZTWWzKVXcAAALLgAAQIBAACgoAzgAgACIJ6Ix6oQNA0IiViwtg6eF8XckU4UJBsylV3A==
-PASSED: .OK
--------------------------
-Q: AddSec @bottom QlpoOTFBWSZTWSY2tHMAAALLgAAQIBAAChoCjgAgACIDU0eptCAaAIgV+jaLYs8iODRdyRThQkCY2tHM
-PASSED: .OK
--------------------------
-Q: AddSec 'gcode_macro move_to_point_3' QlpoOTFBWSZTWfx+w3EAAARbgAAQQAAoEAAKr6PfACAAIxtRvKmhp6j9KaeoUGjRoMgNGoIRt6LYc0i/3ceFTuKwHbCJnovqmUyK3/F3JFOFCQ/H7DcQ
-PASSED: .OK
--------------------------
-
-                              NO ERRORS                               
-|____________________________________________________________________|
-
-
- ____________________________________________________________________ 
-|                                                                    |
-                         === OvrSec Test ===                          
-
-Q: OvrSec
-PASSED: !ARG
--------------------------
-Q: OvrSec abcdefg
-PASSED: !ARG
--------------------------
-Q: OvrSec abcdefg bad-data
-PASSED: !ENC
--------------------------
-Q: OvrSec abcdefg bad-data extra-arg
-PASSED: !ARG+
--------------------------
-Q: OvrSec abcdefg QlpoOTFBWSZTWfHTUc0AAANbgAAQAAIQEAAKCgHOgCAAIppiA9PVCmAAMNJKhHbLwbODv8XckU4UJDx01HNA
-PASSED: !SEC
--------------------------
-Q: ListSec gcode_arcs
-PASSED: =gcode_arcs @632 :7224E2B6
-
--------------------------
-Q: OvrSec gcode_arcs QlpoOTFBWSZTWfHTUc0AAANbgAAQAAIQEAAKCgHOgCAAIppiA9PVCmAAMNJKhHbLwbODv8XckU4UJDx01HNA
-PASSED: .OK
--------------------------
-Q: ListSec gcode_arcs
-PASSED: !SEC
--------------------------
-Q: ListSec new-top
-PASSED: =new-top @633 :41A7D47C
-
--------------------------
-Q: ListSec 'tmc2209 extruder'
-PASSED: =tmc2209 extruder @368 :77B0CB90
-
--------------------------
-Q: OvrSec 'tmc2209 extruder' QlpoOTFBWSZTWakZjxcAAAXbgAAQQABwMAAKngIWYCAAIiaaNPUBppoUwmmgNMRDCrY8tfgrPSM8E7eBvG6QXxdyRThQkKkZjxc=
-PASSED: .OK
--------------------------
-Q: ListSec 'tmc2209 extruder'
-PASSED: !SEC
--------------------------
-Q: ListSec 'tmc2209 extruder2'
-PASSED: =tmc2209 extruder2 @369 :A160D7EF
-
--------------------------
-
-                              NO ERRORS                               
-|____________________________________________________________________|
-
-
- ____________________________________________________________________ 
-|                                                                    |
-                       === Persistence Test ===                       
-
-Q: GetSave
-PASSED: *QlpoOTFBWSZTWfZWQ4UAAHl/gAAwEABIF3/nP+2dir/v/3BAAc4Y1NDQRMmSI/KYoHqAAaD1AeSGg2oNNAgVAAAAAAAAABzAJpgEyGAAJgmAAACRQphRvVGmR6g0AGhtQaaA0NqNCgqaZIdaEP22BBdInWpzWehsbwyNLQZ3pYKgUgXJYksQ0mwY03hEF7Tou94PB+6m4XUkqSN1EtJm8r+fPm6I894WxoxOJ9sUQaSyCEZBCICEcYkuEWXGhBub3tQrWhBa4DtfVLDJScBuDhBjbbYNiaYMfaF8EGupEhjbCnLCqutC7GEBIA5QRUERa0q7RYo5sKSxxBKS9RFEm835sWRa1a5Spko1SKMlcWe8XhiUKEoSChBIMw5h7BQQtIlzFUlQxd2pFZCuuDStFcrdoPbShq8PoQNNXK57YEAW9cgu1eai/HHDl98MMHwqi3GWw0YdVUebKg/Ns9fJkN09SyifzvSB3P+26XdmwQDK/i7Bp4PvJuJkwIWQpCAjY2EdnwEkoryUULQplP+kWqWec9Hp9OIul9omM4AqDIuEQSDKy0MMEwbg2zNoVRjZt2VTgUGpGAxkwmgqNms3ZgUWSmSZAcYpzydmYgslChiKg3zDxtU0TGZLhBwBmoqQlPOEsH+LuSKcKEh7KyHCgA==
-Expands to:
-#*# <---------------------- SAVE_CONFIG ---------------------->
-#*# DO NOT EDIT THIS BLOCK OR BELOW. The contents are auto-generated.
-#*#
-#*# [extruder]
-#*# control = pid
-#*# pid_kp = 37.178
-#*# pid_ki = 11.803
-#*# pid_kd = 29.278
-#*#
-#*# [heater_bed]
-#*# control = pid
-#*# pid_kp = 69.250
-#*# pid_ki = 0.771
-#*# pid_kd = 1555.528
-#*#
-#*# [probe]
-#*# z_offset = 0.470
-#*#
-#*# [bed_mesh default]
-#*# version = 1
-#*# points =
-#*# 	  -0.034500, -0.015250, -0.008750, -0.015000, -0.016750, -0.063750
-#*# 	  -0.071750, -0.044750, -0.027000, -0.024750, -0.061500, -0.088250
-#*# 	  -0.093250, -0.062250, -0.036250, -0.044250, -0.112500, -0.081000
-#*# 	  -0.074500, -0.051750, -0.025250, -0.028750, -0.080500, -0.058250
-#*# 	  -0.051750, -0.030750, -0.015250, -0.019000, -0.049250, -0.042750
-#*# 	  -0.035500, -0.030750, -0.013500, -0.008750, -0.035750, -0.026000
-#*# tension = 0.2
-#*# min_x = 20.0
-#*# algo = bicubic
-#*# y_count = 6
-#*# mesh_y_pps = 4
-#*# min_y = 20.0
-#*# x_count = 6
-#*# max_y = 220.0
-#*# mesh_x_pps = 4
-#*# max_x = 220.0
-#*#
-#*# [input_shaper]
-#*# shaper_type_x = mzv
-#*# shaper_freq_x = 59.0
-#*# shaper_type_y = mzv
--------------------------
-Q: Save QlpoOTFBWSZTWbmw3gkAAHV/gEAwEABIF3/nP+2dir/v/3BAAec7h1choJAyKep4ImnqNAA0DxIeU9Q2p6QNNBAigAAAAPUDQAAbUGp+qUaNAGgAAANAAaDQAJFCp6aE9qIHkRoAD1MmgNDRoAaA8CldMyipCHtpkIL4irQp1LEjWWDR+xamodqahIC6eMERTkQC7saTySXPeZhHxkx8Jku4W3R7dtvavQ8CkxocT4YoppK0Qi0QiAhGQOptpA2PeFltOtttjGJtAV4/SlLmYNiSb5TN0RDbzQBqaDQASBCGAIQPvhLU4GJJDjE4kAEFEIArLBbPRagmimS4MHd3aUBVBF96EpQWLiCGkFBkqLRUFVs1zhmUwFKislAcizMwa4QQSSAQCSQSaWIrS6tXKKWWyKoiqta5wZQ8hOgUkggztSKzizmivQTiKzDlGmsNIAq9aDX83KLMML+r4vvvhbG57B9XK85iIgwVCGfMdmy9u3JkaaJjEUgeL5bdzuzXkAyb8bKMNv7xj2KOFTEVCAjY812+kJMopd/MEDIFMp85ixmlnjou/ICLsh2RaRQMAFRRVdKhQP6uwkwg5GI125EVGNm5ZTVAoP1GEwZCYTQXTDeMUwKLJTJMgOMVcpVycoFezeolBUFZiEcMT9dI4F5XQgGaiRCU5Qk/+LuSKcKEhc2G8Eg=
-PASSED: .OK
--------------------------
-Q: GetSave
-PASSED: *QlpoOTFBWSZTWbmw3gkAAHV/gEAwEABIF3/nP+2dir/v/3BAAec7h1choJAyKep4ImnqNAA0DxIeU9Q2p6QNNBAigAAAAPUDQAAbUGp+qUaNAGgAAANAAaDQAJFCp6aE9qIHkRoAD1MmgNDRoAaA8CldMyipCHtpkIL4irQp1LEjWWDR+xamodqahIC6eMERTkQC7saTySXPeZhHxkx8Jku4W3R7dtvavQ8CkxocT4YoppK0Qi0QiAhGQOptpA2PeFltOtttjGJtAV4/SlLmYNiSb5TN0RDbzQBqaDQASBCGAIQPvhLU4GJJDjE4kAEFEIArLBbPRagmimS4MHd3aUBVBF96EpQWLiCGkFBkqLRUFVs1zhmUwFKislAcizMwa4QQSSAQCSQSaWIrS6tXKKWWyKoiqta5wZQ8hOgUkggztSKzizmivQTiKzDlGmsNIAq9aDX83KLMML+r4vvvhbG57B9XK85iIgwVCGfMdmy9u3JkaaJjEUgeL5bdzuzXkAyb8bKMNv7xj2KOFTEVCAjY812+kJMopd/MEDIFMp85ixmlnjou/ICLsh2RaRQMAFRRVdKhQP6uwkwg5GI125EVGNm5ZTVAoP1GEwZCYTQXTDeMUwKLJTJMgOMVcpVycoFezeolBUFZiEcMT9dI4F5XQgGaiRCU5Qk/+LuSKcKEhc2G8Eg=
-Expands to:
-#*# <---------------------- SAVE_CONFIG ---------------------->
-#*# DO NOT EDIT THIS BLOCK OR BELOW. The contents are auto-generated.
-#*#
-#*# [extruder]
-#*# control = pid
-#*# pid_kp = 41.556
-#*# pid_ki = 13.852
-#*# pid_kd = 31.167
-#*#
-#*# [heater_bed]
-#*# control = pid
-#*# pid_kp = 68.837
-#*# pid_ki = 0.719
-#*# pid_kd = 1646.929
-#*#
-#*# [probe]
-#*# z_offset = 1.265
-#*#
-#*# [bed_mesh default]
-#*# version = 1
-#*# points =
-#*# 	-0.205000, -0.318750, -0.371250, -0.446250, -0.456250, -0.505000
-#*# 	-0.280000, -0.290000, -0.308750, -0.392500, -0.438750, -0.522500
-#*# 	-0.303750, -0.266250, 0.080000, 0.083750, -0.440000, -0.522500
-#*# 	-0.346250, -0.331250, -0.097500, -0.226250, -0.445000, -0.527500
-#*# 	-0.295000, -0.288750, -0.305000, -0.385000, -0.435000, -0.468750
-#*# 	-0.243750, -0.336250, -0.343750, -0.417500, -0.455000, -0.488750
-#*# tension = 0.2
-#*# min_x = 20.0
-#*# algo = bicubic
-#*# y_count = 6
-#*# mesh_y_pps = 4
-#*# min_y = 20.0
-#*# x_count = 6
-#*# max_y = 290.0
-#*# mesh_x_pps = 4
-#*# max_x = 290.0
-#*#
-#*# [input_shaper]
-#*# shaper_type_x = mzv
-#*# shaper_freq_x = 58.8
-#*# shaper_type_y = 2hump_ei
--------------------------
-
-                              NO ERRORS                               
-|____________________________________________________________________|
-
-
-TOTAL ERROR COUNT: 0
+TOTAL ERROR COUNT: 2

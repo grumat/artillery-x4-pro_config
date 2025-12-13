@@ -137,7 +137,7 @@ class ConfigReset(EditConfig_):
 				cal = RESET_CFG_PLUS
 		# Reset settings, but preserve calibration
 		if workflow.opts.reset == 2:
-			res = EditConfig(["GetSave", self.target])
+			res = EditConfig(["cmd.GetPersistenceB64", self.target])
 			if res.code != '*':
 				raise Exception(f"{res}")
 			if not isinstance(res.value, str):

@@ -3,7 +3,8 @@
 #
 # Spellchecker:	words MULT libtools
 
-from .line import Line, LineFactory
+from .libtools import EncodeB64, DecodeB64
+from .line import *
 from .contents import FileBuffer, Contents
-from .commands import Commands
+from .commands import Commands, SectionInfo, KeyInfo, MultiLineData
 

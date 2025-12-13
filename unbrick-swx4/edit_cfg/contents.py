@@ -5,12 +5,15 @@
 
 import os
 from abc import ABC, abstractmethod
+import fnmatch
+from typing import final
 
 from .loc import Loc
 from .line import Line, AnyBuffer, LineFactory, EmptyLine, IncludeLine, CommentLine, SectionLine, ValueLine, \
 	MultiLineStartLine, ContinuationEmptyLine, ContinuationLine, ContinuationCommentLine, PersistenceLine
 
 
+@final
 class FileBuffer(AnyBuffer):
 	" An instance of this class holds all files of a files "
 	def __init__(self) -> None:
@@ -59,6 +62,19 @@ class FileBuffer(AnyBuffer):
 			self._remove_line_(i_from)
 			i_from += 1
 		self.UpdateLineNumbers()
+	def RemoveLineList(self, lines : list[Line]) -> int:
+		" Removes all lines on a given line list "
+		i = None
+		sorted_lines = sorted(lines, key=lambda line: line.line_no, reverse=True)
+		for l in sorted_lines:
+			idx = l.line_no - 1
+			if i is None:
+				i = idx
+			elif i > idx:
+				i = idx
+			self._remove_line_(idx)
+		self.UpdateLineNumbers()
+		return i is not None and i or 0
 	def _insert_line_(self, idx : int, l : Line, reg : AnyBuffer) -> None:
 		l.line_no = idx+1
 		self.lines.insert(idx, l)
@@ -66,6 +82,13 @@ class FileBuffer(AnyBuffer):
 	def InsertLine(self, idx : int, l : Line, reg : AnyBuffer) -> None:
 		self._insert_line_(idx, l, reg)
 		self.UpdateLineNumbers()
+		reg.Sort()
+	def InsertLineList(self, idx : int, lines : list[Line], reg : AnyBuffer) -> None:
+		for l in lines:
+			self._insert_line_(idx, l, reg)
+			idx += 1
+		self.UpdateLineNumbers()
+		reg.Sort()
 	def GetInsertIdxAtTop(self) -> int:
 		pos = None
 		for i, l in enumerate(self.lines):
@@ -90,8 +113,20 @@ class FileBuffer(AnyBuffer):
 		if pos is None:
 			return len(self.lines)
 		return pos
+	def MatchSection(self, qry : str) -> list[SectionLine]:
+		"""
+		Scans all lines to locate SectionLine instances that matches the search pattern. Wildcard matches are used here. 
+		Note that this method is able to locate sections that are commented out.
+		"""
+		res = []
+		for l in self.lines:
+			if isinstance(l, SectionLine):
+				if fnmatch.fnmatch(l.section_name, qry):
+					res.append(l)
+		return res
 
 
+@final
 class SectionBuffer(AnyBuffer):
 	" This holds all lines belonging to a section"
 	def __init__(self, file_buffer : FileBuffer) -> None:
@@ -115,6 +150,25 @@ class SectionBuffer(AnyBuffer):
 			return "Unknown section"
 		else:
 			return "S: " + self.header.section_name
+	def FindAnyKey(self, key : str) -> ValueLine|MultiLineStartLine|None:
+		" This method is usually good to locate a key and see if it is multiline. "
+		inactive = None
+		for l in self.lines:
+			if isinstance(l, ValueLine):
+				if l.key == key:
+					if l.inactive:
+						if inactive is None:
+							inactive = l
+					else:
+						return l
+			elif isinstance(l, MultiLineStartLine):
+				if l.key == key:
+					if l.inactive:
+						if inactive is None:
+							inactive = l
+					else:
+						return l
+		return inactive
 	def FindValue(self, key : str) -> ValueLine | None:
 		" Find key/value value, spot on. An active entry has priority over inactive ones. "
 		inactive = None
@@ -122,7 +176,8 @@ class SectionBuffer(AnyBuffer):
 			if isinstance(l, ValueLine):
 				if l.key == key:
 					if l.inactive:
-						inactive = l
+						if inactive is None:
+							inactive = l
 					else:
 						return l
 		# fallback to inactive line option
@@ -150,11 +205,18 @@ class SectionBuffer(AnyBuffer):
 			if v.inactive:
 				v.ActivateLine()
 			# Update value
-			v.value = value
-			# Apply to buffer
-			v._update_(f"{v.key}: {v.value}")
+			v.SetValue(value)
 			return True
 		return False
+	def AppendValue(self, key : str, value):
+		assert self.FindValue(key) is None, "You are appending a value when you should be editing"
+		loc = self.GetSingleLocation()
+		data = f"{key}: {value}"
+		l = ValueLine(0, data, data)
+		self.file_buffer.InsertLine(loc.idx_n, l, self)
+	def AppendValueML(self, lines : list[Line]):
+		loc = self.GetSingleLocation()
+		self.file_buffer.InsertLineList(loc.idx_n, lines, self)
 	def FindMultiLineKey(self, key : str) -> MultiLineStartLine | None:
 		" Find key value of a multiline entry, spot on. An active entry has priority over inactive ones. "
 		inactive = None
@@ -162,13 +224,18 @@ class SectionBuffer(AnyBuffer):
 			if isinstance(l, MultiLineStartLine):
 				if l.key == key:
 					if l.inactive:
-						inactive = l
+						if inactive is None:
+							inactive = l
 					else:
 						return l
 		# fallback to inactive line option
 		return inactive
-	def FindMultiLine(self, key : str) -> tuple[MultiLineStartLine, list[Line]] | None:
-		head = self.FindMultiLineKey(key)
+	def FindMultiLine(self, key : str|MultiLineStartLine) -> tuple[MultiLineStartLine, list[Line]] | None:
+		" Returns all lines of a multiline value including heading comments "
+		if isinstance(key, str):
+			head = self.FindMultiLineKey(key)
+		else:
+			head = key
 		if head is not None:
 			top = self.GetPrologue(self.lines.index(head))
 			i = top + 1
@@ -178,15 +245,15 @@ class SectionBuffer(AnyBuffer):
 				i += 1
 			return (head, self.lines[top:i])
 		return None
-	def GetMultiLine(self, key : str, skip_head = False) -> list[Line]|None:
-		" Return the range of lines belonging to multi-line key. Lines are uncommented "
+	def GetMultiLine(self, key : str|MultiLineStartLine, skip_head = True) -> list[Line]|None:
+		" Similar to FindMultiLine(), but with different result style"
 		ml = self.FindMultiLine(key)
 		if ml is not None:
 			head, lines = ml
 			i = skip_head and lines.index(head) or 0
 			assert i >= 0, "FindMultiLine() implementation fault"
 			return lines[i:]
-	def DeleteMultiLine(self, key : str) -> int|None:
+	def DeleteMultiLine(self, key : str|MultiLineStartLine) -> int|None:
 		" Removes the entire contents of a multi-line value. This includes head comments and keys "
 		ml = self.FindMultiLine(key)
 		if ml is not None:
@@ -220,11 +287,9 @@ class SectionBuffer(AnyBuffer):
 							obj2 = buffer.lines[top_ml]
 							if isinstance(obj2, CommentLine):
 								nl = ContinuationCommentLine(obj2.line_no, obj2.raw_content, obj2.uncommented)
-								nl.Parse()
 								buffer.lines[top_ml] = nl
 							elif isinstance(obj2, EmptyLine):
 								nl = ContinuationEmptyLine(obj2.line_no, obj2.raw_content, obj2.uncommented)
-								nl.Parse()
 								buffer.lines[top_ml] = nl
 							top_ml += 1
 						break
@@ -235,14 +300,22 @@ class SectionBuffer(AnyBuffer):
 				break
 		# continue from...
 		return i
+	def RenSection(self, new_name : str) -> int:
+		" Renames a section "
+		assert isinstance(self.header, SectionLine), "Invalid section buffer"
+		old_name = self.header.section_name
+		n = 0
+		# Scan all lines, since section may be split along the configuration file
+		for l in self.lines:
+			if isinstance(l, SectionLine):
+				assert old_name == l.section_name, "Section contains inconsistent record"
+				l.section_name = new_name
+				l.Update()
+				n += 1
+		return n
 
-	def UpdateMultiline(self, key : str, lines : list[str]):
-		" Replaces an entire Multi-line value by a new contents "
-		pos = self.DeleteMultiLine(key)
-		if pos is None:
-			pos = self.file_buffer.GetInsertIdxAtBottom()
-		assert True, "TODO"
 
+@final
 class IncludeBuffer(AnyBuffer):
 	" This holds all lines belonging to the include block "
 	def __init__(self) -> None:
@@ -263,11 +336,13 @@ class IncludeBuffer(AnyBuffer):
 			return "I: " + self.header.filename
 
 
+@final
 class PersistenceBuffer(AnyBuffer):
 	" This holds all lines belonging to the persistence block "
 	def __init__(self) -> None:
 		super().__init__()
 	def Link(self, l : Line) -> None:
+		assert isinstance(l, (EmptyLine, PersistenceLine))
 		super().Link(l)
 	def Unlink(self, l : Line) -> None:
 		super().Unlink(l)
@@ -275,6 +350,7 @@ class PersistenceBuffer(AnyBuffer):
 		return "Persistence"
 
 
+@final
 class Contents(object):
 	def __init__(self) -> None:
 		self.file_buffer = FileBuffer()
@@ -339,6 +415,7 @@ class Contents(object):
 		self._collect0_()
 
 	def FindSection(self, label : str) -> SectionBuffer | None:
+		" Returns a section that matches the given label "
 		for sec in self.sections:
 			if sec.header is None:
 				loc = sec.GetSingleLocation()
