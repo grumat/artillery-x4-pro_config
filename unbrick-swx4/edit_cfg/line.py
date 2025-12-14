@@ -5,18 +5,68 @@
 
 import re
 from abc import ABC, abstractmethod
-from typing import final
+from typing import final, TypeVar, Iterator, overload
 #from typing import Optional, List
 
 from .loc import Loc
-from .libtools import IsLikeGCode, GetHeadSpacesOfCommentedLine, StringEssence
+from .libtools import IsLikeGCode, GetHeadSpacesOfCommentedLine, StringEssence, EncodeB64, DecodeB64, CrcKey
+
+
+class Lines(list):
+	"""A list subclass specifically for Line objects."""
+	def __init__(self, iterable: Iterator | None = None) -> None:
+		if iterable is None:
+			super().__init__()
+		else:
+			super().__init__(iterable)
+		# Override __getitem__ to return Lines for slices
+	@overload
+	def __getitem__(self, index: int) -> Line: ...
+	@overload
+	def __getitem__(self, index: slice) -> Lines: ...
+	def __getitem__(self, index: int | slice) -> Line | Lines:
+		result = super().__getitem__(index)
+		if isinstance(index, slice):
+			return Lines(result)	# type: ignore
+		return result				# type: ignore
+	# Optional: Override __add__ to return Lines
+	def __add__(self, other: Lines) -> Lines:
+		return Lines(super().__add__(other)) # type: ignore
+	def append(self, item: Line) -> None:
+		assert isinstance(item, Line), "Only Line objects can be added to Lines"
+		super().append(item)
+	def extend(self, items: list[Line]) -> None:
+		assert all(isinstance(item, Line) for item in items), "Only Line objects can be added to Lines"
+		super().extend(items)
+	def Encode(self):
+		return LinesB64(self)
+	def GetCrucialLines(self) -> list[Line]:
+		return [l for l in self if (isinstance(l, ToggleableLine) and (l.inactive == False)) or isinstance(l, PersistenceLine)]
+	def GetLinesEssence(self) -> StringEssence:
+		return StringEssence('\n'.join([l.uncommented for l in self.GetCrucialLines()]))
+
+
+class LinesB64(str):
+	def __new__(cls, value : str|Lines):
+		if not isinstance(value, str):
+			value = EncodeB64(repr(value))
+		return super().__new__(cls, value)
+	def __init__(self, value : str|Lines):
+		pass
+	def __repr__(self):
+		return f"LinesB64({super().__repr__()})"
+	def Extract(self) -> Lines:
+		data = eval(DecodeB64(self))
+		assert isinstance(data, list), "Invalid use of this class. B64 is valid but cannot be reinterpreted."
+		assert all(isinstance(item, Line) for item in data),  "Invalid use of this class. B64 is valid but cannot be reinterpreted."
+		return data 		# type:ignore
 
 
 class AnyBuffer(ABC):
 	" An object that groups lines in a logical form "
 	def __init__(self) -> None:
 		super().__init__()
-		self.lines : list[Line] = []
+		self.lines = Lines()
 	@abstractmethod
 	def GetTitle(self) -> str:
 		return "Invalid Signature"
@@ -83,14 +133,8 @@ class AnyBuffer(ABC):
 		else:
 			raise RuntimeError(f"Unexpected line type {repr(ref)}")
 		return i + 1
-	@staticmethod
-	def GetCrucialLines(lines : list[Line]) -> list[Line]:
-		return [l for l in lines if (isinstance(l, ToggleableLine) and (l.inactive == False)) or isinstance(l, PersistenceLine)]
-	@staticmethod
-	def GetLinesEssence(lines : list[Line]) -> str:
-		return '\n'.join([l.uncommented for l in AnyBuffer.GetCrucialLines(lines)])
-	def GetLineEssence(self) -> str:
-		return AnyBuffer.GetLinesEssence(self.lines)
+	def GetLineEssence(self) -> StringEssence:
+		return self.lines.GetLinesEssence()
 
 class Line(ABC):	# ABC = Abstract Base Class
 	COMMENT_EXTRACT = re.compile(r'^([^#;]*)[#;]?.*$')
@@ -406,5 +450,3 @@ class LineFactory(object):
 	def New(self, raw_content: str, pre_line : Line|None) -> Line | None:
 		obj = self._new_(raw_content, pre_line)
 		return obj
-
-

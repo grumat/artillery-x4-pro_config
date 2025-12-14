@@ -5,15 +5,15 @@
 
 from functools import total_ordering
 
-from .contents import AnyBuffer, Contents, SectionBuffer
+from .contents import AnyBuffer, Contents, SectionBuffer, IncludeBuffer
 from .line import *
-from .libtools import EncodeB64, DecodeB64, StringCRC
+from .libtools import EncodeB64, DecodeB64, StringCRC, CrcKey
 
 
 @total_ordering
 class SectionInfo(object):
 	" Stores very basic information about sections keys "
-	def __init__(self, label : str, line_no : int, active : bool, is_head : bool, crc : int|str) -> None:
+	def __init__(self, label : str, line_no : int, active : bool, is_head : bool, crc : CrcKey) -> None:
 		# The label of the section. Sections can be split throughout the file; so uniqueness is not guaranteed
 		self.label = label
 		# Line where it happens, (same as value shown in a text editor)
@@ -23,8 +23,6 @@ class SectionInfo(object):
 		# A section is allowed to be split; if this is true, this the head of the section
 		self.is_head = is_head
 		# CRC of section
-		if isinstance(crc, int):
-			crc = f'{crc:08X}'
 		self.crc = crc
 	def __repr__(self) -> str:
 		return f"SectionInfo({repr(self.label)}, {repr(self.line_no)}, {repr(self.active)}, {repr(self.is_head)}, {repr(self.crc)})"
@@ -44,12 +42,26 @@ class SectionInfo(object):
 			and (self.line_no == o.line_no and self.active < o.active) \
 			and (self.active == o.active and self.is_head < o.is_head) \
 			and (self.is_head == o.is_head and self.crc < o.crc)
+class SectionInfoB64(str):
+	def __new__(cls, value : str|list[SectionInfo]):
+		if not isinstance(value, str):
+			value = EncodeB64(repr(value))
+		return super().__new__(cls, value)
+	def __init__(self, value : str|list[SectionInfo]):
+		pass
+	def __repr__(self):
+		return f"SectionInfoB64({super().__repr__()})"
+	def Extract(self) -> list[SectionInfo]:
+		data = eval(DecodeB64(self))
+		assert isinstance(data, list), "Invalid use of this class. B64 is valid but cannot be reinterpreted."
+		assert len(data) == 0 or isinstance(data[0], SectionInfo),  "Invalid use of this class. B64 is valid but cannot be reinterpreted."
+		return data
 
 
 @total_ordering
 class KeyInfo(object):
 	" Stores very basic information about section keys "
-	def __init__(self, section : str, key : str, line_no : int, active : bool, is_multiline : bool, crc : int|str) -> None:
+	def __init__(self, section : str, key : str, line_no : int, active : bool, is_multiline : bool, crc : CrcKey) -> None:
 		self.section = section
 		self.key = key
 		# Line where it happens, (same as value shown in a text editor)
@@ -58,8 +70,6 @@ class KeyInfo(object):
 		self.active = active
 		self.is_multiline = is_multiline
 		# CRC of line contents
-		if isinstance(crc, int):
-			crc = f'{crc:08X}'
 		self.crc = crc
 	def __repr__(self) -> str:
 		return f"KeyInfo({repr(self.section)}, {repr(self.key)}, {repr(self.line_no)}, {repr(self.active)}, {repr(self.is_multiline)}, {repr(self.crc)})"
@@ -81,19 +91,34 @@ class KeyInfo(object):
 			and (self.line_no == o.line_no and self.active < o.active) \
 			and (self.active == o.active and self.is_multiline < o.is_multiline) \
 			and (self.is_multiline == o.is_multiline and self.crc < o.crc)
+class KeyInfoB64(str):
+	def __new__(cls, value : str|list[KeyInfo]):
+		if not isinstance(value, str):
+			value = EncodeB64(repr(value))
+		return super().__new__(cls, value)
+	def __init__(self, value : str|list[KeyInfo]):
+		pass
+	def __repr__(self):
+		return f"KeyInfoB64({super().__repr__()})"
+	def Extract(self) -> list[KeyInfo]:
+		data = eval(DecodeB64(self))
+		assert isinstance(data, list), "Invalid use of this class. B64 is valid but cannot be reinterpreted."
+		assert len(data) == 0 or isinstance(data[0], KeyInfo),  "Invalid use of this class. B64 is valid but cannot be reinterpreted."
+		return data
 
 
 @total_ordering
 class MultiLineData(object):
-	" A class to explicitly transport B64 data having encoded contents of `list[Line]`"
-	def __init__(self, data : str|list[Line], crc : str|None = None) -> None:
-		if isinstance(data, str):
-			self.b64 = data	# presumably a valid b64 string!
+	" A class to explicitly transport B64 data having encoded contents of `Lines`"
+	def __init__(self, data : LinesB64|Lines, crc : CrcKey|None = None) -> None:
+		self.crc : CrcKey
+		if isinstance(data, LinesB64):
+			self.b64 : LinesB64 = data	# presumably a valid b64 string!
 			assert crc is not None, "If using a B64 string, you have to provide a CRC value"
 			self.crc = crc
 		else:
-			self.b64 = EncodeB64(repr(data))
-			self.crc = crc or StringCRC(AnyBuffer.GetLinesEssence(data), 0)
+			self.b64 : LinesB64 = LinesB64(data)
+			self.crc = crc or data.GetLinesEssence().GetCRC(0)
 	def __repr__(self) -> str:
 		return f"MultiLineData({repr(self.b64)}, {repr(self.crc)})"
 	def __str__(self) -> str:
@@ -106,11 +131,6 @@ class MultiLineData(object):
 		if not isinstance(o, MultiLineData):
 			return False
 		return self.b64 < o.b64
-	def GetLines(self) -> list[Line]:
-		data = eval(DecodeB64(self.b64))
-		assert isinstance(data, list), "Invalid use of this class. B64 is valid but cannot be reinterpreted."
-		assert len(data) == 0 or isinstance(data[0], Line),  "Invalid use of this class. B64 is valid but cannot be reinterpreted."
-		return  data
 
 
 class Commands(object):
@@ -126,26 +146,26 @@ class Commands(object):
 		res = []
 		for s in self.contents.file_buffer.MatchSection(qry):
 			is_head = False
-			crc = 0
+			crc = CrcKey(0)
 			if isinstance(s.buffer, SectionBuffer):
 				is_head = (s.buffer.header is s)
 				if is_head:
-					crc = StringCRC(s.buffer.GetLineEssence(), 0)
+					crc = s.buffer.GetLineEssence().GetCRC(0)
 			res.append(SectionInfo(s.section_name, s.line_no, not s.inactive, is_head, crc))
 		return res
-	def ListSectionsB64(self, qry : str) -> str:
-		return EncodeB64(repr(self.ListSections(qry)))
+	def ListSectionsB64(self, qry : str) -> SectionInfoB64:
+		return SectionInfoB64(self.ListSections(qry))
 
 	def ListSection(self, section : str) -> SectionInfo | None:
 		buffer = self.contents.FindSection(section)
 		if buffer and buffer.header:
-			crc = StringCRC(buffer.GetLineEssence(), 0)
+			crc = buffer.GetLineEssence().GetCRC(0)
 			return SectionInfo(buffer.header.section_name, buffer.header.line_no, not buffer.header.inactive, True, crc)
 
-	def ReadSec(self, section : str) -> str|None:
+	def ReadSec(self, section : str) -> LinesB64|None:
 		sec_buf = self.contents.FindSection(section)
 		if sec_buf is not None:
-			return EncodeB64(repr(sec_buf.lines))
+			return LinesB64(sec_buf.lines)
 
 	def RenSec(self, old_name : str, new_name : str) -> int|None:
 		" Renames a section. "
@@ -161,6 +181,31 @@ class Commands(object):
 			pos = self.contents.file_buffer.RemoveLineList(ml)
 			self.contents.sections.remove(buffer)
 			return pos
+	
+	def AddSec(self, where : str|int, b64 : LinesB64):
+		" Adds a section to the specified position. Specify one of the following: "
+		"  - 0 for top; "
+		"  - -1 for bottom; "
+		"  - A line number of a section where new section will be added after; "
+		"  - A section name where new section will be added after. If the section does "
+		"    not exists it will be added to the bottom "
+		ml = b64.Extract()
+		if type(where) is int:
+			if (where == -1):
+				return self.contents.AddSectionAtBottom(ml)
+			elif (where == 0):
+				return self.contents.AddSectionAtTop(ml)
+			else:
+				return self.contents.AddSectionAt(where, ml)
+		elif isinstance(where, str):
+			return self.contents.AddSectionAfter(where, ml)
+		else:
+			assert False, "Unexpected content"
+
+	def OvrSec(self, old_sec : str, b64 : LinesB64) -> bool:
+		ml = b64.Extract()
+		return self.contents.OverwriteSection(old_sec, ml)
+
 
 	def ListKey(self, section : str, key : str) -> KeyInfo | None:
 		" Returns meta-data for a given key. "
@@ -174,9 +219,9 @@ class Commands(object):
 			elif isinstance(l, MultiLineStartLine):
 				ml = buffer.GetMultiLine(l)
 				if ml:
-					crc = StringCRC(AnyBuffer.GetLinesEssence(ml), 0)
+					crc = ml.GetLinesEssence().GetCRC(0)
 				else:
-					crc = 0
+					crc = CrcKey(0)
 				return KeyInfo(section, l.key, l.line_no, not l.inactive, False, crc)
 
 	def ListKeys(self, section : str) -> list[KeyInfo]:
@@ -186,22 +231,22 @@ class Commands(object):
 		buffer = self.contents.FindSection(section)
 		if buffer:
 			for l in buffer.lines:
-				crc = 0
+				crc = CrcKey(0)
 				if isinstance(l, ValueLine):
 					crc = StringCRC(l.uncommented, 0)
 					res.append(KeyInfo(section, l.key, l.line_no, not l.inactive, False, crc))
 				elif isinstance(l, MultiLineStartLine):
 					ml = buffer.GetMultiLine(l)
 					if ml:
-						crc = StringCRC(AnyBuffer.GetLinesEssence(ml), 0)
+						crc = ml.GetLinesEssence().GetCRC(0)
 					res.append(KeyInfo(section, l.key, l.line_no, not l.inactive, True, crc))
 		return res
-	def ListKeysB64(self, section : str) -> str:
+	def ListKeysB64(self, section : str) -> KeyInfoB64:
 		" Filters the list of section returning meta-data for each Section that matches the search criteria."
 		" This is similar to the `dir` command on the prompt, accepting wildcards as filters. "
 		" The result is an encoded base64 string, ideal for transport on normal strings. Decode with: "
 		"    eval(DecodeB64(data))"
-		return EncodeB64(repr(self.ListKeys(section)))
+		return KeyInfoB64(self.ListKeys(section))
 
 	def GetKey(self, section : str, key : str) -> str|MultiLineData|None:
 		buffer = self.contents.FindSection(section)
@@ -229,16 +274,13 @@ class Commands(object):
 				buffer.AppendValue(key, value)
 				return True
 
-	def EditKeyML(self, section : str, key : str, value : str) -> bool|None:
+	def EditKeyML(self, section : str, key : str, value : LinesB64) -> bool|None:
 		" Allows to replace the entire multi-line key. If the key does not exists a new is appended. "
 		" Note that Multi-line values replaces the entire data block, including heading comments and "
 		" the key itself. THis means that wrong data excludes any preexisting line containing a key. "
 		buffer = self.contents.FindSection(section)
-		nl = eval(DecodeB64(value))
-
-		assert isinstance(nl, list), "Unexpected contents!"
+		nl = value.Extract()
 		assert len(nl) > 0, "We need some contents to be replaced. Consider one of the delete methods."
-		assert isinstance(nl[0], Line), "Unexpected contents!"
 
 		if buffer:
 			l = buffer.FindAnyKey(key)
@@ -275,6 +317,10 @@ class Commands(object):
 			self.contents.file_buffer.RemoveLineList(ml)
 			return True
 
-	def GetPersistenceB64(self) -> str:
-		return EncodeB64(repr([l.raw_content for l in self.contents.persistence.lines]))
+	def GetPersistenceB64(self) -> LinesB64:
+		return LinesB64(self.contents.persistence.lines)
+	
+	def SavePersistenceB64(self, lines : LinesB64):
+		data = lines.Extract()
+		return self.contents.OverWritePersistence(data)
 

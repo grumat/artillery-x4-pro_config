@@ -272,7 +272,7 @@ def GetHeadSpacesOfCommentedLine(txt : str) -> str:
 	return res
 
 
-def StringEssence(s : str) -> bytes:
+def _string_essence_(s : str) -> bytes:
 	"""Reduces a string having identifiers and values to its essence. This normalizes strings with minor changes."""
 	res = ""
 	is_token = False
@@ -333,7 +333,44 @@ def StringEssence(s : str) -> bytes:
 	return res.rstrip().encode()
 
 
-def StringCRC(s : str, seed : int) -> int:
-	"""Computes CRC of a string normalizing it with the `StringEssence` method"""
-	return zlib.crc32(StringEssence(s), seed)
+class StringEssence(bytes):
+	def __new__(cls, value : str|bytes):
+		if isinstance(value, str):
+			value = _string_essence_(value)
+		return super().__new__(cls, value)
+	def __init__(self, value : str|bytes):
+		pass
+	def __repr__(self):
+		return f"StringEssence({super().__repr__()})"
+	def GetCRC(self, seed = 0):
+		return CrcKey(zlib.crc32(self, seed))
+
+
+class CrcKey(int):
+	"""A subclass of int for representing CRC32 values."""
+
+	def __new__(cls, value: int|str|bytes) -> CrcKey:
+		if isinstance(value, bytes):
+			# Compute CRC32 for the string
+			crc = zlib.crc32(value, 0)
+			return super().__new__(cls, crc)
+		elif isinstance(value, str):
+			# Compute CRC32 for the string
+			crc = zlib.crc32(value.encode('utf-8'), 0)
+			return super().__new__(cls, crc)
+		elif isinstance(value, int):
+			# Directly assign the integer
+			return super().__new__(cls, value)
+		else:
+			assert False, "CrcKey must be initialized with int or str"
+	def __init__(self, value: int|str|bytes) -> None:
+		# __init__ is only for type hints and documentation
+		pass
+	def __repr__(self) -> str:
+		return f"CrcKey(0x{self:08X})"
+
+
+def StringCRC(s : str, seed : int|CrcKey) -> CrcKey:
+	"""Computes CRC of a string normalizing it with the `_string_essence_` method"""
+	return CrcKey(zlib.crc32(_string_essence_(s), seed))
 

@@ -9,15 +9,17 @@ import fnmatch
 from typing import final
 
 from .loc import Loc
-from .line import Line, AnyBuffer, LineFactory, EmptyLine, IncludeLine, CommentLine, SectionLine, ValueLine, \
+from .line import Line, Lines, AnyBuffer, LineFactory, EmptyLine, IncludeLine, CommentLine, SectionLine, ValueLine, \
 	MultiLineStartLine, ContinuationEmptyLine, ContinuationLine, ContinuationCommentLine, PersistenceLine
 
 
 @final
 class FileBuffer(AnyBuffer):
 	" An instance of this class holds all files of a files "
-	def __init__(self) -> None:
+	def __init__(self, data : list[str]|None = None) -> None:
 		super().__init__()
+		if data is not None:
+			self.EnterList(data)
 	def GetTitle(self) -> str:
 		return "File Buffer"
 	def Link(self, l : Line) -> None:
@@ -26,18 +28,20 @@ class FileBuffer(AnyBuffer):
 	def Unlink(self, l : Line) -> None:
 		assert False, "This is the root container and is not tracked"
 		pass
+	def EnterList(self, data : list[str]) -> None:
+		factory = LineFactory()
+		prev_line : Line|None = None
+		for line in data:
+			line = line.rstrip()
+			obj = factory.New(line, prev_line)
+			if obj is not None:
+				self.lines.append(obj)
+				if not isinstance(obj, EmptyLine):
+					prev_line = obj
 	def Load(self, fname : str) -> None:
 		" Loads a Klipper-compatible file "
 		with open(fname, 'rt', encoding="utf-8") as fr:
-			factory = LineFactory()
-			prev_line : Line|None = None
-			for line in fr:
-				line = line.rstrip()
-				obj = factory.New(line, prev_line)
-				if obj is not None:
-					self.lines.append(obj)
-					if not isinstance(obj, EmptyLine):
-						prev_line = obj
+			self.EnterList(fr.readlines())
 	def Save(self, fname : str) -> None:
 		" Store all contents to a Klipper-compatible file "
 		with open(fname, 'wt', encoding="utf-8") as fh:
@@ -182,7 +186,7 @@ class SectionBuffer(AnyBuffer):
 						return l
 		# fallback to inactive line option
 		return inactive
-	def FindValueRange(self, key : str) -> list[Line]:
+	def FindValueRange(self, key : str) -> Lines:
 		" Find key/value value, including prologue comments and blank lines "
 		top = None
 		for i, l in enumerate(self.lines):
@@ -197,7 +201,7 @@ class SectionBuffer(AnyBuffer):
 				top = None
 			elif isinstance(l, (SectionLine, MultiLineStartLine, ContinuationLine, ContinuationCommentLine)):
 				top = None
-		return []
+		return Lines()
 	def UpdateValue(self, key : str, value) -> bool:
 		" Update simple values "
 		v = self.FindValue(key)
@@ -230,7 +234,7 @@ class SectionBuffer(AnyBuffer):
 						return l
 		# fallback to inactive line option
 		return inactive
-	def FindMultiLine(self, key : str|MultiLineStartLine) -> tuple[MultiLineStartLine, list[Line]] | None:
+	def FindMultiLine(self, key : str|MultiLineStartLine) -> tuple[MultiLineStartLine, Lines] | None:
 		" Returns all lines of a multiline value including heading comments "
 		if isinstance(key, str):
 			head = self.FindMultiLineKey(key)
@@ -245,7 +249,7 @@ class SectionBuffer(AnyBuffer):
 				i += 1
 			return (head, self.lines[top:i])
 		return None
-	def GetMultiLine(self, key : str|MultiLineStartLine, skip_head = True) -> list[Line]|None:
+	def GetMultiLine(self, key : str|MultiLineStartLine, skip_head = True) -> Lines|None:
 		" Similar to FindMultiLine(), but with different result style"
 		ml = self.FindMultiLine(key)
 		if ml is not None:
@@ -257,7 +261,7 @@ class SectionBuffer(AnyBuffer):
 		" Removes the entire contents of a multi-line value. This includes head comments and keys "
 		ml = self.FindMultiLine(key)
 		if ml is not None:
-			lines : list[Line]
+			lines : Lines
 			head, lines = ml
 			assert len(lines) > 0, "FindMultiLine() implementation fault"
 			pos = lines[0].line_no-1
@@ -352,11 +356,13 @@ class PersistenceBuffer(AnyBuffer):
 
 @final
 class Contents(object):
-	def __init__(self) -> None:
+	def __init__(self, data : list[str]|None  = None) -> None:
 		self.file_buffer = FileBuffer()
 		self.includes : list[IncludeBuffer] = []
 		self.sections : list[SectionBuffer] = []
 		self.persistence = PersistenceBuffer()
+		if data is not None:
+			self.EnterList(data)
 
 	def _collect_include_(self, start : int, i : int) -> int:
 		include = IncludeBuffer()
@@ -414,6 +420,10 @@ class Contents(object):
 		self.file_buffer.Load(fname)
 		self._collect0_()
 
+	def EnterList(self, data : list[str]) -> None:
+		self.file_buffer.EnterList(data)
+		self._collect0_()
+
 	def FindSection(self, label : str) -> SectionBuffer | None:
 		" Returns a section that matches the given label "
 		for sec in self.sections:
@@ -423,4 +433,91 @@ class Contents(object):
 			if sec.header.section_name == label:
 				return sec
 		return None
+
+	def GetTopIdx(self) -> int:
+		" Topmost insert position to add sections "
+		idx = 0
+		for i, l in enumerate(self.file_buffer.lines):
+			if isinstance(l, IncludeLine):
+				idx = i
+			elif isinstance(l.buffer, SectionBuffer):
+				return i
+		return idx
+
+	def GetBottomIdx(self) -> int:
+		" Bottom most insert position to add sections "
+		if self.persistence.lines:
+			return self.persistence.lines[0].line_no - 1
+		return len(self.file_buffer.lines)
+
+	def _add_section_at_(self, idx : int, lines : Lines) -> None:
+		head = None
+		# Locate header line
+		for l in lines:
+			if isinstance(l, SectionLine):
+				head = l
+				if not l.inactive:
+					break
+		# Validate
+		if head is None:
+			raise RuntimeError("A `SectionLine` object is required for a section")
+		# Locate an existing section (merge)
+		buffer = self.FindSection(head.section_name)
+		if buffer is None:
+			# Create a new one
+			buffer = SectionBuffer(self.file_buffer)
+			self.sections.append(buffer)
+		self.file_buffer.InsertLineList(idx, lines, buffer)
+		self.sections.sort(key=lambda k : k.lines[0].line_no)
+
+	def AddSectionAt(self, idx : int, lines : Lines) -> None:
+		top = self.GetTopIdx()
+		bottom = self.GetBottomIdx()
+		if idx > bottom:
+			idx = bottom
+		elif idx < top:
+			idx = top
+		else:
+			l = self.file_buffer.lines[idx]
+			assert (l.buffer is not None) and (len(l.buffer.lines) > 0), "Empty buffer is not expected"
+			if isinstance(l.buffer, SectionBuffer):
+				idx = max(l.buffer.lines, key = lambda k: k.line_no).line_no
+			#elif isinstance(l.buffer, IncludeBuffer):
+			#	idx = max(l.buffer.lines, key = lambda k: k.line_no).line_no
+			else:
+				assert False, "Unexpected content"
+		self._add_section_at_(idx, lines)
+
+	def AddSectionAtTop(self, lines : Lines) -> None:
+		self._add_section_at_(self.GetTopIdx(), lines)
+
+	def AddSectionAtBottom(self, lines : Lines) -> None:
+		self._add_section_at_(self.GetBottomIdx(), lines)
+
+	def AddSectionAfter(self, section : str, lines : Lines) -> None:
+		buffer = self.FindSection(section)
+		if buffer and len(buffer.lines):
+			where = max(buffer.lines, key = lambda k: k.line_no).line_no
+		else:
+			where = self.GetBottomIdx()
+		self._add_section_at_(where, lines)
+
+	def OverwriteSection(self, old_sec : str, lines : Lines) -> bool:
+		buffer = self.FindSection(old_sec)
+		if not buffer:
+			return False
+		assert len(buffer.lines) > 0, "Invalid section state"
+		idx = self.file_buffer.RemoveLineList(buffer.lines)
+		self.file_buffer.InsertLineList(idx, lines, buffer)
+		assert buffer.header is not None, "New buffer does not contain a valid section header"
+		self.sections.sort(key=lambda k : k.lines[0].line_no)
+		return True
+	
+	def OverWritePersistence(self, lines : Lines):
+		assert all(isinstance(item, (PersistenceLine, EmptyLine)) for item in lines), "Buffer contents does not match a persistence data"
+		if self.persistence.lines:
+			idx = self.file_buffer.RemoveLineList(self.persistence.lines)
+		else:
+			idx = self.GetBottomIdx()
+		self.file_buffer.InsertLineList(idx, lines, self.persistence)
 	

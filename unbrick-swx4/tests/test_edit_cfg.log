@@ -13,22 +13,22 @@ PASSED: QlpoOTFBWSZTWR+mXYgAAAACAAAKIAAhAIKxdyRThQkB+mXYgA==
     <empty list>
 -------------------------
 Q: cmd.ListSectionsB64('printer',)
-PASSED: QlpoOTFBWSZTWWrTk+gAAA6fgEDkMwAJIAwKCyHWACAAUKAAAMmQNU9Rmpp6aRptRp5SQB/bTybESWBqFQbztnFA11gNFMa9+O5XSHCRUfi7kinChINWnJ9A
+PASSED: QlpoOTFBWSZTWYRkQBsAABAfgEDkcwAJKAwKCyHWYCAAQNUMmI9BAaekb1QoAAAAA0CzVOsIVEX0CTE9Aw57er44LTihCmyOZW174qm5ITmIL/xdyRThQkIRkQBs
   Expands to:
-    SectionInfo('printer', 265, True, True, 'F162CFF2')
+    SectionInfo('printer', 265, True, True, CrcKey(0xF162CFF2))
 -------------------------
 Q: cmd.ListSectionsB64('stepper_?',)
-PASSED: QlpoOTFBWSZTWb4EwIAAACufgEDkf+A+IAwKiyHecCAAaFekCZDQ0NAAA0I9VAAAAAA0eokwD6S+jFYYOg0bghMY4nrqetyClJ8EMvPcpqbYKM5fhjPAjXZtKiJvawuFQ4FPiMbMzo9Ph8iQYhSKKToKfi7kinChIXwJgQA=
+PASSED: QlpoOTFBWSZTWZZNw88AADAfgEDkf+A+KAwKiyHecCAAZEeqTFDynqNNDxQNHpPUPKEeqQANAAAAGjEC176iowjyU8eUMEUQ48MoQHMVirKK3Twk17OcWouU+jjHYiqmh6aiJSX1CZdDQuWKkBZQqfiw+RIaHqHIwrJ0GbioBX4u5IpwoSEsm4ee
   Expands to:
-    SectionInfo('stepper_x', 6, True, True, 'D5A31D8C')
-    SectionInfo('stepper_y', 23, True, True, 'EC287C19')
-    SectionInfo('stepper_z', 40, True, True, '048BC1DC')
+    SectionInfo('stepper_x', 6, True, True, CrcKey(0xD5A31D8C))
+    SectionInfo('stepper_y', 23, True, True, CrcKey(0xEC287C19))
+    SectionInfo('stepper_z', 40, True, True, CrcKey(0x048BC1DC))
 -------------------------
 Q: cmd.ListSectionsB64('*home*',)
-PASSED: QlpoOTFBWSZTWceZWQcAABtfgAQAQORxwAEgDAqrZ54QIABISoEyZMgADIAlKNAAAA0ejUaNQCjQYNJjhgkS+MFwEVEXjpSWiZkozs+IkDVJRRzSHp0PLx4w5OQeUikBeyKRGuPxdyRThQkMeZWQcA==
+PASSED: QlpoOTFBWSZTWQ9e78cAAB5fgAQAQORxwAkoDAqrZ55wIABoJUjR6jI0AAAGgSpAAAAA0ep6miCKDEQ4HiDBgimuiW0U8aUOJaaVqOjUyWZ1OKxTRikApC54QaNELRBxAxoISinwp8g5m5ihkWH4u5IpwoSAevd+OA==
   Expands to:
-    SectionInfo('safe_z_home', 161, False, False, '00000000')
-    SectionInfo('safe_z_home', 287, False, True, '00000000')
+    SectionInfo('safe_z_home', 161, False, False, CrcKey(0x00000000))
+    SectionInfo('safe_z_home', 287, False, True, CrcKey(0x00000000))
 -------------------------
 
                               NO ERRORS                               
@@ -50,25 +50,25 @@ PASSED: QlpoOTFBWSZTWR+mXYgAAAACAAAKIAAhAIKxdyRThQkB+mXYgA==
     <empty list>
 -------------------------
 Q: cmd.ListKeysB64('idle_timeout',)
-PASSED: QlpoOTFBWSZTWXLnGZ4AABCfgEDkU8AVKAQKpyeeICAAQNU0PRGmnqAGgzJDGmIwjTAAAW1AkFhMk2LAx8CM25GMsydTivnY3erSaDxdYhEeJKYSGIXCkw78XckU4UJBy5xmeA==
+PASSED: QlpoOTFBWSZTWe6W9EwAABIfgEDkU8AdKAQKryeeYCAAUMMjAmmBMhiaMBqhkMhp6mgGmgNlFzD4LV4jGMERa5rSJMcA+rKqgo7qg/BkvDSRjsJDkGdg+QhI3XhLnmDaPxdyRThQkO6W9Ew=
   Expands to:
-    KeyInfo('idle_timeout', 'timeout', 285, True, False, '6B28FD70')
+    KeyInfo('idle_timeout', 'timeout', 285, True, False, CrcKey(0x6B28FD70))
 -------------------------
 Q: cmd.ListKeysB64('gcode_macro nozzle_wipe',)
-PASSED: QlpoOTFBWSZTWXCY3XgAABEfgEDkRKAXKAQKr6fSsCAAVESaBkDR6IDJhkGqeo9T1DJtQAGJoBzCLdgYQ0MgTWIrnOrRTt9yYM8FEXjfESf4Clz24COURMiBZpMLwVzkNRdyRThQkHCY3Xg=
+PASSED: QlpoOTFBWSZTWQhYo6AAABKfgEDkRKAfKAQKr6fS8CAAVDUmho9QaAAGRmUGqGmm1A9TINAPUNNE8gTQKWqJkQYLKypaZnFbHLtPV7Bm5o6gg4eIJ6JIOEewaRhlceoJDlQMBe7CzP8XckU4UJAIWKOg
   Expands to:
-    KeyInfo('gcode_macro nozzle_wipe', 'gcode', 409, True, True, 'B77EDF4D')
+    KeyInfo('gcode_macro nozzle_wipe', 'gcode', 409, True, True, CrcKey(0xB77EDF4D))
 -------------------------
 Q: cmd.ListKeysB64('printer',)
-PASSED: QlpoOTFBWSZTWVz1CAAAAHmfgEDkf+A/KAQKry//cDAA22wRE2kNGIAAAAAChNqaYgBpoAAAANqShtE9TJk0AANNGIxMokKLRRnpdqsC3CtMzQESg1gTBUDIGDdQhzSSxslKgUiGGMsr4xlcOla51O0oUmiFsjcIhQAchgAYKBYobEz7pRMlaDiwtpSTmLSqAACUhLWAAl0nvxZ6KjD0cvJxSWFyKz3BlAfa1QRswoWPSxP2INcDA694RHeYNKSZwps30HBeEm0keE8iSz4BTgh8aSj0g/XKYzoyGUUxKGRfxdyRThQkFz1CAAA=
+PASSED: QlpoOTFBWSZTWV7aU4EAAIQfgEDkf+A/KAQKry//cDAA2tgrU0ZGmmh6mgAAAAEJMRkMgAAAAAG1Iin6ap6NpJk2iMg2gxDalAkLAMc+iZmpRAGwB4V6tstzrpBJBegueglXGmZRfSKREATmNCVYAVDiRGh5VSEu0idg4kJAZthoxxOoFmSgxX3CGK6tJzMPiLyFqZKSpbQAEojkI3lABwu0zbf98H0fjlefSSzyRSHUlWyrKsWvCLMKrCCUzxMGyQMDvMA9jGwJJJnCsp7g4PIR2kYBbFJZBXmGzNFUUlG0IfNhPUh53CkVpJBQvQu5IpwoSC9tKcCA
   Expands to:
-    KeyInfo('printer', 'kinematics', 266, True, False, '032E315C')
-    KeyInfo('printer', 'max_velocity', 267, True, False, '74E07851')
-    KeyInfo('printer', 'max_accel', 268, True, False, 'BB393EF7')
-    KeyInfo('printer', 'max_accel_to_decel', 269, False, False, '076E7A3E')
-    KeyInfo('printer', 'max_z_velocity', 270, True, False, '14590883')
-    KeyInfo('printer', 'max_z_accel', 271, True, False, 'C346F46C')
-    KeyInfo('printer', 'square_corner_velocity', 272, True, False, '6ADF659B')
+    KeyInfo('printer', 'kinematics', 266, True, False, CrcKey(0x032E315C))
+    KeyInfo('printer', 'max_velocity', 267, True, False, CrcKey(0x74E07851))
+    KeyInfo('printer', 'max_accel', 268, True, False, CrcKey(0xBB393EF7))
+    KeyInfo('printer', 'max_accel_to_decel', 269, False, False, CrcKey(0x076E7A3E))
+    KeyInfo('printer', 'max_z_velocity', 270, True, False, CrcKey(0x14590883))
+    KeyInfo('printer', 'max_z_accel', 271, True, False, CrcKey(0xC346F46C))
+    KeyInfo('printer', 'square_corner_velocity', 272, True, False, CrcKey(0x6ADF659B))
 -------------------------
 
                               NO ERRORS                               
@@ -83,10 +83,10 @@ Q: cmd.ListKey('no_no_no', 'no_no_no')
 PASSED: None
 -------------------------
 Q: cmd.ListKey('printer', 'kinematics')
-PASSED: KeyInfo('printer', 'kinematics', 266, True, False, '032E315C')
+PASSED: KeyInfo('printer', 'kinematics', 266, True, False, CrcKey(0x032E315C))
 -------------------------
 Q: cmd.ListKey('gcode_macro G29', 'gcode')
-PASSED: KeyInfo('gcode_macro G29', 'gcode', 294, True, False, 'F8CEE4BF')
+PASSED: KeyInfo('gcode_macro G29', 'gcode', 294, True, False, CrcKey(0xF8CEE4BF))
 -------------------------
 
                               NO ERRORS                               
@@ -128,7 +128,7 @@ Q: cmd.GetKey('extruder', 'sensor_type')
 PASSED: EPCOS 100K B57560G104F
 -------------------------
 Q: cmd.GetKey('homing_override', 'gcode')
-FAILED: QlpoOTFBWSZTWT56r1cABKMfgFLne3I/79x+v+feXlAEHgAAAABzAJpgEyGAAJgmAAAHMAmmATIYAAmCYAAAcwCaYBMhgACYJgAABzAJpgEyGAAJgmAAABUUiGimMmoyNTZQ0NGmmmmQxA8jKeDYbDtfxH7xYsWLFsYWMRYsM0QfMqQcTTTGMY3mcQdaugcSjMphPwFO5HAkns9i/rbcLgwwuGKxhW9JOw4nwN5oNpGacDnNjvIMEHTzzfU5TmN7IzK2uVUj51H25M9WeNWjM0mqNSKVmyykmypnZt2twg4Fe8xJB1nAxJBo2L57aq2qqrbaUpSqpSlKqqqrbbFi2lLFiqtqrbFiqtttt86QWJMlEcTvPIknWeM2lO0+B6Ifg5UpuXLLFMmGK9EkGH3lpaetJmjzHUet50aiME6k3DynIRqSODqPW6jQ8h0GD3PcNT2jRIP0ep7n6vUNH8DYk3LEG4SZP5HQ/cYGQ+I5mx3JBp27xrerkGg4PkwPkNaK2jRsHm8g2DMcr+UUlRSVFSPKen824qklUtKpaSSUknrKYKRYLFiyLVqhVSVKiirVttqVQp+nQOx8R8na9p4inoU4h2RBme1JMn0STm70g+L3joKd5Gp1vo1G1JO4qa3lffJ9VVaotpZJPmLJBwiHNVqSd55GeonQZskk3GbiawbUk4DYc7cJ6SSbXMTxHOZJJ4ydbWajY2m7kSTkSTQdx6RDCSajwPMMEg1pJrPEeDic55Yg6ZOpJhBrM0gzI8aSZJCZFCpBUg8RGjYTMzSDI7Eg5DkSTidJ/ZkZnSYO0pvcwqScCS+hypJuSTUdRkbDzRBR0jsKa3jPqMDWo8ESdNCD2VqGriYSDekG41GhSCmaQaNT27zlIyDQwcTBuIPefA7vBcz6H2KIqif+LuSKcKEgfPVerg==
+PASSED: QlpoOTFBWSZTWT56r1cABKMfgFLne3I/79x+v+feXlAEHgAAAABzAJpgEyGAAJgmAAAHMAmmATIYAAmCYAAAcwCaYBMhgACYJgAABzAJpgEyGAAJgmAAABUUiGimMmoyNTZQ0NGmmmmQxA8jKeDYbDtfxH7xYsWLFsYWMRYsM0QfMqQcTTTGMY3mcQdaugcSjMphPwFO5HAkns9i/rbcLgwwuGKxhW9JOw4nwN5oNpGacDnNjvIMEHTzzfU5TmN7IzK2uVUj51H25M9WeNWjM0mqNSKVmyykmypnZt2twg4Fe8xJB1nAxJBo2L57aq2qqrbaUpSqpSlKqqqrbbFi2lLFiqtqrbFiqtttt86QWJMlEcTvPIknWeM2lO0+B6Ifg5UpuXLLFMmGK9EkGH3lpaetJmjzHUet50aiME6k3DynIRqSODqPW6jQ8h0GD3PcNT2jRIP0ep7n6vUNH8DYk3LEG4SZP5HQ/cYGQ+I5mx3JBp27xrerkGg4PkwPkNaK2jRsHm8g2DMcr+UUlRSVFSPKen824qklUtKpaSSUknrKYKRYLFiyLVqhVSVKiirVttqVQp+nQOx8R8na9p4inoU4h2RBme1JMn0STm70g+L3joKd5Gp1vo1G1JO4qa3lffJ9VVaotpZJPmLJBwiHNVqSd55GeonQZskk3GbiawbUk4DYc7cJ6SSbXMTxHOZJJ4ydbWajY2m7kSTkSTQdx6RDCSajwPMMEg1pJrPEeDic55Yg6ZOpJhBrM0gzI8aSZJCZFCpBUg8RGjYTMzSDI7Eg5DkSTidJ/ZkZnSYO0pvcwqScCS+hypJuSTUdRkbDzRBR0jsKa3jPqMDWo8ESdNCD2VqGriYSDekG41GhSCmaQaNT27zlIyDQwcTBuIPefA7vBcz6H2KIqif+LuSKcKEgfPVerg==
   Expands to:
     gcode:
     	bed_mesh_clear
@@ -213,7 +213,7 @@ PASSED: QlpoOTFBWSZTWQw3laoAAHUfgEDkclA/5hx+rqWeADAAtmwlKAmNBMAIwAACRSnlMQaGhoBk
     	G0 X120 Y120 F12000
 -------------------------
 Q: cmd.GetKey('gcode_macro M600', 'gcode')
-FAILED: QlpoOTFBWSZTWRm7/KQAA3gfgELnf/I/r99+r+fePlADPg5AAAOYACZMACYTBMIYAjABzAATJgATCYJhDAEYAEqn+qqMAAEyMATTBMABMmAHMABMmABMJgmEMARgAKkiCCaCniTxRk9pR6j1HlPSe1Q2kNqep4puHgPKLSqsUUWNBCU/R2u5/zgGUE4SzkexhEnSncsk8mTeYmhZndUsqWqqXeY4gb7fKKKfc4hShSYI0shT1RHGJORJsjXxbDoUcHZbKojbUJVFsVMMss8MqaUiNb5oShQmtSKCAsIgkK+8ECAqqqqoIIiqqqqqgICIiIiIqqqrVgBKkRpPe4ETEdKk6qVRv+/K1rSkJqG1nkzyq91+HJXYMnY2tRk7WDrMFxd1vsdbeZOpqXaDeaVPc5kZuU/VTpNp1l6K7TW3O8o+LUUTwO42DkcKXXgnAmt+zSaEYm8YNyxgm8eBip/smcQ/Enin8FNZZ+5m4HrJpRGjypJqYnCeNzU8U5kzG00JguchKOE992SnIZmLU0lJONgT3F2KlynMKSngllhSUsliWLE/rvIj46jnKHVEnoifJE4/RPWCfNHm+sMHsjifBSlVVVVVIGb5RUlFKKUFeS8FImAYI6QaETNPqeTZoDQHRITfDMxQTALp5xJskcclkTgglxvBskgvBKgnqnotBNsE9WLWie0mqROdJmF0TTEmKMZyypVmtGCPYnPSSdV8oJnBOiTFEfAYQTNJiju1Dlkp1rIim5Tco3KR3i65Zg+9GDBctVKrIvHqkliixUlV/4u5IpwoSAzd/lIA
+PASSED: QlpoOTFBWSZTWRm7/KQAA3gfgELnf/I/r99+r+fePlADPg5AAAOYACZMACYTBMIYAjABzAATJgATCYJhDAEYAEqn+qqMAAEyMATTBMABMmAHMABMmABMJgmEMARgAKkiCCaCniTxRk9pR6j1HlPSe1Q2kNqep4puHgPKLSqsUUWNBCU/R2u5/zgGUE4SzkexhEnSncsk8mTeYmhZndUsqWqqXeY4gb7fKKKfc4hShSYI0shT1RHGJORJsjXxbDoUcHZbKojbUJVFsVMMss8MqaUiNb5oShQmtSKCAsIgkK+8ECAqqqqoIIiqqqqqgICIiIiIqqqrVgBKkRpPe4ETEdKk6qVRv+/K1rSkJqG1nkzyq91+HJXYMnY2tRk7WDrMFxd1vsdbeZOpqXaDeaVPc5kZuU/VTpNp1l6K7TW3O8o+LUUTwO42DkcKXXgnAmt+zSaEYm8YNyxgm8eBip/smcQ/Enin8FNZZ+5m4HrJpRGjypJqYnCeNzU8U5kzG00JguchKOE992SnIZmLU0lJONgT3F2KlynMKSngllhSUsliWLE/rvIj46jnKHVEnoifJE4/RPWCfNHm+sMHsjifBSlVVVVVIGb5RUlFKKUFeS8FImAYI6QaETNPqeTZoDQHRITfDMxQTALp5xJskcclkTgglxvBskgvBKgnqnotBNsE9WLWie0mqROdJmF0TTEmKMZyypVmtGCPYnPSSdV8oJnBOiTFEfAYQTNJiju1Dlkp1rIim5Tco3KR3i65Zg+9GDBctVKrIvHqkliixUlV/4u5IpwoSAzd/lIA
   Expands to:
     gcode:
     	{% set X = params.X|default(50)|float %}
@@ -267,7 +267,7 @@ FAILED: QlpoOTFBWSZTWRm7/KQAA3gfgELnf/I/r99+r+fePlADPg5AAAOYACZMACYTBMIYAjABzAAT
     	;SET_IDLE_TIMEOUT TIMEOUT=43200
 -------------------------
 
-                ######## TOTAL ERROR COUNT: 2 ########                
+                              NO ERRORS                               
 |____________________________________________________________________|
 
 
@@ -293,7 +293,7 @@ PASSED: True
 Q: cmd.GetKey('stepper_x', 'full_steps_per_rotation')
 PASSED: 201
 -------------------------
-Q: cmd.EditKey('gcode_macro M600', 'gcode', 'QlpoOTFBWSZTWaUYWRwABKUfgFLne3o/79x+v+feXlAEHgAAAABzAATJgATCYJhDAEYAOYACZMACYTBMIYAjABzAATJgATCYJhDAEYAOYACZMACYTBMIYAjAAVFIgKYyajI0aQ000aMNTAIHkZTuajUdb4x8IsWLFi2MLGIsWGaIPsVIOBr14xjG4ziDyq5hwKMymE9Ap2I3kk9nsX223C4MMLhisYVuST8DgfM3GsbCM03nKanaQYIOflm7cwnIbjBmVscapH2qPyyZ6M8aK1MzVNEZilZsspJqqZ2bNjaIN5XvMSQdJvMSQa2pfJbVW1VVVW20pSlKUpVVVVbbYsW0pYsVVtVbYsVVtttvkSCxJkojgdp4Ek6Tvmwp1nzPND9HGlNq5ZYpkwxXmkgw85aWnqSZo8R0HqeRGgjBOhNo8JxEaEje8J0HqYNZ4DmMHue4aHUNaQet6Xue16RrfEakm1Yg2pJ1FSM3yHO+AwMh9Bua3YkGvr3jS/fjGscr6sD6jSitg1tQ6OYahmON8kUlRSVFSPEfrsP4UqiVS0qlpJJSSeopgpFgsWLItWqFVJUqKKtW22pVCnr5h+D6D6ut1HeKfmpwDyxBmdSSZPuknJ2pB9HvHMU7SNDpfdoNiSdhU0vC88njqrVFtLJJ9hZIN8Q5KtSTtPAz0E5jNkkm0zcDSDYkm8ajlbRPQSTY5Cd45TJJO+TpaTQamw28SScSSax2HoEMJJoO48QwSDSkmk7x3OBynhiDnk6EmEGkzSDMjvpJkkJkUKkFSDvEa2omZmkGR5Ug4jiSTgc5/ZkZnOYOspucgqSbyS+ZxpJtSTQdBkajxRBRzjylNLvnjMDSp3FKkTnoQeutA0cDCQbkg2mg1lIKZpBraHVuOMjINZg4GDaQe8+Z2dy5n3PxURVE/8XckU4UJClGFkcA')
+Q: cmd.EditKey('homing_override', 'gcode', LinesB64('QlpoOTFBWSZTWT56r1cABKMfgFLne3I/79x+v+feXlAEHgAAAABzAJpgEyGAAJgmAAAHMAmmATIYAAmCYAAAcwCaYBMhgACYJgAABzAJpgEyGAAJgmAAABUUiGimMmoyNTZQ0NGmmmmQxA8jKeDYbDtfxH7xYsWLFsYWMRYsM0QfMqQcTTTGMY3mcQdaugcSjMphPwFO5HAkns9i/rbcLgwwuGKxhW9JOw4nwN5oNpGacDnNjvIMEHTzzfU5TmN7IzK2uVUj51H25M9WeNWjM0mqNSKVmyykmypnZt2twg4Fe8xJB1nAxJBo2L57aq2qqrbaUpSqpSlKqqqrbbFi2lLFiqtqrbFiqtttt86QWJMlEcTvPIknWeM2lO0+B6Ifg5UpuXLLFMmGK9EkGH3lpaetJmjzHUet50aiME6k3DynIRqSODqPW6jQ8h0GD3PcNT2jRIP0ep7n6vUNH8DYk3LEG4SZP5HQ/cYGQ+I5mx3JBp27xrerkGg4PkwPkNaK2jRsHm8g2DMcr+UUlRSVFSPKen824qklUtKpaSSUknrKYKRYLFiyLVqhVSVKiirVttqVQp+nQOx8R8na9p4inoU4h2RBme1JMn0STm70g+L3joKd5Gp1vo1G1JO4qa3lffJ9VVaotpZJPmLJBwiHNVqSd55GeonQZskk3GbiawbUk4DYc7cJ6SSbXMTxHOZJJ4ydbWajY2m7kSTkSTQdx6RDCSajwPMMEg1pJrPEeDic55Yg6ZOpJhBrM0gzI8aSZJCZFCpBUg8RGjYTMzSDI7Eg5DkSTidJ/ZkZnSYO0pvcwqScCS+hypJuSTUdRkbDzRBR0jsKa3jPqMDWo8ESdNCD2VqGriYSDekG41GhSCmaQaNT27zlIyDQwcTBuIPefA7vBcz6H2KIqif+LuSKcKEgfPVerg=='))
 PASSED: False
 -------------------------
 Q: cmd.GetKey('stepper_z', 'new_key')
@@ -317,29 +317,29 @@ PASSED: Comparing 'P:\github.com\artillery-sw-x4-klipper-images-code\unbrick-swx
 |                                                                    |
                         === EditKeyML Test ===                        
 
-Q: cmd.EditKeyML('no_no_no', 'no_no_no', 'QlpoOTFBWSZTWQEQaJAAAHUfgEDkctA/5hx+rqWeADAA1iGNNBoAZNAZGmhiaMEiVPSYjIA0aAAA0BVJTT1CPCTamEPTTSbSME0kgKC+QJiyaoKq24lKJwXYFFLbbbbeFEkerW0pJlaJVJaWtc3si1oei9QZ0ljatWv4+nI2QmYL1xwJoaEYE1K92hPrUcpqVZ7UKkc+CGGJiXIs8w7PC1HlHhkpT2JMR8FTQixJoaPo0a0TXCuEft16tEyGjf/F3JFOFCQARBokAA==')
+Q: cmd.EditKeyML('no_no_no', 'no_no_no', LinesB64('QlpoOTFBWSZTWQEQaJAAAHUfgEDkctA/5hx+rqWeADAA1iGNNBoAZNAZGmhiaMEiVPSYjIA0aAAA0BVJTT1CPCTamEPTTSbSME0kgKC+QJiyaoKq24lKJwXYFFLbbbbeFEkerW0pJlaJVJaWtc3si1oei9QZ0ljatWv4+nI2QmYL1xwJoaEYE1K92hPrUcpqVZ7UKkc+CGGJiXIs8w7PC1HlHhkpT2JMR8FTQixJoaPo0a0TXCuEft16tEyGjf/F3JFOFCQARBokAA=='))
 PASSED: None
 -------------------------
-Q: cmd.EditKeyML('gcode_macro *', 'new_key', 'QlpoOTFBWSZTWQw3laoAAHUfgEDkclA/5hx+rqWeADAAtmwlKAmNBMAIwAACRSnlMQaGhoBkADAVUkPUaHpDQ0DJo0ABFASBiYtFcDLmbhGMMYLwChO22223kQ0JKGpeTIlCE0k2BWrVFKE6xhX1CpSpfTeuNcES1Y4HEignQtIsqx6gj5kXRFEAfWB8TO0QuyDILBIfEODokE8E6F1HyhEYj8KidFaTQ0fxo3olcK4RfzxZ0SQ0dMBdyRThQkAw3lao')
+Q: cmd.EditKeyML('gcode_macro *', 'new_key', LinesB64('QlpoOTFBWSZTWQw3laoAAHUfgEDkclA/5hx+rqWeADAAtmwlKAmNBMAIwAACRSnlMQaGhoBkADAVUkPUaHpDQ0DJo0ABFASBiYtFcDLmbhGMMYLwChO22223kQ0JKGpeTIlCE0k2BWrVFKE6xhX1CpSpfTeuNcES1Y4HEignQtIsqx6gj5kXRFEAfWB8TO0QuyDILBIfEODokE8E6F1HyhEYj8KidFaTQ0fxo3olcK4RfzxZ0SQ0dMBdyRThQkAw3lao'))
 PASSED: None
 -------------------------
 Q: cmd.ListKey('gcode_macro G29', 'gcode')
-PASSED: KeyInfo('gcode_macro G29', 'gcode', 295, True, False, 'F8CEE4BF')
+PASSED: KeyInfo('gcode_macro G29', 'gcode', 295, True, False, CrcKey(0xF8CEE4BF))
 -------------------------
-Q: cmd.EditKeyML('gcode_macro G29', 'gcode', 'QlpoOTFBWSZTWQEQaJAAAHUfgEDkctA/5hx+rqWeADAA1iGNNBoAZNAZGmhiaMEiVPSYjIA0aAAA0BVJTT1CPCTamEPTTSbSME0kgKC+QJiyaoKq24lKJwXYFFLbbbbeFEkerW0pJlaJVJaWtc3si1oei9QZ0ljatWv4+nI2QmYL1xwJoaEYE1K92hPrUcpqVZ7UKkc+CGGJiXIs8w7PC1HlHhkpT2JMR8FTQixJoaPo0a0TXCuEft16tEyGjf/F3JFOFCQARBokAA==')
+Q: cmd.EditKeyML('gcode_macro G29', 'gcode', LinesB64('QlpoOTFBWSZTWQEQaJAAAHUfgEDkctA/5hx+rqWeADAA1iGNNBoAZNAZGmhiaMEiVPSYjIA0aAAA0BVJTT1CPCTamEPTTSbSME0kgKC+QJiyaoKq24lKJwXYFFLbbbbeFEkerW0pJlaJVJaWtc3si1oei9QZ0ljatWv4+nI2QmYL1xwJoaEYE1K92hPrUcpqVZ7UKkc+CGGJiXIs8w7PC1HlHhkpT2JMR8FTQixJoaPo0a0TXCuEft16tEyGjf/F3JFOFCQARBokAA=='))
 PASSED: True
 -------------------------
 Q: cmd.ListKey('gcode_macro G29', 'gcode')
-PASSED: KeyInfo('gcode_macro G29', 'gcode', 295, True, False, '7E1AC1F9')
+PASSED: KeyInfo('gcode_macro G29', 'gcode', 295, True, False, CrcKey(0x7E1AC1F9))
 -------------------------
 Q: cmd.ListKey('gcode_macro G29', 'new_key')
 PASSED: None
 -------------------------
-Q: cmd.EditKeyML('gcode_macro G29', 'new_key', 'QlpoOTFBWSZTWQw3laoAAHUfgEDkclA/5hx+rqWeADAAtmwlKAmNBMAIwAACRSnlMQaGhoBkADAVUkPUaHpDQ0DJo0ABFASBiYtFcDLmbhGMMYLwChO22223kQ0JKGpeTIlCE0k2BWrVFKE6xhX1CpSpfTeuNcES1Y4HEignQtIsqx6gj5kXRFEAfWB8TO0QuyDILBIfEODokE8E6F1HyhEYj8KidFaTQ0fxo3olcK4RfzxZ0SQ0dMBdyRThQkAw3lao')
+Q: cmd.EditKeyML('gcode_macro G29', 'new_key', LinesB64('QlpoOTFBWSZTWQw3laoAAHUfgEDkclA/5hx+rqWeADAAtmwlKAmNBMAIwAACRSnlMQaGhoBkADAVUkPUaHpDQ0DJo0ABFASBiYtFcDLmbhGMMYLwChO22223kQ0JKGpeTIlCE0k2BWrVFKE6xhX1CpSpfTeuNcES1Y4HEignQtIsqx6gj5kXRFEAfWB8TO0QuyDILBIfEODokE8E6F1HyhEYj8KidFaTQ0fxo3olcK4RfzxZ0SQ0dMBdyRThQkAw3lao'))
 PASSED: True
 -------------------------
 Q: cmd.ListKey('gcode_macro G29', 'new_key')
-PASSED: KeyInfo('gcode_macro G29', 'new_key', 301, True, False, '9DF557ED')
+PASSED: KeyInfo('gcode_macro G29', 'new_key', 301, True, False, CrcKey(0x9DF557ED))
 -------------------------
 
 PASSED: Comparing 'P:\github.com\artillery-sw-x4-klipper-images-code\unbrick-swx4\tests\test.cfg'
@@ -390,7 +390,7 @@ Q: cmd.RenSec('stepper_?', 'abcdefg')
 PASSED: None
 -------------------------
 Q: cmd.ListSection('controller_fan mainboard_fan',)
-PASSED: SectionInfo('controller_fan mainboard_fan', 243, True, True, '0DABA107')
+PASSED: SectionInfo('controller_fan mainboard_fan', 243, True, True, CrcKey(0x0DABA107))
 -------------------------
 Q: cmd.RenSec('controller_fan mainboard_fan', 'controller_fan motherboard_fan')
 PASSED: 1
@@ -399,7 +399,7 @@ Q: cmd.ListSection('controller_fan mainboard_fan',)
 PASSED: None
 -------------------------
 Q: cmd.ListSection('controller_fan motherboard_fan',)
-PASSED: SectionInfo('controller_fan motherboard_fan', 243, True, True, '4C733D2B')
+PASSED: SectionInfo('controller_fan motherboard_fan', 243, True, True, CrcKey(0x4C733D2B))
 -------------------------
 
 PASSED: Comparing 'P:\github.com\artillery-sw-x4-klipper-images-code\unbrick-swx4\tests\test.cfg'
@@ -420,7 +420,7 @@ Q: cmd.DelSec('stepper_?',)
 PASSED: None
 -------------------------
 Q: cmd.ListSection('neopixel my_neopixel',)
-PASSED: SectionInfo('neopixel my_neopixel', 676, True, True, '1804619F')
+PASSED: SectionInfo('neopixel my_neopixel', 676, True, True, CrcKey(0x1804619F))
 -------------------------
 Q: cmd.DelSec('neopixel my_neopixel',)
 PASSED: 674
@@ -429,7 +429,7 @@ Q: cmd.ListSection('neopixel my_neopixel',)
 PASSED: None
 -------------------------
 Q: cmd.ListSection('probe',)
-PASSED: SectionInfo('probe', 167, True, True, '6C3A1993')
+PASSED: SectionInfo('probe', 167, True, True, CrcKey(0x6C3A1993))
 -------------------------
 Q: cmd.DelSec('probe',)
 PASSED: 165
@@ -509,4 +509,196 @@ PASSED: QlpoOTFBWSZTWUomKqQAAdjfgCAAaOd/8D+MzQ6/79/wUAM+roAAAGppT1GjTCaaMmmNIDJk
 |____________________________________________________________________|
 
 
-TOTAL ERROR COUNT: 2
+ ____________________________________________________________________ 
+|                                                                    |
+                         === AddSec Test ===                          
+
+Q: cmd.ListSection('extruder',)
+PASSED: SectionInfo('extruder', 56, True, True, CrcKey(0x12529D87))
+-------------------------
+Q: cmd.AddSec(0, LinesB64('QlpoOTFBWSZTWdNxsysAABqfgEDkYBADBAkKKifOICAAVCUoaaMjQNMQ/VBKapkPU0DTIARGEWGl6UA2aKE4kmcdsDsm591KBlI8MZk0VIRaQ6mJRlZrL0HF4oiJHRpUm8fD8XckU4UJDTcbMrA='))
+PASSED: None
+-------------------------
+Q: cmd.AddSec(-1, LinesB64('QlpoOTFBWSZTWRWyahsAABqfgEDkYBADBAkKOifOICAAdBKSPUaMgGmmjNQSmqZD1NA0A0CIwioytSgGrRQnEkzjtcdk3PqSgYSKF8yUBihCKaizwJo1EseuqijqnMSxsSNMjMZ49fxdyRThQkBWyahs'))
+PASSED: None
+-------------------------
+Q: cmd.AddSec(100, LinesB64('QlpoOTFBWSZTWSwQZH4AABufgEDkYBADBAkKr+ffICAAdBKiDTTTQNA0A2oEqanpDEAABoBowiSCljkRQxY1BHiIjHj2QOi5x9GClMBR240xM0IlXQ9VxTwRQ+KzoaQInKpDWKQ7XeokL9KoDhZAQmNxDH5gx5f+LuSKcKEgWCDI/A=='))
+PASSED: None
+-------------------------
+Q: cmd.AddSec('heater_bed', LinesB64('QlpoOTFBWSZTWQ5Xf1sAAF2fgEDlfZADBAkKri/eYDAAq2CSkyntUZqD1GgDTT1NlA00oAA0yAAACUo00A0NANAAEBLaBQ8ngoeyIJjWd47ic4Pe+D4gskmcJzASSSSSUSsI0QgMRJBG0FFChQ4OCiEKCSixRAIZPCfc0IKEbSXlTRHCaILI+BwHoSSqK5Gd4cBj0BmlgWoKxokaXb0nDjEdUwKl4rYhIVhNzD8TkGpDDfxdyRThQkA5Xf1s'))
+PASSED: None
+-------------------------
+Q: cmd.ListSection('top',)
+PASSED: SectionInfo('top', 6, True, True, CrcKey(0x96FBD474))
+-------------------------
+Q: cmd.ListSection('after homing_override',)
+PASSED: SectionInfo('after homing_override', 164, True, True, CrcKey(0x488DF9FB))
+-------------------------
+Q: cmd.ListSection('bottom',)
+PASSED: SectionInfo('bottom', 781, True, True, CrcKey(0x11427BAD))
+-------------------------
+Q: cmd.ListSection('extruder',)
+PASSED: SectionInfo('extruder', 59, True, True, CrcKey(0xC48D84C3))
+-------------------------
+Q: cmd.GetKey('extruder', 'intruder')
+PASSED: 1
+-------------------------
+
+PASSED: Comparing 'P:\github.com\artillery-sw-x4-klipper-images-code\unbrick-swx4\tests\test.cfg'
+        with 'P:\github.com\artillery-sw-x4-klipper-images-code\unbrick-swx4\tests\results\test_edit_cfg-006.cfg'
+
+                              NO ERRORS                               
+|____________________________________________________________________|
+
+
+ ____________________________________________________________________ 
+|                                                                    |
+                         === OvrSec Test ===                          
+
+Q: cmd.OvrSec('no_no_no', LinesB64('QlpoOTFBWSZTWY6SAcUAABufgEDmUBADBAkKKifOoCAAdBKUM1GjIDRpoeoJTVMhk00GgAHjCKjGCTgoz0KIkmgekWkdlIn3UnE5HhHc5Y7IYpIdR44ojVSrepMseXDRGMzgkxNRVIfi7kinChIR0kA4oA=='))
+PASSED: False
+-------------------------
+Q: cmd.OvrSec('top', LinesB64('QlpoOTFBWSZTWY6SAcUAABufgEDmUBADBAkKKifOoCAAdBKUM1GjIDRpoeoJTVMhk00GgAHjCKjGCTgoz0KIkmgekWkdlIn3UnE5HhHc5Y7IYpIdR44ojVSrepMseXDRGMzgkxNRVIfi7kinChIR0kA4oA=='))
+PASSED: True
+-------------------------
+Q: cmd.ListSection('top',)
+PASSED: None
+-------------------------
+Q: cmd.ListSection('new-top',)
+PASSED: SectionInfo('new-top', 6, True, True, CrcKey(0x89002721))
+-------------------------
+Q: cmd.GetKey('new-top', 'success')
+PASSED: 2
+-------------------------
+Q: cmd.OvrSec('extruder', LinesB64('QlpoOTFBWSZTWTFwD78AABufgEDkcBADBAkKvifeYCAAdBKUNPUAABoHoglNUaGmgAAAHDCIiyZKMMmchPEkzx7QOSUuefcOjKYFZZOYmmoo6BWjFpNIb9GBwkHo9vQa8UYaJHscosQ/F3JFOFCQMXAPvw=='))
+PASSED: True
+-------------------------
+Q: cmd.ListSection('extruder',)
+PASSED: None
+-------------------------
+Q: cmd.ListSection('extruder2',)
+PASSED: SectionInfo('extruder2', 59, True, True, CrcKey(0x36F82B6E))
+-------------------------
+Q: cmd.GetKey('extruder2', 'bye_bye')
+PASSED: 1
+-------------------------
+
+PASSED: Comparing 'P:\github.com\artillery-sw-x4-klipper-images-code\unbrick-swx4\tests\test.cfg'
+        with 'P:\github.com\artillery-sw-x4-klipper-images-code\unbrick-swx4\tests\results\test_edit_cfg-007.cfg'
+
+                              NO ERRORS                               
+|____________________________________________________________________|
+
+
+ ____________________________________________________________________ 
+|                                                                    |
+                       === Persistence Test ===                       
+
+Q: cmd.GetPersistenceB64()
+PASSED: QlpoOTFBWSZTWS4/GQEAAs2/gBAASPd/5z/t3Y6/7/9wQAJV2AzUsJKGoFHiI9NRoNA0GgaZBmSGhhBIkASiMm1GQyNGgY1GIGTJoGgcwmATACYTCaYAABMmmgYSSaJT0mT1D1DTyIyHqBpoGhoDIDalz9CwAkeZpKg0mwY03upBbsr1Q/n3f0cfnUM0g37Bvwj9Mk+XJj3khFbccYKb5vOgaXCgDgDgSEYEhFQCQyEjpiiWIXqWcztY9nLLoxkdRig32xGq0N7gJG0CR30hEkhEAkNJL2pCPYLl1IQenq2rGtmpgg1uQ9b1Qoe2Nw6M1gkTmxttsGxNMGOwbIINhTJjG2F96MZyhbjENgboy4ymMVicqYam8Fqye9TYbZamCt1XSumNMKL3llq7q1K7VpK+mJ5pmkm002mxpjY60m6TwQMi1KzdLqsEnOcrUvUicaO17RNxmWZ3wOVy9YJuVpWvTIhefig4uz4yMlui2zFnsssm3etIRluUyWywog9IRFQ973lsMUEjXhdnoxXGzXXkiW1mliNDbNz3ZmZp3IdHD+hsMfNg2xaaEhEFIe0Y1xhNGa7enBIzpCNX2Rpc3oJCLWJyEcHBLbrSEVLTVdvXivNqkA75b5UXAJzCCRFPOhIvCgW1VkWDGxIwlKQhgSGZph07179dzZgTGFFJiKEbCCc2rhTgoEa1RKgiCQ0Bh3UswSUgkUpCNoo2L9U9aQiaKDPOdxTOVUSVlI4TNgbkbMBtziCPAf8XckU4UJAuPxkB
+  Expands to:
+    
+    #*# <---------------------- SAVE_CONFIG ---------------------->
+    #*# DO NOT EDIT THIS BLOCK OR BELOW. The contents are auto-generated.
+    #*#
+    #*# [extruder]
+    #*# control = pid
+    #*# pid_kp = 37.178
+    #*# pid_ki = 11.803
+    #*# pid_kd = 29.278
+    #*#
+    #*# [heater_bed]
+    #*# control = pid
+    #*# pid_kp = 69.250
+    #*# pid_ki = 0.771
+    #*# pid_kd = 1555.528
+    #*#
+    #*# [probe]
+    #*# z_offset = 0.470
+    #*#
+    #*# [bed_mesh default]
+    #*# version = 1
+    #*# points =
+    #*# 	  -0.034500, -0.015250, -0.008750, -0.015000, -0.016750, -0.063750
+    #*# 	  -0.071750, -0.044750, -0.027000, -0.024750, -0.061500, -0.088250
+    #*# 	  -0.093250, -0.062250, -0.036250, -0.044250, -0.112500, -0.081000
+    #*# 	  -0.074500, -0.051750, -0.025250, -0.028750, -0.080500, -0.058250
+    #*# 	  -0.051750, -0.030750, -0.015250, -0.019000, -0.049250, -0.042750
+    #*# 	  -0.035500, -0.030750, -0.013500, -0.008750, -0.035750, -0.026000
+    #*# tension = 0.2
+    #*# min_x = 20.0
+    #*# algo = bicubic
+    #*# y_count = 6
+    #*# mesh_y_pps = 4
+    #*# min_y = 20.0
+    #*# x_count = 6
+    #*# max_y = 220.0
+    #*# mesh_x_pps = 4
+    #*# max_x = 220.0
+    #*#
+    #*# [input_shaper]
+    #*# shaper_type_x = mzv
+    #*# shaper_freq_x = 59.0
+    #*# shaper_type_y = mzv
+    #*# shaper_freq_y = 42.0
+-------------------------
+Q: cmd.SavePersistenceB64(LinesB64('QlpoOTFBWSZTWRWqGXgAAsl/gEAAEABI93/nP+3djr/v/3BAAm6mDKZBJTJJtJqeiTemoaBBtPUaIwAeSAmxBKepNTQaigAxAAAA0AABkOYBMBMjACMTEwmEwQ0xNMBEqIR6g9JoZDT1AADIaAAACkMJhASOKAktwES0fNzeGnU3wzwPonIxn+W+DB15M7qydF5RMFqy4DV6acpPeDSwA2VEsUSwBIghIzxRNwCuM1rwzO7c0eI5NXDRnoaHszWUtSZAUvApoKJaUSgFInDJFCQnGonEOLAcEkkIQZEDf8b9S3yuhQxwA1JiiY0OkWtPVfQEQWyVUFEYVEXqaLzDnqREbMSXguCCMQgYv1p3VrM4JdK3U1Tm06TRZzJN+6FjUzayvIiOeVolzqQ0tVsUYyqyXJk1zkLJMyYKRVBBVFdNU1z200gR1NDKnWb4ta2V76CqI32wZbXxNyS2JE8Y04JQTkmmiIX8tYt9O5zsv0X3dHndddRTakI8ceKe+T1OyQiapmZi9+d0jTxwtq5scfPZucklrmmomNEeTHxqrVW9gb1/Lch6u12eXL4b4ggmMi3KJsJDV8bpAkeSQjVYR2nLKnSEa4FBGd4BRfpSEVr3r/GSos8fqcDPLpymHIbIFRmBInxYUJGITGvLvEYBRt0Wywz1EgKSS2UtNOHVw1XaC4WJol7aLqVoVF7MLmvWJlaxbrLQKSghTS5dQZVYKVqImc1iy17FiQijA8WP1AxbBXVP+dswP+6ZBCDmNg2osw1f2LuSKcKEgK1Qy8A='),)
+PASSED: None
+-------------------------
+Q: cmd.GetPersistenceB64()
+PASSED: QlpoOTFBWSZTWRWqGXgAAsl/gEAAEABI93/nP+3djr/v/3BAAm6mDKZBJTJJtJqeiTemoaBBtPUaIwAeSAmxBKepNTQaigAxAAAA0AABkOYBMBMjACMTEwmEwQ0xNMBEqIR6g9JoZDT1AADIaAAACkMJhASOKAktwES0fNzeGnU3wzwPonIxn+W+DB15M7qydF5RMFqy4DV6acpPeDSwA2VEsUSwBIghIzxRNwCuM1rwzO7c0eI5NXDRnoaHszWUtSZAUvApoKJaUSgFInDJFCQnGonEOLAcEkkIQZEDf8b9S3yuhQxwA1JiiY0OkWtPVfQEQWyVUFEYVEXqaLzDnqREbMSXguCCMQgYv1p3VrM4JdK3U1Tm06TRZzJN+6FjUzayvIiOeVolzqQ0tVsUYyqyXJk1zkLJMyYKRVBBVFdNU1z200gR1NDKnWb4ta2V76CqI32wZbXxNyS2JE8Y04JQTkmmiIX8tYt9O5zsv0X3dHndddRTakI8ceKe+T1OyQiapmZi9+d0jTxwtq5scfPZucklrmmomNEeTHxqrVW9gb1/Lch6u12eXL4b4ggmMi3KJsJDV8bpAkeSQjVYR2nLKnSEa4FBGd4BRfpSEVr3r/GSos8fqcDPLpymHIbIFRmBInxYUJGITGvLvEYBRt0Wywz1EgKSS2UtNOHVw1XaC4WJol7aLqVoVF7MLmvWJlaxbrLQKSghTS5dQZVYKVqImc1iy17FiQijA8WP1AxbBXVP+dswP+6ZBCDmNg2osw1f2LuSKcKEgK1Qy8A=
+  Expands to:
+    
+    #*# <---------------------- SAVE_CONFIG ---------------------->
+    #*# DO NOT EDIT THIS BLOCK OR BELOW. The contents are auto-generated.
+    #*#
+    #*# [extruder]
+    #*# control = pid
+    #*# pid_kp = 28.176
+    #*# pid_ki = 9.392
+    #*# pid_kd = 21.132
+    #*#
+    #*# [heater_bed]
+    #*# control = pid
+    #*# pid_kp = 71.138
+    #*# pid_ki = 0.930
+    #*# pid_kd = 1360.508
+    #*#
+    #*# [probe]
+    #*# z_offset = 0.770
+    #*#
+    #*# [bed_mesh default]
+    #*# version = 1
+    #*# points =
+    #*# 	-0.205000, -0.318750, -0.371250, -0.446250, -0.456250, -0.505000
+    #*# 	-0.280000, -0.290000, -0.308750, -0.392500, -0.438750, -0.522500
+    #*# 	-0.303750, -0.266250, 0.080000, 0.083750, -0.440000, -0.522500
+    #*# 	-0.346250, -0.331250, -0.097500, -0.226250, -0.445000, -0.527500
+    #*# 	-0.295000, -0.288750, -0.305000, -0.385000, -0.435000, -0.468750
+    #*# 	-0.243750, -0.336250, -0.343750, -0.417500, -0.455000, -0.488750
+    #*# tension = 0.2
+    #*# min_x = 20.0
+    #*# algo = bicubic
+    #*# y_count = 6
+    #*# mesh_y_pps = 4
+    #*# min_y = 20.0
+    #*# x_count = 6
+    #*# max_y = 290.0
+    #*# mesh_x_pps = 4
+    #*# max_x = 290.0
+    #*#
+    #*# [input_shaper]
+    #*# shaper_type_x = mzv
+    #*# shaper_freq_x = 76.57
+    #*# shaper_type_y = 2hump_ei
+    #*# shaper_freq_y = 33.8
+-------------------------
+
+PASSED: Comparing 'P:\github.com\artillery-sw-x4-klipper-images-code\unbrick-swx4\tests\test.cfg'
+        with 'P:\github.com\artillery-sw-x4-klipper-images-code\unbrick-swx4\tests\results\test_edit_cfg-008.cfg'
+
+                              NO ERRORS                               
+|____________________________________________________________________|
+
+
+TOTAL ERROR COUNT: 0

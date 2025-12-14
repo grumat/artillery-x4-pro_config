@@ -28,27 +28,27 @@ else:
 def GetKey(fh, var : str, section : str, key : str, cmd : Commands) -> None:
 	res = cmd.GetKey(section, key)
 	if isinstance(res, str):
-		fh.write(f"{var} = '{res}'\n")
+		fh.write(f"{var} = {repr(res)}\n")
 	elif isinstance(res, MultiLineData):
-		fh.write(f"{var} = '{res.b64}'\n")
+		fh.write(f"{var} = {repr(res.b64)}\n")
 	else:
 		raise RuntimeError(f"Cannot find key '{key}' or section '{section}'")
 
 def GetPersistenceB64(fh, var : str, cmd : Commands):
 	res = cmd.GetPersistenceB64()
-	fh.write(f"{var} = '{res}'\n")
+	fh.write(f"{var} = {repr(res)}\n")
 
 def GetCRC(fh, var : str, section : str, key : str, cmd : Commands) -> None:
 	res = cmd.ListKey(section, key)
 	if isinstance(res, KeyInfo):
-		fh.write(f"{var} = '{res.crc}'\n")
+		fh.write(f"{var} = {repr(res.crc)}\n")
 	else:
 		raise RuntimeError(f"Cannot find key '{key}' or section '{section}'")
 
 def GetSecCRC(fh, var : str, section : str, cmd : Commands) -> None:
 	res = cmd.ListSection(section)
 	if isinstance(res, SectionInfo):
-		fh.write(f"{var} = '{res.crc}'\n")
+		fh.write(f"{var} = {repr(res.crc)}\n")
 	else:
 		raise RuntimeError(f"Cannot find section {section}")
 
@@ -56,7 +56,7 @@ def GetSecML(fh, var : str, section : str, cmd : Commands) -> None:
 	res = cmd.ReadSec(section)
 	if not isinstance(res, str):
 		raise RuntimeError(f"Cannot find section {section}")
-	fh.write(f"{var} = '{res}'\n")
+	fh.write(f"{var} = {repr(res)}\n")
 
 
 
@@ -74,6 +74,8 @@ def main():
 		fh.write("#!/usr/bin/python3\n")
 		fh.write("# -*- coding: UTF-8 -*-\n")
 		fh.write("# This file is auto-generated: DO NOT EDIT!\n")
+		fh.write("\n")
+		fh.write("from edit_cfg import LinesB64, CrcKey\n")
 		fh.write("\n")
 
 		## Factory default persistence

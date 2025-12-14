@@ -100,23 +100,18 @@ def _validate_(cmd : Commands, method : str, args, cmp) -> str:
 
 def Validate(cmd : Commands, method : str, args, cmp) -> None:
 	res = _validate_(cmd, method, tuple(args), cmp)
+	lines = None
+	if isinstance(res, LinesB64):
+		lines = res.Extract()
+	if isinstance(res, SectionInfoB64):
+		lines = res.Extract()
+	if isinstance(res, KeyInfoB64):
+		lines = res.Extract()
 	if isinstance(res, MultiLineData):
+		lines = res.b64.Extract()
+	if lines is not None:
 		print("  Expands to:")
-		lines = res.GetLines()
 		if len(lines) > 0:
-			for l in lines:
-				print(f"    {l}")
-		else:
-			print("    <empty list>")
-	print("-------------------------")
-
-def ValidateB64(cmd : Commands, method : str, args, cmp) -> None:
-	res = _validate_(cmd, method, tuple(args), cmp)
-	if res:
-		# Expand base64 block
-		lines = eval(DecodeB64(res))
-		print("  Expands to:")
-		if lines:
 			for l in lines:
 				print(f"    {l}")
 		else:
@@ -162,24 +157,24 @@ res_empty_list = lambda res : str(res).endswith("KxdyRThQkB+mXYgA==")	# spellche
 def Test_ListSec(cmd : Commands):
 	Test_Begin_("ListSectionsB64 Test")
 
-	ValidateB64(cmd, 'ListSectionsB64', ['no_no_no'], res_empty_list)
-	ValidateB64(cmd, 'ListSectionsB64', ['include *'], res_empty_list)
+	Validate(cmd, 'ListSectionsB64', ['no_no_no'], res_empty_list)
+	Validate(cmd, 'ListSectionsB64', ['include *'], res_empty_list)
 
-	ValidateB64(cmd, 'ListSectionsB64', ['printer'], lambda res : str(res).endswith("fi7kinChINWnJ9A"))
-	ValidateB64(cmd, 'ListSectionsB64', ['stepper_?'], lambda res : str(res).endswith("Kfi7kinChIXwJgQA="))
-	ValidateB64(cmd, 'ListSectionsB64', ['*home*'], lambda res : str(res).endswith("PxdyRThQkMeZWQcA=="))	# spellchecker: disable-line
+	Validate(cmd, 'ListSectionsB64', ['printer'], lambda res : str(res).endswith("xdyRThQkIRkQBs"))
+	Validate(cmd, 'ListSectionsB64', ['stepper_?'], lambda res : str(res).endswith("X4u5IpwoSEsm4ee"))	# spellchecker: disable-line
+	Validate(cmd, 'ListSectionsB64', ['*home*'], lambda res : str(res).endswith("u5IpwoSAevd+OA=="))	# spellchecker: disable-line
 
 	Test_Close_()
 
 def Test_ListKeys(cmd : Commands):
 	Test_Begin_("ListKeys Test")
 
-	ValidateB64(cmd, 'ListKeysB64', ['no_no_no'], res_empty_list)
-	ValidateB64(cmd, 'ListKeysB64', ['pause_resume'], res_empty_list)
+	Validate(cmd, 'ListKeysB64', ['no_no_no'], res_empty_list)
+	Validate(cmd, 'ListKeysB64', ['pause_resume'], res_empty_list)
 
-	ValidateB64(cmd, 'ListKeysB64', ['idle_timeout'], lambda res : str(res).endswith("Ckw78XckU4UJBy5xmeA=="))
-	ValidateB64(cmd, 'ListKeysB64', ['gcode_macro nozzle_wipe'], lambda res : str(res).endswith("MLwVzkNRdyRThQkHCY3Xg="))
-	ValidateB64(cmd, 'ListKeysB64', ['printer'], lambda res : str(res).endswith("KGRfxdyRThQkFz1CAAA="))	# spellchecker: disable-line
+	Validate(cmd, 'ListKeysB64', ['idle_timeout'], lambda res : str(res).endswith("PxdyRThQkO6W9Ew="))		# spellchecker: disable-line
+	Validate(cmd, 'ListKeysB64', ['gcode_macro nozzle_wipe'], lambda res : str(res).endswith("P8XckU4UJAIWKOg"))	# spellchecker: disable-line
+	Validate(cmd, 'ListKeysB64', ['printer'], lambda res : str(res).endswith("Qu5IpwoSC9tKcCA"))			# spellchecker: disable-line
 
 	Test_Close_()
 
@@ -187,8 +182,8 @@ def Test_ListKey(cmd : Commands):
 	Test_Begin_("ListKey Test")
 	Validate(cmd, 'ListKey', ['no_no_no', 'no_no_no'], None)
 
-	Validate(cmd, 'ListKey', ['printer', 'kinematics'], KeyInfo('printer', 'kinematics', 266, True, False, '032E315C'))
-	Validate(cmd, 'ListKey', ['gcode_macro G29', 'gcode'], KeyInfo('gcode_macro G29', 'gcode', 294, True, False, 'F8CEE4BF'))
+	Validate(cmd, 'ListKey', ['printer', 'kinematics'], KeyInfo('printer', 'kinematics', 266, True, False, CrcKey(0x032E315C)))
+	Validate(cmd, 'ListKey', ['gcode_macro G29', 'gcode'], KeyInfo('gcode_macro G29', 'gcode', 294, True, False, CrcKey(0xF8CEE4BF)))
 
 	Test_Close_()
 
@@ -206,9 +201,9 @@ def Test_GetKey(cmd : Commands):
 	Validate(cmd, 'GetKey', ['stepper_y', 'endstop_pin'], "tmc2209_stepper_y:virtual_endstop")
 	Validate(cmd, 'GetKey', ['stepper_y', 'step_pulse_duration'], "0.000002")
 	Validate(cmd, 'GetKey', ['extruder', 'sensor_type'], "EPCOS 100K B57560G104F")
-	Validate(cmd, 'GetKey', ['homing_override', 'gcode'], lambda res : str(res).endswith("URVE/8XckU4UJClGFkcA"))	# spellchecker: disable-line
+	Validate(cmd, 'GetKey', ['homing_override', 'gcode'], lambda res : str(res).endswith("qif+LuSKcKEgfPVerg=="))	# spellchecker: disable-line
 	Validate(cmd, 'GetKey', ['gcode_macro G29', 'gcode'], lambda res : str(res).endswith("Q0dMBdyRThQkAw3lao"))		# spellchecker: disable-line
-	Validate(cmd, 'GetKey', ['gcode_macro M600', 'gcode'], lambda res : str(res).endswith("Kkqv/F3JFOFCQUtiz/QA=="))	# spellchecker: disable-line
+	Validate(cmd, 'GetKey', ['gcode_macro M600', 'gcode'], lambda res : str(res).endswith("lV/4u5IpwoSAzd/lIA"))	# spellchecker: disable-line
 
 	Test_Close_()
 
@@ -224,7 +219,7 @@ def Test_EditKey(cmd : Commands):
 	Validate(cmd, 'EditKey', ['stepper_x', 'full_steps_per_rotation', '201'], True)
 	Validate(cmd, 'GetKey', ['stepper_x', 'full_steps_per_rotation'], '201')
 
-	Validate(cmd, 'EditKey', ['gcode_macro M600', 'gcode', encoded_data.HOME_OVR_PRO], False)
+	Validate(cmd, 'EditKey', ['homing_override', 'gcode', encoded_data.HOME_OVR_PRO], False)
 
 	Validate(cmd, 'GetKey', ['stepper_z', 'new_key'], None)
 	Validate(cmd, 'EditKey', ['stepper_z', 'new_key', '999'], True)
@@ -245,7 +240,7 @@ def Test_EditKeyML(cmd : Commands):
 
 	Validate(cmd, 'ListKey', ['gcode_macro G29', 'new_key'], None)
 	Validate(cmd, 'EditKeyML', ['gcode_macro G29', 'new_key', encoded_data.G29_PRO], True)
-	Validate(cmd, 'ListKey', ['gcode_macro G29', 'new_key'], KeyInfo('gcode_macro G29', 'new_key', 301, True, False, '9DF557ED'))
+	Validate(cmd, 'ListKey', ['gcode_macro G29', 'new_key'], KeyInfo('gcode_macro G29', 'new_key', 301, True, False, CrcKey(0x9DF557ED)))
 
 	Test_Checkpoint(cmd, 2)
 	Test_Close_()
@@ -271,10 +266,10 @@ def Test_RenSec(cmd : Commands):
 	Validate(cmd, 'RenSec', ['no_no_no', 'abcdefg'], None)
 	Validate(cmd, 'RenSec', ['stepper_?', 'abcdefg'], None)
 
-	Validate(cmd, 'ListSection', ['controller_fan mainboard_fan'], SectionInfo('controller_fan mainboard_fan', 243, True, True, '0DABA107'))
+	Validate(cmd, 'ListSection', ['controller_fan mainboard_fan'], SectionInfo('controller_fan mainboard_fan', 243, True, True, CrcKey(0x0DABA107)))
 	Validate(cmd, 'RenSec', ['controller_fan mainboard_fan', 'controller_fan motherboard_fan'], True)
 	Validate(cmd, 'ListSection', ['controller_fan mainboard_fan'], None)
-	Validate(cmd, 'ListSection', ['controller_fan motherboard_fan'], SectionInfo('controller_fan motherboard_fan', 243, True, True, '4C733D2B'))
+	Validate(cmd, 'ListSection', ['controller_fan motherboard_fan'], SectionInfo('controller_fan motherboard_fan', 243, True, True, CrcKey(0x4C733D2B)))
 
 	Test_Checkpoint(cmd, 4)
 	Test_Close_()
@@ -285,11 +280,11 @@ def Test_DelSec(cmd : Commands):
 	Validate(cmd, 'DelSec', ['no_no_no'], None)
 	Validate(cmd, 'DelSec', ['stepper_?'], None)
 
-	Validate(cmd, 'ListSection', ['neopixel my_neopixel'], SectionInfo('neopixel my_neopixel', 676, True, True, '1804619F'))
+	Validate(cmd, 'ListSection', ['neopixel my_neopixel'], SectionInfo('neopixel my_neopixel', 676, True, True, CrcKey(0x1804619F)))
 	Validate(cmd, 'DelSec', ['neopixel my_neopixel'], 674)
 	Validate(cmd, 'ListSection', ['neopixel my_neopixel'], None)
 
-	Validate(cmd, 'ListSection', ['probe'], SectionInfo('probe', 167, True, True, '6C3A1993'))
+	Validate(cmd, 'ListSection', ['probe'], SectionInfo('probe', 167, True, True, CrcKey(0x6C3A1993)))
 	Validate(cmd, 'DelSec', ['probe'], 165)
 	Validate(cmd, 'ListSection', ['probe'], None)
 
@@ -299,60 +294,66 @@ def Test_DelSec(cmd : Commands):
 def Test_ReadSec(cmd : Commands):
 	Test_Begin_("ReadSec Test")
 
-	ValidateB64(cmd, 'ReadSec', ['no_no_no'], None)
+	Validate(cmd, 'ReadSec', ['no_no_no'], None)
 
-	ValidateB64(cmd, 'ReadSec', ['pause_resume'], lambda res : str(res).endswith("Jgq0EBHwu5IpwoSAecMju"))
-	ValidateB64(cmd, 'ReadSec', ['input_shaper'], lambda res : str(res).endswith("UjajsfxdyRThQkEpxYmUA="))
-	ValidateB64(cmd, 'ReadSec', ['extruder'], lambda res : str(res).endswith("TcnXHBKfYxf+LuSKcKEglExVSA"))
+	Validate(cmd, 'ReadSec', ['pause_resume'], lambda res : str(res).endswith("Jgq0EBHwu5IpwoSAecMju"))	# spellchecker: disable-line
+	Validate(cmd, 'ReadSec', ['input_shaper'], lambda res : str(res).endswith("UjajsfxdyRThQkEpxYmUA="))	# spellchecker: disable-line
+	Validate(cmd, 'ReadSec', ['extruder'], lambda res : str(res).endswith("TcnXHBKfYxf+LuSKcKEglExVSA"))
 
 	Test_Close_()
 
 def Test_AddSec(cmd : Commands):
-#	top_section = edit_cfg.EncodeMultiLine(['[top]\n', 'success:1\n', '\n'])
-#	bottom_section = edit_cfg.EncodeMultiLine(['[bottom]\n', 'success:1\n', '\n'])
-#	mid_section = edit_cfg.EncodeMultiLine(['[after gcode_macro move_to_point_3]\n', 'success:1\n', '\n'])
-#	Test_Begin_("AddSec Test")
-#	Run(['AddSec'], "!ARG")
-#	Run(['AddSec', 'abcdefg'], "!ARG")
-#	Run(['AddSec', 'abcdefg', 'bad-data'], "!ENC")
-#	Run(['AddSec', 'abcdefg', 'bad-data', 'extra-arg'], "!ARG+")
-#	Run(['AddSec', 'abcdefg', top_section], "!SEC")
-#
-#	Run(['AddSec', '@top', top_section], ".OK")
-#	Run(['AddSec', '@bottom', bottom_section], ".OK")
-#	Run(['AddSec', 'gcode_macro move_to_point_3', mid_section], ".OK")
+	top_section = LinesB64(Contents(['\n', '[top]\n', 'success:1\n']).sections[0].lines)
+	bottom_section = LinesB64(Contents(['\n', '[bottom]\n', 'success:1\n']).sections[0].lines)
+	mid_section = LinesB64(Contents(['\n', '[after homing_override]\n', 'success:1\n']).sections[0].lines)
+	split_section = LinesB64(Contents(['\n', '[extruder]\n', 'control :pid\n', 'pid_kp : 26.213\n', 'pid_ki : 1.304\n', 'pid_kd : 131.721\n', 'intruder : 1\n']).sections[0].lines)
 
+	Test_Begin_("AddSec Test")
+
+	Validate(cmd, 'ListSection', ['extruder'], SectionInfo('extruder', 56, True, True, CrcKey(0x12529D87)))
+
+	Validate(cmd, 'AddSec', [0, top_section], None)
+	Validate(cmd, 'AddSec', [-1, bottom_section], None)
+	Validate(cmd, 'AddSec', [100, mid_section], None)
+	Validate(cmd, 'AddSec', ['heater_bed', split_section], None)
+
+	Validate(cmd, 'ListSection', ['top'], SectionInfo('top', 6, True, True, CrcKey(0x96FBD474)))
+	Validate(cmd, 'ListSection', ['after homing_override'], SectionInfo('after homing_override', 164, True, True, CrcKey(0x488DF9FB)))
+	Validate(cmd, 'ListSection', ['bottom'], SectionInfo('bottom', 781, True, True, CrcKey(0x11427BAD)))
+	Validate(cmd, 'ListSection', ['extruder'], SectionInfo('extruder', 59, True, True, CrcKey(0xC48D84C3)))
+	Validate(cmd, 'GetKey', ['extruder', 'intruder'], "1")
+
+	Test_Checkpoint(cmd, 6)
 	Test_Close_()
 
 def Test_OvrSec(cmd : Commands):
-#	section1 = edit_cfg.EncodeMultiLine(['[new-top]\n', 'success:2\n', '\n'])
-#	section2 = edit_cfg.EncodeMultiLine(['[tmc2209 extruder2]\n', 'bye_bye:1\n', '\n'])
+	section1 = LinesB64(Contents(['\n', '[new-top]\n', 'success:2\n']).sections[0].lines)
+	section2 = LinesB64(Contents(['\n', '[extruder2]\n', 'bye_bye:1\n']).sections[0].lines)
 	Test_Begin_("OvrSec Test")
-#	Run(['OvrSec'], "!ARG")
-#	Run(['OvrSec', 'abcdefg'], "!ARG")
-#	Run(['OvrSec', 'abcdefg', 'bad-data'], "!ENC")
-#	Run(['OvrSec', 'abcdefg', 'bad-data', 'extra-arg'], "!ARG+")
-#	Run(['OvrSec', 'abcdefg', section1], "!SEC")
-#
-#	Run(['ListSec', 'gcode_arcs'], "=gcode_arcs @632 :7224E2B6")
-#	Run(['OvrSec', 'gcode_arcs', section1], ".OK")
-#	Run(['ListSec', 'gcode_arcs'], "!SEC")
-#	Run(['ListSec', 'new-top'], "=new-top @633 :41A7D47C")
-#
-#	Run(['ListSec', 'tmc2209 extruder'], "=tmc2209 extruder @368 :77B0CB90")
-#	Run(['OvrSec', 'tmc2209 extruder', section2], ".OK")
-#	Run(['ListSec', 'tmc2209 extruder'], "!SEC")
-#	Run(['ListSec', 'tmc2209 extruder2'], "=tmc2209 extruder2 @369 :A160D7EF")
 
+	Validate(cmd, 'OvrSec', ['no_no_no', section1], False)
+
+	Validate(cmd, 'OvrSec', ['top', section1], True)
+	Validate(cmd, 'ListSection', ['top'], None)
+	Validate(cmd, 'ListSection', ['new-top'], SectionInfo('new-top', 6, True, True, CrcKey(0x89002721)))
+	Validate(cmd, 'GetKey', ['new-top', 'success'], "2")
+
+	Validate(cmd, 'OvrSec', ['extruder', section2], True)
+	Validate(cmd, 'ListSection', ['extruder'], None)
+	Validate(cmd, 'ListSection', ['extruder2'], SectionInfo('extruder2', 59, True, True, CrcKey(0x36F82B6E)))
+	Validate(cmd, 'GetKey', ['extruder2', 'bye_bye'], "1")
+
+	Test_Checkpoint(cmd, 7)
 	Test_Close_()
 
 def Test_Persistence(cmd : Commands):
 	Test_Begin_("Persistence Test")
 
-#	Run(['cmd.GetPersistenceB64'], lambda res : str(res).endswith("POEsH+LuSKcKEh7KyHCgA=="))
-#	Run(['Save', encoded_data.RESET_CFG_PLUS], ".OK")
-#	Run(['cmd.GetPersistenceB64'], lambda res : str(res).endswith("Qk/+LuSKcKEhc2G8Eg="))
+	Validate(cmd, 'GetPersistenceB64', [], lambda res : str(res).endswith("CPAf8XckU4UJAuPxkB"))
+	Validate(cmd, 'SavePersistenceB64', [encoded_data.RESET_CFG_PLUS], None)
+	Validate(cmd, 'GetPersistenceB64', [], lambda res : str(res).endswith("Ng2osw1f2LuSKcKEgK1Qy8A="))
 
+	Test_Checkpoint(cmd, 8)
 	Test_Close_()
 
 
@@ -372,9 +373,9 @@ def main():
 	Test_RenSec(cmd)
 	Test_DelSec(cmd)
 	Test_ReadSec(cmd)
-	#Test_AddSec(cmd)
-	#Test_OvrSec(cmd)
-	#Test_Persistence(cmd)
+	Test_AddSec(cmd)
+	Test_OvrSec(cmd)
+	Test_Persistence(cmd)
 
 	print(f"TOTAL ERROR COUNT: {total_err_count}")
 
