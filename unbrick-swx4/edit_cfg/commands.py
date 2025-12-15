@@ -5,7 +5,7 @@
 
 from functools import total_ordering
 
-from .contents import AnyBuffer, Contents, SectionBuffer, IncludeBuffer
+from .contents import *
 from .line import *
 from .libtools import EncodeB64, DecodeB64, StringCRC, CrcKey
 
@@ -134,7 +134,7 @@ class MultiLineData(object):
 
 
 class Commands(object):
-	def __init__(self, fname) -> None:
+	def __init__(self, fname : str) -> None:
 		self.fname = fname
 		self.contents = Contents()
 		self.contents.Load(fname)

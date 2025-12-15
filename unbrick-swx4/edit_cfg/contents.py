@@ -3,12 +3,9 @@
 #
 # Spellchecker: words MULT klipper
 
-import os
-from abc import ABC, abstractmethod
 import fnmatch
 from typing import final
 
-from .loc import Loc
 from .line import Line, Lines, AnyBuffer, LineFactory, EmptyLine, IncludeLine, CommentLine, SectionLine, ValueLine, \
 	MultiLineStartLine, ContinuationEmptyLine, ContinuationLine, ContinuationCommentLine, PersistenceLine
 

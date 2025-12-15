@@ -19,11 +19,13 @@ if TYPE_CHECKING:
 	from .i18n import _
 	from .my_env import Info, Error, GetBackupFolder, YELLOW, NORMAL
 	from .my_shell import ArtillerySideWinder, DiskUsage
+	from .edit_cfg import Commands
 else:
 	from user_options import UserOptions
 	from i18n import _
 	from my_env import Info, Error, GetBackupFolder, YELLOW, NORMAL
 	from my_shell import ArtillerySideWinder, DiskUsage
+	from edit_cfg import Commands
 
 
 
@@ -115,8 +117,13 @@ class Workflow(ArtillerySideWinder):
 			self.dlg : tk.Misc
 		self.start_space = DiskUsage()
 		self.end_space = DiskUsage()
+		self.editor : Commands|None = None
 
 		self.tasks : list[Task] = []
+		# Variables used during Gcode edit
+		self.upgraded_cfg = False		# The cfg file has already upgraded Artillery gcode
+		self.modify_cfg = 0				# A counter having the number of edits on the configuration file
+		self.persistence_upd = False	# Indicates that persistence area has been updated
 
 		if (TEST_MODE is None):
 			if TYPE_CHECKING:
@@ -211,10 +218,6 @@ class Workflow(ArtillerySideWinder):
 
 	if (TEST_MODE is None) and not TYPE_CHECKING:
 		def _worker_thread(self):
-			if TYPE_CHECKING:
-				from .task_config import HasUpdatedPersistence
-			else:
-				from task_config import HasUpdatedPersistence
 			cnt = 0
 			for i, task in enumerate(self.tasks):
 				self._update_states()
@@ -240,7 +243,7 @@ class Workflow(ArtillerySideWinder):
 						Error(f'{error_message}\n')
 						self.UpdateUI(Message(MessageType.ERROR, _('ERROR!') + '\n\t' + _(error_message) + '\n'))
 			self.UpdateUI(100)
-			if HasUpdatedPersistence():
+			if persistence_upd:
 				msg = N_("Printer configuration has been reset, printer needs recalibration")
 				Warning(msg)
 				self.UpdateUI(Message(MessageType.BOLD, _(msg)))
@@ -256,10 +259,6 @@ class Workflow(ArtillerySideWinder):
 			self.thread.start()
 
 	def Test(self):
-		if TYPE_CHECKING:
-			from .task_config import HasUpdatedPersistence
-		else:
-			from task_config import HasUpdatedPersistence
 		for task in self.tasks:
 			self._update_states()
 			if task.CanRun():
@@ -275,6 +274,6 @@ class Workflow(ArtillerySideWinder):
 					self._set_task_state(task, TaskState.FAIL)
 					Error(f'{error_message}\n')
 					print('\033[31m' + f'\n\t{error_message}\n' + '\033[30m')
-		if HasUpdatedPersistence():
+		if self.persistence_upd:
 			Warning("Printer configuration has been reset, printer needs recalibration")
 			print(YELLOW + "Printer configuration has been reset, printer needs recalibration" + NORMAL)

@@ -13,28 +13,18 @@ from typing import TYPE_CHECKING, Callable, Any
 
 TEST_MODE = os.getenv("USWX4_TEST")
 
-STORE = {}
-def _get_var_(key : str):
-	if key not in STORE:
-		raise RuntimeError("variable not present")
-	return STORE[key]
-def _set_var_(key : str, value):
-	STORE[key] = value
-def _persistence_updated_():
-	STORE["PERSISTENCE"] = True
-
 if TYPE_CHECKING:
 	from .my_env import GetBackupFolder, GetAssetsFolder, Debug
 	from .i18n import _, N_
-	from .edit_cfg import EditConfig
 	from .encoded_data import *
 	from .my_workflow import Task, TaskState, Workflow # type: ignore
+	from .edit_cfg import *
 else:
 	from my_env import GetBackupFolder, GetAssetsFolder, Debug
 	from i18n import _, N_
-	from edit_cfg import EditConfig
 	from encoded_data import *
 	from my_workflow import Task, TaskState, Workflow # type: ignore
+	from edit_cfg import *
 
 
 class EditConfig_(Task):
@@ -46,29 +36,29 @@ class EditConfig_(Task):
 		super().Do()
 		if not os.path.isdir(self.work_folder):
 			os.makedirs(self.work_folder)
+		if self.workflow.editor is None:
+			self.workflow.editor = Commands(self.target)
 	def Validate(self):
 		# File that is edited is here
 		if not os.path.isfile(self.target):
 			raise Exception(_("Cannot find the copy of te configuration file!"))
-	def GetLine(self, cmd_line : list[str]) -> str:
-		cmd_line.append(self.target)
-		res = EditConfig(cmd_line)
-		if res.IsString() and isinstance(res.value, str):
-			return res.value
-		raise Exception(f"{res}")
 	def GetKey(self, section : str, key : str) -> str | None:
-		res = EditConfig(["GetKey", section, key, self.target])
-		if res.IsString() and isinstance(res.value, str):
-			return res.value
-		return None
-	def EditKey(self, section : str, key : str, value : str) -> None:
-		EditConfig(["EditKey", section, key, value, self.target])
-	def EditKeyML(self, section : str, key : str, value : str) -> None:
-		EditConfig(["EditKeyML", section, key, value, self.target])
-	def GetCRC(self, section : str, key : str) -> str | None:
-		res = EditConfig(["ListKey", section, key, self.target])
-		if res.IsString():
-			return res.GetSingleKeyList().crc
+		assert self.workflow.editor is not None, "Invalid object state"
+		res = self.workflow.editor.GetKey(section, key)
+		if res is not None:
+			assert isinstance(res, str), "Multiline keys not expected in this method"
+			return res
+	def EditKey(self, section : str, key : str, value : str) -> bool | None:
+		assert self.workflow.editor is not None, "Invalid object state"
+		return self.workflow.editor.EditKey(section, key, value)
+	def EditKeyML(self, section : str, key : str, value : LinesB64) -> bool | None:
+		assert self.workflow.editor is not None, "Invalid object state"
+		return self.workflow.editor.EditKeyML(section, key, value)
+	def GetCRC(self, section : str, key : str) -> CrcKey | None:
+		assert self.workflow.editor is not None, "Invalid object state"
+		res = self.workflow.editor.ListKey(section, key)
+		if isinstance(res, KeyInfo):
+			return res.crc
 		return None
 
 class BackupConfig(EditConfig_):
@@ -127,6 +117,7 @@ class ConfigReset(EditConfig_):
 			raise Exception("This item is disabled, why got called?")
 		super().Do()
 		super().Validate()
+		assert workflow.editor is not None, "Invalid object state"
 		# Calibration
 		cal = None
 		# Reset calibration only
@@ -137,12 +128,7 @@ class ConfigReset(EditConfig_):
 				cal = RESET_CFG_PLUS
 		# Reset settings, but preserve calibration
 		if workflow.opts.reset == 2:
-			res = EditConfig(["cmd.GetPersistenceB64", self.target])
-			if res.code != '*':
-				raise Exception(f"{res}")
-			if not isinstance(res.value, str):
-				raise ValueError("Data type value is unexpected")
-			cal = res.value
+			cal = workflow.editor.GetPersistenceB64()
 		# Reset settings to factory default
 		if workflow.opts.reset in (2, 3):
 			# Use the latest Artillery upgrade file, according to printer model
@@ -155,7 +141,7 @@ class ConfigReset(EditConfig_):
 			shutil.copyfile(source, self.target)
 		# Apply calibration
 		if cal is not None:
-			res = EditConfig(["Save", cal, self.target])
+			workflow.editor.SavePersistenceB64(cal)
 
 
 class K(object):
@@ -200,157 +186,6 @@ _probe_tolerance_ = K("probe", "samples_tolerance")
 _probe_retries_ = K("probe", "samples_tolerance_retries")
 _tilt_adjust_ = K("screws_tilt_adjust", "")
 
-def _always_():
-	return True
-def _is_upg_():
-	return _get_var_("UPG") != False
-def _is_def_():
-	return _get_var_("UPG") == False
-def _modified_inc_():
-	if "MODIFIED" not in STORE:
-		STORE["MODIFIED"] = 1
-	else:
-		STORE["MODIFIED"] += 1
-def _get_modified_():
-	if "MODIFIED" not in STORE:
-		STORE["MODIFIED"] = 0
-	return STORE["MODIFIED"]
-def _is_modified_():
-	return ("MODIFIED" not in STORE) or (STORE["MODIFIED"] != 0)
-
-def _set_combobox_opt_(value : int) -> None:
-	STORE["COMBOBOX"] = value
-def _is_combo_0_() -> bool:
-	return STORE["COMBOBOX"] == 0
-def _is_combo_1_() -> bool:
-	return STORE["COMBOBOX"] == 1
-def _is_combo_2_() -> bool:
-	return STORE["COMBOBOX"] == 2
-def _is_combo_3_() -> bool:
-	return STORE["COMBOBOX"] == 3
-
-def _has_sec_(location : K|str, fname : str) -> bool:
-	if isinstance(location, K):
-		location = location.section
-	cmd_line = ["ListSec", location, fname]
-	Debug(" ".join([shlex.quote(t) for t in cmd_line]))
-	res = EditConfig(cmd_line)
-	return not res.IsError()
-
-def _no_sec_(location : K|str, fname : str) -> bool:
-	if isinstance(location, K):
-		location = location.section
-	cmd_line = ["ListSec", location, fname]
-	Debug(" ".join([shlex.quote(t) for t in cmd_line]))
-	res = EditConfig(cmd_line)
-	return res.IsError()
-
-def _has_sec_crc_ne_(location : K|str, crc : str, fname : str) -> bool:
-	if isinstance(location, K):
-		location = location.section
-	cmd_line = ["ListSec", location, fname]
-	Debug(" ".join([shlex.quote(t) for t in cmd_line]))
-	res = EditConfig(cmd_line)
-	if not res.IsError():
-		kl = res.GetKeyList()
-		if len(kl) != 1:
-			raise RuntimeError("More than one section was found")
-		return kl[0].crc != crc
-	return False
-
-def _set_key_(location : K, value : str, fname : str) -> None:
-	cmd_line = ["EditKey", location.section, location.key, value, fname]
-	Debug(" ".join([shlex.quote(t) for t in cmd_line]))
-	res = EditConfig(cmd_line)
-	Debug('  ' + str(res))
-	if not res.IsError():
-		_modified_inc_()
-
-def _set_key_ml_(location : K, value : str, fname : str) -> None:
-	cmd_line = ["EditKeyML", location.section, location.key, value, fname]
-	Debug(" ".join([shlex.quote(t) for t in cmd_line]))
-	res = EditConfig(cmd_line)
-	Debug('  ' + str(res))
-	if not res.IsError():
-		_modified_inc_()
-
-def _set_sec_ml_(after : K|str, value : str, fname : str) -> None:
-	if isinstance(after, K):
-		after = after.section
-	cmd_line = ["AddSec", after, value, fname]
-	Debug(" ".join([shlex.quote(t) for t in cmd_line]))
-	res = EditConfig(cmd_line)
-	Debug('  ' + str(res))
-	if not res.IsError():
-		_modified_inc_()
-
-def _ovr_sec_ml_(section : K|str, value : str, fname : str) -> None:
-	if isinstance(section, K):
-		section = section.section
-	cmd_line = ["OvrSec", section, value, fname]
-	Debug(" ".join([shlex.quote(t) for t in cmd_line]))
-	res = EditConfig(cmd_line)
-	Debug('  ' + str(res))
-	if not res.IsError():
-		_modified_inc_()
-
-def _has_key_(location : K, fname : str) -> bool:
-	cmd_line = ["GetKey", location.section, location.key, fname]
-	Debug(" ".join([shlex.quote(t) for t in cmd_line]))
-	res = EditConfig(cmd_line)
-	Debug('  ' + str(res))
-	return res.IsError()
-
-def _get_key_ne_(location : K, value : str, fname : str) -> bool:
-	cmd_line = ["GetKey", location.section, location.key, fname]
-	Debug(" ".join([shlex.quote(t) for t in cmd_line]))
-	res = EditConfig(cmd_line)
-	Debug('  ' + str(res))
-	if res.IsString() and isinstance(res.value, str):
-		return res.value != value
-	return True
-
-def _get_crc_ne_(location : K, value : str, fname : str) -> bool:
-	cmd_line = ["ListKey", location.section, location.key, fname]
-	res = EditConfig(cmd_line)
-	Debug('  ' + str(res))
-	if res.IsString():
-		return res.GetSingleKeyList().crc != value
-	return True
-
-def _get_crc_eq_(location : K, value : str, fname : str) -> bool:
-	cmd_line = ["ListKey", location.section, location.key, fname]
-	res = EditConfig(cmd_line)
-	Debug('  ' + str(res))
-	if res.IsString():
-		return res.GetSingleKeyList().crc == value
-	return False
-
-def _del_sec_(location : K|str, fname : str) -> None:
-	if isinstance(location, K):
-		location = location.section
-	cmd_line = ["DelSec", location, fname]
-	Debug(" ".join([shlex.quote(t) for t in cmd_line]))
-	res = EditConfig(cmd_line)
-	if not res.IsError():
-		_modified_inc_()
-
-def _del_key_(location : K, fname : str) -> None:
-	cmd_line = ["DelKey", location.section, location.key, fname]
-	Debug(" ".join([shlex.quote(t) for t in cmd_line]))
-	res = EditConfig(cmd_line)
-	Debug('  ' + str(res))
-	if not res.IsError():
-		_modified_inc_()
-
-def _save_persistence(data: str, fname : str) -> None:
-	cmd_line = ["Save", data, fname]
-	Debug(" ".join([shlex.quote(t) for t in cmd_line]))
-	res = EditConfig(cmd_line)
-	if not res.IsError():
-		_modified_inc_()
-		_persistence_updated_()
-
 
 class StmtList_(EditConfig_):
 	"""
@@ -367,7 +202,6 @@ class StmtList_(EditConfig_):
 				<else-1>
 	Info about <var-array>:
 		Give a list with constants that will be used in that statement. The command lines can be build using shortcuts like:
-			- '@0#' system provided option containing the path to the target script
 			- '@1#' Your first variable (optional)
 			- '@2#' Your second variable (optional)
 			- ...
@@ -381,18 +215,18 @@ class StmtList_(EditConfig_):
 	def __init__(self, workflow: Workflow, label: str, state: TaskState) -> None:
 		super().__init__(workflow, label, state)
 		# Modified flag
-		self.modified_cnt = _get_modified_()
+		self.modified_cnt = self.workflow.modify_cfg
+		self.combo_val = 0
 	def HasStepModified(self):
-		return self.modified_cnt != _get_modified_()
-	@staticmethod
-	def _decode_call(op : list[Any], vars : list[Any]):
+		return self.modified_cnt != self.workflow.modify_cfg
+	def _decode_call(self, op : list[Any], vars : list[Any]):
 		if len(op) == 0:
 			raise RuntimeError("Function call need at least a function value")
-		call : Callable = op[0]	# type:ignore
+		call : Callable = getattr(self, op[0])
 		del op[0]
 		args : list[Any] = []
 		for p in op:
-			if isinstance(p, str):
+			if type(p) is str:
 				m = FixModelSettings.IDX_ARG_PAT.match(p)
 				if m:
 					v = vars[int(m[1])]
@@ -408,13 +242,13 @@ class StmtList_(EditConfig_):
 	def Do(self):
 		super().Do()
 		super().Validate()
-		self.modified_cnt = _get_modified_()
+		self.modified_cnt = self.workflow.modify_cfg
 	def RunPlan(self, plan):
 		# Run the correction plan
 		for op in plan:
 			if isinstance(op[0], tuple):
 				# Build variable list <var-array>
-				vars : list[Any] = [self.target]
+				vars : list[Any] = [None]
 				vars += list(op[0])
 				# Validate <filter-1>
 				if not isinstance(op[1], tuple):
@@ -445,64 +279,196 @@ class StmtList_(EditConfig_):
 						raise RuntimeError("The `else` clause has an unexpected data-type")
 			else:
 				raise ValueError("Invalid `var-array` element")
+	def _set_upgraded_cfg_(self, status : bool) -> None:
+		self.workflow.upgraded_cfg = status
+	def _modified_inc_(self) -> None:
+		self.workflow.modify_cfg += 1
+	def _always_(self) -> bool:
+		return True
+	def _is_def_(self) -> bool:
+		" Is default factory config? (not an upgraded version) "
+		return self.workflow.upgraded_cfg == False
+	def _is_upg_(self) -> bool:
+		" Is upgraded config? (not a default version) "
+		return self.workflow.upgraded_cfg != False
+	def _is_modified_(self) -> bool:
+		return self.workflow.modify_cfg != 0
+	def _set_combobox_opt_(self, v : int) -> None:
+		self.combo_val = v
+	def _is_combo_0_(self) -> bool:
+		return self.combo_val == 0
+	def _is_combo_1_(self) -> bool:
+		return self.combo_val == 1
+	def _is_combo_2_(self) -> bool:
+		return self.combo_val == 2
+	def _is_combo_3_(self) -> bool:
+		return self.combo_val == 3
+	def _has_key_(self, k : K, value : CrcKey) -> bool:
+		assert self.workflow.editor is not None, "Invalid object state"
+		return self.workflow.editor.GetKey(k.section, k.key) is not None
+	def _get_crc_eq_(self, k : K, value : CrcKey) -> bool:
+		assert self.workflow.editor is not None, "Invalid object state"
+		res = self.workflow.editor.ListKey(k.section, k.key)
+		if isinstance(res, KeyInfo):
+			return res.crc == value
+		return False
+	def _get_crc_ne_(self, k : K, value : CrcKey) -> bool:
+		assert self.workflow.editor is not None, "Invalid object state"
+		res = self.workflow.editor.ListKey(k.section, k.key)
+		if isinstance(res, KeyInfo):
+			return res.crc != value
+		return True
+	def _get_key_ne_(self, k : K, value : str) -> bool:
+		assert self.workflow.editor is not None, "Invalid object state"
+		res = self.workflow.editor.GetKey(k.section, k.key)
+		if isinstance(res, str):
+			return str != value
+		return True
+	def _set_key_(self, k : K, value : str) -> bool:
+		assert self.workflow.editor is not None, "Invalid object state"
+		if self.workflow.editor.EditKey(k.section, k.key, value):
+			self._modified_inc_()
+			return True
+		return False
+	def _set_key_ml_(self, k : K, value : LinesB64) -> bool:
+		assert self.workflow.editor is not None, "Invalid object state"
+		if self.workflow.editor.EditKeyML(k.section, k.key, value):
+			self._modified_inc_()
+			return True
+		return False
+	def _del_key_(self, k : K, value : LinesB64) -> bool:
+		assert self.workflow.editor is not None, "Invalid object state"
+		return self.workflow.editor.DelKey(k.section, k.key) == True
+	def _has_sec_(self, k : K|str) -> bool:
+		assert self.workflow.editor is not None, "Invalid object state"
+		if isinstance(k, K):
+			k = k.section
+		return self.workflow.editor.ListSection(k) is not None
+	def _no_sec_(self, k : K|str) -> bool:
+		assert self.workflow.editor is not None, "Invalid object state"
+		if isinstance(k, K):
+			k = k.section
+		return self.workflow.editor.ListSection(k) is None
+	def _has_sec_crc_ne_(self, k : K|str, value : CrcKey) -> bool:
+		assert self.workflow.editor is not None, "Invalid object state"
+		if isinstance(k, K):
+			k = k.section
+		res = self.workflow.editor.ListSection(k)
+		if isinstance(res, SectionInfo):
+			return res.crc != value
+		return False
+	def _del_sec_(self, k : K|str) -> bool:
+		assert self.workflow.editor is not None, "Invalid object state"
+		if isinstance(k, K):
+			k = k.section
+		res = self.workflow.editor.DelSec(k)
+		if res:
+			self._modified_inc_()
+			return True
+		return False
+	def _set_sec_ml_(self, k : K|str, b64 : LinesB64) -> None:
+		assert self.workflow.editor is not None, "Invalid object state"
+		if isinstance(k, K):
+			k = k.section
+		self.workflow.editor.AddSec(k, b64)
+		self._modified_inc_()
+	def _ovr_sec_ml_(self, k : K|str, b64 : LinesB64) -> None:
+		assert self.workflow.editor is not None, "Invalid object state"
+		if isinstance(k, K):
+			k = k.section
+		self.workflow.editor.OvrSec(k, b64)
+		self._modified_inc_()
+	def _save_persistence_(self, data : LinesB64) -> None:
+		assert self.workflow.editor is not None, "Invalid object state"
+		self.workflow.editor.SavePersistenceB64(data)
+		self._modified_inc_()
+		self.workflow.persistence_upd = True
+
+
+_always_ = "_always_"					# Always true
+_is_def_ = "_is_def_"					# Is default factory config?
+_is_upg_ = "_is_upg_"					# Is upgraded config?
+_set_upgraded_cfg_ = "_set_upgraded_cfg_"
+_is_modified_ = "_is_modified_"			# Config file was changed?
+_is_combo_0_ = "_is_combo_0_"			# Item 0 of associated combobox is selected
+_is_combo_1_ = "_is_combo_1_"			# Item 1 of associated combobox is selected
+_is_combo_2_ = "_is_combo_2_"			# Item 2 of associated combobox is selected
+_is_combo_3_ = "_is_combo_3_"			# Item 2 of associated combobox is selected
+_has_sec_ = "_has_sec_"					# Has Section?
+_has_sec_crc_ne_ = "_has_sec_crc_ne_"	# Section exists but differs CRC
+_no_sec_ = "_no_sec_"					# Does not have section?
+_del_sec_ = "_del_sec_"					# Delete a section
+_set_sec_ml_ = "_set_sec_ml_"			# Adds entire section contents after a section
+_ovr_sec_ml_ = "_ovr_sec_ml_"			# Overwrite entire section contents
+_has_key_ = "_has_key_"					# Does the section has the specified key?
+_get_crc_eq_ = "_get_crc_eq_"			# Exists and is CRC equal?
+_get_crc_ne_ = "_get_crc_ne_"			# Does not exists or CRC is not equal?
+_get_key_ne_ = "_get_key_ne_"			# Does not exists or key value differs?
+_set_key_ = "_set_key_"					# Sets simple key value
+_set_key_ml_ = "_set_key_ml_"			# Sets MultiLine key
+_del_key_ = "_del_key_"					# Delete a key
+_save_persistence_ = "_save_persistence_"
+_1_ = '@1#'
+_2_ = '@2#'
+_3_ = '@3#'
 
 
 class FixModelSettings(StmtList_):
 	X4_PRO = (
-		# <var-array>								<filter-1>					<then-1: filter-2> 						<then-2> / <else-2> / <else-1>
-		((_gcode_line_, LINE_PRO_CRC_UPG),			(_always_, ),				(_get_crc_eq_, '@1#', '@2#', '@0#'), 	(_set_var_, "UPG", True),
-				 																										(_set_var_, "UPG", False)),
-		((_stepper_x_max, X_MAX_PRO),				(_always_, ),				(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		((_stepper_y_dir, Y_DIR_PRO),				(_always_, ),				(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		((_stepper_y_min, Y_MIN_PRO),				(_always_, ),				(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		((_stepper_y_stop, Y_STOP_PRO),				(_always_, ),				(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		((_stepper_y_max, Y_MAX_PRO),				(_always_, ),				(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		((_stepper_z_max, Z_MAX_PRO),				(_always_, ),				(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		((_gcode_homing_, HOME_OVR_PRO_CRC),		(_always_, ),				(_get_crc_ne_, '@1#', '@2#', '@0#'),	(_set_key_ml_, "@1#", HOME_OVR_PRO, '@0#')),
-		((_bed_mesh_max_, MESH_MAX_PRO),			(_always_, ),				(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		((_gcode_G29_, G29_PRO_CRC),				(_always_, ),				(_get_crc_ne_, '@1#', '@2#', '@0#'),	(_set_key_ml_, "@1#", G29_PRO, '@0#')),
-		((_gcode_wipe, WIPE_PLUS_CRC_DEF),			(_is_def_, ),				(_get_crc_eq_, '@1#', '@2#', '@0#'),	(_set_key_ml_, "@1#", WIPE_PRO_DEF, '@0#')),
-		((_gcode_wipe, WIPE_PLUS_CRC_UPG),			(_is_upg_, ),				(_get_crc_eq_, '@1#', '@2#', '@0#'),	(_set_key_ml_, "@1#", WIPE_PRO_UPG, '@0#')),
-		((_gcode_line_only, LINE_ONLY_PLUS_CRC),	(_is_upg_, ),				(_get_crc_eq_, '@1#', '@2#', '@0#'),	(_set_key_ml_, "@1#", LINE_ONLY_PRO, '@0#')),
-		((_gcode_point_0_, POINT0_PRO_CRC),			(_always_, ),				(_get_crc_ne_, '@1#', '@2#', '@0#'),	(_set_key_ml_, "@1#", POINT0_PRO, '@0#')),
-		((_gcode_point_1_, POINT1_PRO_CRC),			(_always_, ),				(_get_crc_ne_, '@1#', '@2#', '@0#'),	(_set_key_ml_, "@1#", POINT1_PRO, '@0#')),
-		((_gcode_point_2_, POINT2_PRO_CRC),			(_always_, ),				(_get_crc_ne_, '@1#', '@2#', '@0#'),	(_set_key_ml_, "@1#", POINT2_PRO, '@0#')),
-		((_gcode_point_3_, POINT3_PRO_CRC),			(_always_, ),				(_get_crc_ne_, '@1#', '@2#', '@0#'),	(_set_key_ml_, "@1#", POINT3_PRO, '@0#')),
-		((_gcode_point_4_, ),						(_always_, ),				(_has_sec_, '@1#', '@0#'),				(_del_sec_, "@1#", '@0#')),
-		((_gcode_point_5_, ),						(_always_, ),				(_has_sec_, '@1#', '@0#'),				(_del_sec_, "@1#", '@0#')),
-		((_gcode_point_6_, ),						(_always_, ),				(_has_sec_, '@1#', '@0#'),				(_del_sec_, "@1#", '@0#')),
-		((RESET_CFG_PRO, ),							(_always_, ),				(_is_modified_, ),						(_save_persistence, "@1#", '@0#')),
+		# <var-array>								<filter-1>			<then-1: filter-2> 			<then-2> / <else-2> / <else-1>
+		((_gcode_line_, LINE_PRO_CRC_UPG),			(_always_, ),		(_get_crc_eq_, _1_, _2_), 	(_set_upgraded_cfg_, True),
+				 																						(_set_upgraded_cfg_, False)),
+		((_stepper_x_max, X_MAX_PRO),				(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		((_stepper_y_dir, Y_DIR_PRO),				(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		((_stepper_y_min, Y_MIN_PRO),				(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		((_stepper_y_stop, Y_STOP_PRO),				(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		((_stepper_y_max, Y_MAX_PRO),				(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		((_stepper_z_max, Z_MAX_PRO),				(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		((_gcode_homing_, HOME_OVR_PRO_CRC),		(_always_, ),		(_get_crc_ne_, _1_, _2_),	(_set_key_ml_, _1_, HOME_OVR_PRO)),
+		((_bed_mesh_max_, MESH_MAX_PRO),			(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		((_gcode_G29_, G29_PRO_CRC),				(_always_, ),		(_get_crc_ne_, _1_, _2_),	(_set_key_ml_, _1_, G29_PRO)),
+		((_gcode_wipe, WIPE_PLUS_CRC_DEF),			(_is_def_, ),		(_get_crc_eq_, _1_, _2_),	(_set_key_ml_, _1_, WIPE_PRO_DEF)),
+		((_gcode_wipe, WIPE_PLUS_CRC_UPG),			(_is_upg_, ),		(_get_crc_eq_, _1_, _2_),	(_set_key_ml_, _1_, WIPE_PRO_UPG)),
+		((_gcode_line_only, LINE_ONLY_PLUS_CRC),	(_is_upg_, ),		(_get_crc_eq_, _1_, _2_),	(_set_key_ml_, _1_, LINE_ONLY_PRO)),
+		((_gcode_point_0_, POINT0_PRO_CRC),			(_always_, ),		(_get_crc_ne_, _1_, _2_),	(_set_key_ml_, _1_, POINT0_PRO)),
+		((_gcode_point_1_, POINT1_PRO_CRC),			(_always_, ),		(_get_crc_ne_, _1_, _2_),	(_set_key_ml_, _1_, POINT1_PRO)),
+		((_gcode_point_2_, POINT2_PRO_CRC),			(_always_, ),		(_get_crc_ne_, _1_, _2_),	(_set_key_ml_, _1_, POINT2_PRO)),
+		((_gcode_point_3_, POINT3_PRO_CRC),			(_always_, ),		(_get_crc_ne_, _1_, _2_),	(_set_key_ml_, _1_, POINT3_PRO)),
+		((_gcode_point_4_, ),						(_always_, ),		(_has_sec_, _1_),			(_del_sec_, _1_)),
+		((_gcode_point_5_, ),						(_always_, ),		(_has_sec_, _1_),			(_del_sec_, _1_)),
+		((_gcode_point_6_, ),						(_always_, ),		(_has_sec_, _1_),			(_del_sec_, _1_)),
+		((RESET_CFG_PRO, ),							(_always_, ),		(_is_modified_, ),			(_save_persistence_, _1_)),
 	)
 	X4_PLUS = (
-		# <var-array>								<filter-1>					<filter-2> 								<then-2> / <else-2> / <else-1>
-		((_gcode_line_, LINE_PLUS_CRC_UPG),			(_always_, ), 				(_get_crc_eq_, '@1#', '@2#', '@0#'), 	(_set_var_, "UPG", True),
-   																								 						(_set_var_, "UPG", False)),
-		((_stepper_x_max, X_MAX_PLUS),				(_always_, ),				(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		((_stepper_y_dir, Y_DIR_PLUS),				(_always_, ),				(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		((_stepper_y_min, Y_MIN_PLUS),				(_always_, ),				(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		((_stepper_y_stop, Y_STOP_PLUS),			(_always_, ),				(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		((_stepper_y_max, Y_MAX_PLUS),				(_always_, ),				(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		((_stepper_z_max, Z_MAX_PLUS),				(_always_, ),				(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		((_gcode_homing_, HOME_OVR_PLUS_CRC),		(_always_, ),				(_get_crc_ne_, '@1#', '@2#', '@0#'),	(_set_key_ml_, "@1#", HOME_OVR_PLUS, '@0#')),
-		((_bed_mesh_max_, MESH_MAX_PLUS),			(_always_, ),				(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		((_gcode_G29_, G29_PLUS_CRC),				(_always_, ),				(_get_crc_ne_, '@1#', '@2#', '@0#'),	(_set_key_ml_, "@1#", G29_PLUS, '@0#')),
-		((_gcode_wipe, WIPE_PRO_CRC_DEF),			(_is_def_, ),				(_get_crc_eq_, '@1#', '@2#', '@0#'),	(_set_key_ml_, "@1#", WIPE_PLUS_DEF, '@0#')),
-		((_gcode_wipe, WIPE_PRO_CRC_UPG),			(_is_upg_, ),				(_get_crc_eq_, '@1#', '@2#', '@0#'),	(_set_key_ml_, "@1#", WIPE_PLUS_UPG, '@0#')),
-		((_gcode_line_only, LINE_ONLY_PRO_CRC),		(_is_upg_, ),				(_get_crc_eq_, '@1#', '@2#', '@0#'),	(_set_key_ml_, "@1#", LINE_ONLY_PLUS, '@0#')),
-		((_gcode_point_0_, POINT0_PLUS_CRC),		(_always_, ),				(_get_crc_ne_, '@1#', '@2#', '@0#'),	(_set_key_ml_, "@1#", POINT0_PLUS, '@0#')),
-		((_gcode_point_1_, POINT1_PLUS_CRC),		(_always_, ),				(_get_crc_ne_, '@1#', '@2#', '@0#'),	(_set_key_ml_, "@1#", POINT1_PLUS, '@0#')),
-		((_gcode_point_2_, POINT2_PLUS_CRC),		(_always_, ),				(_get_crc_ne_, '@1#', '@2#', '@0#'),	(_set_key_ml_, "@1#", POINT2_PLUS, '@0#')),
-		((_gcode_point_3_, POINT3_PLUS_CRC),		(_always_, ),				(_get_crc_ne_, '@1#', '@2#', '@0#'),	(_set_key_ml_, "@1#", POINT3_PLUS, '@0#')),
-		((_gcode_point_4_, POINT4_PLUS_CRC),		(_has_sec_, '@1#', '@0#'),	(_get_crc_eq_, '@1#', '@2#', '@0#'),	None,
-   																														(_set_key_ml_, "@1#", POINT4_PLUS, '@0#'),
-																														(_set_sec_ml_, _gcode_point_3_, POINT4_SEC_PLUS, '@0#')),
-		((_gcode_point_5_, POINT5_PLUS_CRC),		(_has_sec_, '@1#', '@0#'),	(_get_crc_eq_, '@1#', '@2#', '@0#'),	None,
-   																														(_set_key_ml_, "@1#", POINT5_PLUS, '@0#'),
-																														(_set_sec_ml_, _gcode_point_4_, POINT5_SEC_PLUS, '@0#')),
-		((_gcode_point_6_, POINT6_PLUS_CRC),		(_has_sec_, '@1#', '@0#'),	(_get_crc_eq_, '@1#', '@2#', '@0#'),	None,
-   																														(_set_key_ml_, "@1#", POINT6_PLUS, '@0#'),
-																														(_set_sec_ml_, _gcode_point_5_, POINT6_SEC_PLUS, '@0#')),
-		((RESET_CFG_PLUS, ),						(_always_, ),				(_is_modified_, ),						(_save_persistence, "@1#", '@0#')),
+		# <var-array>								<filter-1>			<filter-2> 					<then-2> / <else-2> / <else-1>
+		((_gcode_line_, LINE_PLUS_CRC_UPG),			(_always_, ), 		(_get_crc_eq_, _1_, _2_), 	(_set_upgraded_cfg_, True),
+   																						 				(_set_upgraded_cfg_, False)),
+		((_stepper_x_max, X_MAX_PLUS),				(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		((_stepper_y_dir, Y_DIR_PLUS),				(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		((_stepper_y_min, Y_MIN_PLUS),				(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		((_stepper_y_stop, Y_STOP_PLUS),			(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		((_stepper_y_max, Y_MAX_PLUS),				(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		((_stepper_z_max, Z_MAX_PLUS),				(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		((_gcode_homing_, HOME_OVR_PLUS_CRC),		(_always_, ),		(_get_crc_ne_, _1_, _2_),	(_set_key_ml_, _1_, HOME_OVR_PLUS)),
+		((_bed_mesh_max_, MESH_MAX_PLUS),			(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		((_gcode_G29_, G29_PLUS_CRC),				(_always_, ),		(_get_crc_ne_, _1_, _2_),	(_set_key_ml_, _1_, G29_PLUS)),
+		((_gcode_wipe, WIPE_PRO_CRC_DEF),			(_is_def_, ),		(_get_crc_eq_, _1_, _2_),	(_set_key_ml_, _1_, WIPE_PLUS_DEF)),
+		((_gcode_wipe, WIPE_PRO_CRC_UPG),			(_is_upg_, ),		(_get_crc_eq_, _1_, _2_),	(_set_key_ml_, _1_, WIPE_PLUS_UPG)),
+		((_gcode_line_only, LINE_ONLY_PRO_CRC),		(_is_upg_, ),		(_get_crc_eq_, _1_, _2_),	(_set_key_ml_, _1_, LINE_ONLY_PLUS)),
+		((_gcode_point_0_, POINT0_PLUS_CRC),		(_always_, ),		(_get_crc_ne_, _1_, _2_),	(_set_key_ml_, _1_, POINT0_PLUS)),
+		((_gcode_point_1_, POINT1_PLUS_CRC),		(_always_, ),		(_get_crc_ne_, _1_, _2_),	(_set_key_ml_, _1_, POINT1_PLUS)),
+		((_gcode_point_2_, POINT2_PLUS_CRC),		(_always_, ),		(_get_crc_ne_, _1_, _2_),	(_set_key_ml_, _1_, POINT2_PLUS)),
+		((_gcode_point_3_, POINT3_PLUS_CRC),		(_always_, ),		(_get_crc_ne_, _1_, _2_),	(_set_key_ml_, _1_, POINT3_PLUS)),
+		((_gcode_point_4_, POINT4_PLUS_CRC),		(_has_sec_, _1_),	(_get_crc_eq_, _1_, _2_),	None,
+   																										(_set_key_ml_, _1_, POINT4_PLUS),
+																											(_set_sec_ml_, _gcode_point_3_, POINT4_SEC_PLUS)),
+		((_gcode_point_5_, POINT5_PLUS_CRC),		(_has_sec_, _1_),	(_get_crc_eq_, _1_, _2_),	None,
+   																										(_set_key_ml_, _1_, POINT5_PLUS),
+																											(_set_sec_ml_, _gcode_point_4_, POINT5_SEC_PLUS)),
+		((_gcode_point_6_, POINT6_PLUS_CRC),		(_has_sec_, _1_),	(_get_crc_eq_, _1_, _2_),	None,
+   																										(_set_key_ml_, _1_, POINT6_PLUS),
+																											(_set_sec_ml_, _gcode_point_5_, POINT6_SEC_PLUS)),
+		((RESET_CFG_PLUS, ),						(_always_, ),		(_is_modified_, ),			(_save_persistence_, _1_)),
 	)
 
 	def __init__(self, workflow: Workflow) -> None:
@@ -525,9 +491,9 @@ class FixModelSettings(StmtList_):
 
 class StepperZCurrent(StmtList_):
 	PLAN =(
-		# <var-array>									<filter-1>			<then-1: filter-2> 						<then-2> / <else-2> / <else-1>
-		((_hold_current_z_, HOLD_CURRENT_Z_LOW),		(_is_combo_1_, ),	(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		((_hold_current_z_, HOLD_CURRENT_Z_HI),			(_is_combo_2_, ),	(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
+		# <var-array>									<filter-1>			<then-1: filter-2> 			<then-2> / <else-2> / <else-1>
+		((_hold_current_z_, HOLD_CURRENT_Z_LOW),		(_is_combo_1_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		((_hold_current_z_, HOLD_CURRENT_Z_HI),			(_is_combo_2_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
 	)
 
 	def __init__(self, workflow: Workflow) -> None:
@@ -536,16 +502,16 @@ class StepperZCurrent(StmtList_):
 		workflow = self.workflow
 		# Validate state
 		super().Do()
-		_set_combobox_opt_(workflow.opts.stepper_z_current)
+		self._set_combobox_opt_(workflow.opts.stepper_z_current)
 		self.RunPlan(self.PLAN)
 
 
 class ExtruderAccel(StmtList_):
 	PLAN =(
-		# <var-array>									<filter-1>			<then-1: filter-2> 						<then-2> / <else-2> / <else-1>
-		((_extruder_accel_, EXTRUDER_ACCEL_LOW),		(_is_combo_1_, ),	(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		((_extruder_accel_, EXTRUDER_ACCEL_MID),		(_is_combo_2_, ),	(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		((_extruder_accel_, EXTRUDER_ACCEL_HI),			(_is_combo_3_, ),	(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
+		# <var-array>									<filter-1>			<then-1: filter-2> 			<then-2> / <else-2> / <else-1>
+		((_extruder_accel_, EXTRUDER_ACCEL_LOW),		(_is_combo_1_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		((_extruder_accel_, EXTRUDER_ACCEL_MID),		(_is_combo_2_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		((_extruder_accel_, EXTRUDER_ACCEL_HI),			(_is_combo_3_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
 	)
 
 	def __init__(self, workflow: Workflow) -> None:
@@ -554,16 +520,16 @@ class ExtruderAccel(StmtList_):
 		workflow = self.workflow
 		# Validate state
 		super().Do()
-		_set_combobox_opt_(workflow.opts.extruder_accel)
+		self._set_combobox_opt_(workflow.opts.extruder_accel)
 		self.RunPlan(self.PLAN)
 
 
 class ExtruderCurrent(StmtList_):
 	PLAN =(
-		# <var-array>									<filter-1>			<then-1: filter-2> 						<then-2> / <else-2> / <else-1>
-		((_extruder_current_, EXTRUDER_CURRENT_LOW),	(_is_combo_1_, ),	(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		((_extruder_current_, EXTRUDER_CURRENT_MID),	(_is_combo_2_, ),	(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		((_extruder_current_, EXTRUDER_CURRENT_HI),		(_is_combo_3_, ),	(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
+		# <var-array>									<filter-1>			<then-1: filter-2> 			<then-2> / <else-2> / <else-1>
+		((_extruder_current_, EXTRUDER_CURRENT_LOW),	(_is_combo_1_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		((_extruder_current_, EXTRUDER_CURRENT_MID),	(_is_combo_2_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		((_extruder_current_, EXTRUDER_CURRENT_HI),		(_is_combo_3_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
 	)
 
 	def __init__(self, workflow: Workflow) -> None:
@@ -572,17 +538,17 @@ class ExtruderCurrent(StmtList_):
 		workflow = self.workflow
 		# Validate state
 		super().Do()
-		_set_combobox_opt_(workflow.opts.extruder_current)
+		self._set_combobox_opt_(workflow.opts.extruder_current)
 		self.RunPlan(self.PLAN)
 
 
 class ProbeOffset(StmtList_):
 	PLAN =(
-		# <var-array>							<filter-1>			<then-1: filter-2> 						<then-2> / <else-2> / <else-1>
-		((_probe_x_offset_, PROBE_X_OFFSET),	(_is_combo_1_, ),	(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		((_probe_y_offset_, PROBE_Y_OFFSET),	(_is_combo_1_, ),	(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		((_probe_x_offset_, PROBE180_X_OFFSET),	(_is_combo_2_, ),	(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		((_probe_y_offset_, PROBE180_Y_OFFSET),	(_is_combo_2_, ),	(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
+		# <var-array>							<filter-1>			<then-1: filter-2> 			<then-2> / <else-2> / <else-1>
+		((_probe_x_offset_, PROBE_X_OFFSET),	(_is_combo_1_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		((_probe_y_offset_, PROBE_Y_OFFSET),	(_is_combo_1_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		((_probe_x_offset_, PROBE180_X_OFFSET),	(_is_combo_2_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		((_probe_y_offset_, PROBE180_Y_OFFSET),	(_is_combo_2_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
 	)
 
 	def __init__(self, workflow: Workflow) -> None:
@@ -591,22 +557,22 @@ class ProbeOffset(StmtList_):
 		workflow = self.workflow
 		# Validate state
 		super().Do()
-		_set_combobox_opt_(workflow.opts.probe_offset)
+		self._set_combobox_opt_(workflow.opts.probe_offset)
 		self.RunPlan(self.PLAN)
 
 
 class ProbeSampling(StmtList_):
 	PLAN =(
-		# <var-array>								<filter-1>			<then-1: filter-2> 						<then-2> / <else-2> / <else-1>
-		((_probe_speed_, PROBE_SPEED),				(_is_combo_1_, ),	(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		((_probe_lift_, ),							(_is_combo_1_, ),	(_has_key_, '@1#', '@0#'),				(_del_key_, "@1#", '@0#')),
-		((_probe_samples_, PROBE_SAMPLE),			(_is_combo_1_, ),	(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		((_probe_result_, PROBE_RESULT),			(_is_combo_1_, ),	(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		# <var-array>								<filter-1>			<then-1: filter-2> 						<then-2> / <else-2> / <else-1>
-		((_probe_speed_, PROBE180_SPEED),			(_is_combo_2_, ),	(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		((_probe_lift_, PROBE180_LIFT),				(_is_combo_2_, ),	(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		((_probe_samples_, PROBE180_SAMPLE),		(_is_combo_2_, ),	(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		((_probe_result_, PROBE180_RESULT),			(_is_combo_2_, ),	(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
+		# <var-array>							<filter-1>			<then-1: filter-2> 			<then-2> / <else-2> / <else-1>
+		((_probe_speed_, PROBE_SPEED),			(_is_combo_1_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		((_probe_lift_, ),						(_is_combo_1_, ),	(_has_key_, _1_),			(_del_key_, _1_)),
+		((_probe_samples_, PROBE_SAMPLE),		(_is_combo_1_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		((_probe_result_, PROBE_RESULT),		(_is_combo_1_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		# <var-array>							<filter-1>			<then-1: filter-2> 			<then-2> / <else-2> / <else-1>
+		((_probe_speed_, PROBE180_SPEED),		(_is_combo_2_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		((_probe_lift_, PROBE180_LIFT),			(_is_combo_2_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		((_probe_samples_, PROBE180_SAMPLE),	(_is_combo_2_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		((_probe_result_, PROBE180_RESULT),		(_is_combo_2_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
 	)
 
 	def __init__(self, workflow: Workflow) -> None:
@@ -615,18 +581,18 @@ class ProbeSampling(StmtList_):
 		workflow = self.workflow
 		# Validate state
 		super().Do()
-		_set_combobox_opt_(workflow.opts.probe_sampling)
+		self._set_combobox_opt_(workflow.opts.probe_sampling)
 		self.RunPlan(self.PLAN)
 
 
 class ProbeValidation(StmtList_):
 	PLAN =(
-		# <var-array>								<filter-1>			<then-1: filter-2> 						<then-2> / <else-2> / <else-1>
-		((_probe_tolerance_, PROBE_TOLERANCE),		(_is_combo_1_, ),	(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		((_probe_retries_, PROBE_RETRIES),			(_is_combo_1_, ),	(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		# <var-array>								<filter-1>			<then-1: filter-2> 						<then-2> / <else-2> / <else-1>
-		((_probe_tolerance_, PROBE180_TOLERANCE),	(_is_combo_2_, ),	(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
-		((_probe_retries_, PROBE180_RETRIES),		(_is_combo_2_, ),	(_get_key_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", '@2#', '@0#')),
+		# <var-array>								<filter-1>			<then-1: filter-2> 			<then-2> / <else-2> / <else-1>
+		((_probe_tolerance_, PROBE_TOLERANCE),		(_is_combo_1_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		((_probe_retries_, PROBE_RETRIES),			(_is_combo_1_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		# <var-array>								<filter-1>			<then-1: filter-2> 			<then-2> / <else-2> / <else-1>
+		((_probe_tolerance_, PROBE180_TOLERANCE),	(_is_combo_2_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		((_probe_retries_, PROBE180_RETRIES),		(_is_combo_2_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
 	)
 
 	def __init__(self, workflow: Workflow) -> None:
@@ -635,26 +601,26 @@ class ProbeValidation(StmtList_):
 		workflow = self.workflow
 		# Validate state
 		super().Do()
-		_set_combobox_opt_(workflow.opts.probe_validation)
+		self._set_combobox_opt_(workflow.opts.probe_validation)
 		self.RunPlan(self.PLAN)
 
 
 class ScrewsTiltAdjust(StmtList_):
 	X4_PRO = (
 		# <var-array>							<filter-1>			<then-1: filter-2> 							<then-2> / <else-2> / <else-1>
-		((_tilt_adjust_, SCREWS_PRO_CRC),		(_is_combo_1_, ),	(_has_sec_crc_ne_, '@1#', '@2#', '@0#'),	(_ovr_sec_ml_, "@1#", SCREWS_PRO, '@0#')),
-		((_tilt_adjust_, ),						(_is_combo_1_, ),	(_no_sec_, '@1#', '@0#'),					(_set_sec_ml_, "@1#", SCREWS_PRO, '@0#')),
+		((_tilt_adjust_, SCREWS_PRO_CRC),		(_is_combo_1_, ),	(_has_sec_crc_ne_, _1_, _2_),	(_ovr_sec_ml_, _1_, SCREWS_PRO)),
+		((_tilt_adjust_, ),						(_is_combo_1_, ),	(_no_sec_, _1_),					(_set_sec_ml_, _1_, SCREWS_PRO)),
 		# <var-array>							<filter-1>			<then-1: filter-2> 							<then-2> / <else-2> / <else-1>
-		((_tilt_adjust_, SCREWS180_PRO_CRC),	(_is_combo_2_, ),	(_has_sec_crc_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", SCREWS180_PRO, '@0#')),
-		((_tilt_adjust_, ),						(_is_combo_2_, ),	(_no_sec_, '@1#', '@0#'),					(_set_sec_ml_, "@1#", SCREWS180_PRO, '@0#')),
+		((_tilt_adjust_, SCREWS180_PRO_CRC),	(_is_combo_2_, ),	(_has_sec_crc_ne_, _1_, _2_),	(_set_key_, _1_, SCREWS180_PRO)),
+		((_tilt_adjust_, ),						(_is_combo_2_, ),	(_no_sec_, _1_),					(_set_sec_ml_, _1_, SCREWS180_PRO)),
 	)
 	X4_PLUS = (
 		# <var-array>							<filter-1>			<then-1: filter-2> 							<then-2> / <else-2> / <else-1>
-		((_tilt_adjust_, SCREWS_PLUS_CRC),		(_is_combo_1_, ),	(_has_sec_crc_ne_, '@1#', '@2#', '@0#'),	(_ovr_sec_ml_, "@1#", SCREWS_PLUS, '@0#')),
-		((_tilt_adjust_, ),						(_is_combo_1_, ),	(_no_sec_, '@1#', '@0#'),					(_set_sec_ml_, "@1#", SCREWS_PLUS, '@0#')),
+		((_tilt_adjust_, SCREWS_PLUS_CRC),		(_is_combo_1_, ),	(_has_sec_crc_ne_, _1_, _2_),	(_ovr_sec_ml_, _1_, SCREWS_PLUS)),
+		((_tilt_adjust_, ),						(_is_combo_1_, ),	(_no_sec_, _1_),					(_set_sec_ml_, _1_, SCREWS_PLUS)),
 		# <var-array>							<filter-1>			<then-1: filter-2> 							<then-2> / <else-2> / <else-1>
-		((_tilt_adjust_, SCREWS180_PLUS_CRC),	(_is_combo_2_, ),	(_has_sec_crc_ne_, '@1#', '@2#', '@0#'),	(_set_key_, "@1#", SCREWS180_PLUS, '@0#')),
-		((_tilt_adjust_, ),						(_is_combo_2_, ),	(_no_sec_, '@1#', '@0#'),					(_set_sec_ml_, "@1#", SCREWS180_PLUS, '@0#')),
+		((_tilt_adjust_, SCREWS180_PLUS_CRC),	(_is_combo_2_, ),	(_has_sec_crc_ne_, _1_, _2_),	(_set_key_, _1_, SCREWS180_PLUS)),
+		((_tilt_adjust_, ),						(_is_combo_2_, ),	(_no_sec_, _1_),					(_set_sec_ml_, _1_, SCREWS180_PLUS)),
 	)
 
 	def __init__(self, workflow: Workflow) -> None:
@@ -663,7 +629,7 @@ class ScrewsTiltAdjust(StmtList_):
 		workflow = self.workflow
 		# Validate state
 		super().Do()
-		_set_combobox_opt_(workflow.opts.screws_tilt_adjust)
+		self._set_combobox_opt_(workflow.opts.screws_tilt_adjust)
 		# Select by printer
 		if workflow.opts.IsArtillerySWX4Pro():
 			# Changes for Artillery Sidewinder X4 Pro
@@ -672,9 +638,4 @@ class ScrewsTiltAdjust(StmtList_):
 			# Changes for Artillery Sidewinder X4 Plus
 			plan = self.X4_PLUS
 		self.RunPlan(plan)
-
-
-
-def HasUpdatedPersistence() -> bool:
-	return ("PERSISTENCE" in STORE) and STORE["PERSISTENCE"]
 

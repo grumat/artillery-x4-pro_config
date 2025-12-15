@@ -1,7 +1,7 @@
 #
 # -*- coding: UTF-8 -*-
 #
-# Spellchecker: words mline mlines gcode klipper bltouch
+# Spellchecker: words mline mlines gcode klipper bltouch neopixel
 
 import zlib
 import bz2
@@ -241,7 +241,7 @@ def IsLikeGCode(txt : str) -> bool:
 	pgm += 4*_count_triplets_(s, "i", '=',  "W")
 	pgm += 5*_count_triplets_(s, "w", '=',  "in")
 	pgm += 4*_count_triplets_(s, "w", '=',  "w")
-	pgm += 3*_count_triplets_(s, "W", '=',  "Winw")
+	pgm += 3*_count_triplets_(s, "W", '=',  "Winw")	# spellchecker:disable-line
 	pgm += 3*_count_triplets_(s, "w", '=',  "W")
 	pgm += 5*_count_triplets_(s, "i", '.',  "Ww")
 	pgm += 5*_count_triplets_(s, "Ww", '.',  "i")
