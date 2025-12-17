@@ -17,13 +17,13 @@ TEST_MODE = os.getenv("USWX4_TEST")
 if TYPE_CHECKING:
 	from .user_options import UserOptions
 	from .i18n import _
-	from .my_env import Info, Error, GetBackupFolder, YELLOW, NORMAL
+	from .my_env import Info, Error, GetBackupFolder, GetMainScriptPath, YELLOW, NORMAL
 	from .my_shell import ArtillerySideWinder, DiskUsage
 	from .edit_cfg import Commands
 else:
 	from user_options import UserOptions
 	from i18n import _
-	from my_env import Info, Error, GetBackupFolder, YELLOW, NORMAL
+	from my_env import Info, Error, GetBackupFolder, GetMainScriptPath, YELLOW, NORMAL
 	from my_shell import ArtillerySideWinder, DiskUsage
 	from edit_cfg import Commands
 
@@ -142,10 +142,10 @@ class Workflow(ArtillerySideWinder):
 				from task_erasefiles import EraseGcodeFiles, EraseMiniatures, EraseLogFiles, EraseOldConfig, EraseClutterFiles
 		if TYPE_CHECKING:
 			from .task_config import BackupConfig, ConfigReset, FixModelSettings, StepperZCurrent, ExtruderAccel, ExtruderCurrent, ProbeOffset, \
-						ProbeSampling, ProbeValidation, ScrewsTiltAdjust
+						ProbeSampling, ProbeValidation, ScrewsTiltAdjust, FanRename, MbFanFix, MbFanSpeed, HbFanSpeed, TempMCU
 		else:
 			from task_config import BackupConfig, ConfigReset, FixModelSettings, StepperZCurrent, ExtruderAccel, ExtruderCurrent, ProbeOffset, \
-						ProbeSampling, ProbeValidation, ScrewsTiltAdjust
+						ProbeSampling, ProbeValidation, ScrewsTiltAdjust, FanRename, MbFanFix, MbFanSpeed, HbFanSpeed, TempMCU
 
 		if (TEST_MODE is None):
 			self.tasks.append(Connect(self))
@@ -174,6 +174,11 @@ class Workflow(ArtillerySideWinder):
 		self.tasks.append(ProbeSampling(self))
 		self.tasks.append(ProbeValidation(self))
 		self.tasks.append(ScrewsTiltAdjust(self))
+		self.tasks.append(FanRename(self))
+		self.tasks.append(MbFanFix(self))
+		self.tasks.append(MbFanSpeed(self))
+		self.tasks.append(HbFanSpeed(self))
+		self.tasks.append(TempMCU(self))
 
 		if (TEST_MODE is None):
 			self.tasks.append(TrimDisk(self))
@@ -258,8 +263,10 @@ class Workflow(ArtillerySideWinder):
 			self.thread = threading.Thread(target=self._worker_thread)
 			self.thread.start()
 
-	def Test(self):
+	def Test(self, test_name : str):
+		i = 0
 		for task in self.tasks:
+			cnt_ref = self.modify_cfg
 			self._update_states()
 			if task.CanRun():
 				try:
@@ -268,12 +275,22 @@ class Workflow(ArtillerySideWinder):
 					task.Do()
 					print('\033[1m' + '  OK!' + NORMAL)
 					self._set_task_state(task, TaskState.DONE)
+					if (i == 0) or (cnt_ref != self.modify_cfg):
+						fname = os.path.join(GetMainScriptPath(), "temp")
+						if not os.path.isdir(fname):
+							os.makedirs(fname)
+						fname = os.path.join(fname, f"{test_name}-{i:02}-{type(task).__name__}.cfg")
+						if self.editor:
+							self.editor.contents.file_buffer.Save(fname)
+						i += 1
 				except Exception as e:
 					error_message = str(e)
 					self.exception = True
 					self._set_task_state(task, TaskState.FAIL)
 					Error(f'{error_message}\n')
 					print('\033[31m' + f'\n\t{error_message}\n' + '\033[30m')
+		if self.editor:
+			self.editor.Save()
 		if self.persistence_upd:
 			Warning("Printer configuration has been reset, printer needs recalibration")
 			print(YELLOW + "Printer configuration has been reset, printer needs recalibration" + NORMAL)

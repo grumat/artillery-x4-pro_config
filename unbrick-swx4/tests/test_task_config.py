@@ -39,17 +39,20 @@ START_WITH_PLUS_DEF = 3 << 16
 START_WITH_PLUS_UPG = 4 << 16
 START_WITH_PLUS_GRUMAT = 5 << 16
 
+
 def step_001(opts : UserOptions):
 	opts.printer = SWX4PLUS + START_WITH_PRO_UPG	# Artillery plus target with Artillery pro config
-	wf = Workflow(opts)
 	opts.model_attr = True
-	wf.Test()
+	wf = Workflow(opts)
+	wf.Test('step_001')
 
 def step_002(opts : UserOptions):
 	opts.printer = SWX4PRO + START_WITH_PLUS_UPG	# Artillery pro target with Artillery plus config
 	opts.model_attr = True
+	opts.mb_fan_speed = 1
+	opts.hb_fan_speed = 1
 	wf = Workflow(opts)
-	wf.Test()
+	wf.Test('step_002')
 
 def step_003(opts : UserOptions):
 	opts.printer = SWX4PRO + START_WITH_PRO_UPG
@@ -61,8 +64,12 @@ def step_003(opts : UserOptions):
 	opts.probe_sampling = 2
 	opts.probe_validation = 1
 	opts.screws_tilt_adjust = 1
+	opts.fan_rename = True
+	opts.mb_fan_fix = True
+	opts.mb_fan_speed = 2
+	opts.hb_fan_speed = 2
 	wf = Workflow(opts)
-	wf.Test()
+	wf.Test('step_003')
 
 def step_004(opts : UserOptions):
 	opts.printer = SWX4PRO + START_WITH_PRO_UPG
@@ -74,8 +81,12 @@ def step_004(opts : UserOptions):
 	opts.probe_sampling = 1
 	opts.probe_validation = 2
 	opts.screws_tilt_adjust = 2
+	opts.fan_rename = False
+	opts.mb_fan_fix = False
+	opts.mb_fan_speed = 3
+	opts.hb_fan_speed = 3
 	wf = Workflow(opts)
-	wf.Test()
+	wf.Test('step_004')
 
 def step_005(opts : UserOptions):
 	opts.printer = SWX4PRO + START_WITH_PRO_GRUMAT
@@ -87,11 +98,17 @@ def step_005(opts : UserOptions):
 	opts.probe_sampling = 0
 	opts.probe_validation = 0
 	opts.screws_tilt_adjust = 1
+	opts.fan_rename = False
+	opts.mb_fan_fix = False
+	opts.mb_fan_speed = 5
+	opts.hb_fan_speed = 5
+	opts.temp_mcu = True
 	wf = Workflow(opts)
-	wf.Test()
+	wf.Test('step_005')
 
 def main():
 	opts = UserOptions()
+	opts.reset = 0
 	opts.model_attr = True
 	opts.stepper_z_current = 0
 	opts.extruder_accel = 0
@@ -101,9 +118,9 @@ def main():
 	opts.probe_validation = 0
 	opts.screws_tilt_adjust = 0
 	opts.fan_rename = False
-	opts.mb_fan_fix = True
-	opts.hb_fan_speed = 0
+	opts.mb_fan_fix = False
 	opts.mb_fan_speed = 0
+	opts.hb_fan_speed = 0
 	opts.temp_mcu = False
 	opts.nozzle_wipe = 0
 	opts.purge_line = 0

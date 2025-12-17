@@ -253,11 +253,13 @@ class Commands(object):
 		if buffer:
 			l = buffer.FindAnyKey(key)
 			if isinstance(l, ValueLine):
-				return l.value
+				if not l.inactive:
+					return l.value
 			elif isinstance(l, MultiLineStartLine):
-				ml = buffer.GetMultiLine(l)
-				if ml:
-					return MultiLineData(ml)
+				if not l.inactive:
+					ml = buffer.GetMultiLine(l)
+					if ml:
+						return MultiLineData(ml)
 
 	def EditKey(self, section : str, key : str, value : str) -> bool|None:
 		" Allows to edit simple value. If the key does not exists a new is appended. "
@@ -266,8 +268,10 @@ class Commands(object):
 		if buffer:
 			l = buffer.FindAnyKey(key)
 			if isinstance(l, ValueLine):
-				l.SetValue(value)
-				return True
+				if l.value != value:
+					l.SetValue(value)
+					return True
+				return False
 			elif isinstance(l, MultiLineStartLine):
 				return False
 			else:

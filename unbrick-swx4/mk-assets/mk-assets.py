@@ -300,5 +300,13 @@ def main():
 		GetSecML(fh, 'SCREWS180_PRO', "screws_tilt_adjust", fn_x4pro_grumat)
 		GetSecML(fh, 'SCREWS180_PLUS', "screws_tilt_adjust", fn_x4plus_grumat)
 
+		##  temperature_sensor
+		fh.write("\n")
+		fh.write("# def:\t\tN\n")
+		fh.write("# upg:\t\tN\n")
+		fh.write("# grumat:\tY\n")
+		GetSecML(fh, 'HOST_TEMP', "temperature_sensor rpi_cpu", fn_x4pro_grumat)
+		GetSecML(fh, 'MCU_TEMP', "temperature_sensor mcu_temp", fn_x4pro_grumat)
+
 if __name__ == "__main__":
 	main()

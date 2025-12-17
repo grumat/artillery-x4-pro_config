@@ -1,7 +1,7 @@
 #
 # -*- coding: UTF-8 -*-
 #
-# Spellchecker: words USWX klipper gcode endstop grumat
+# Spellchecker: words USWX klipper gcode endstop grumat toks heatbreak mainboard
 
 
 import os
@@ -27,6 +27,22 @@ else:
 	from edit_cfg import *
 
 
+class Pair_(object):
+	def __init__(self, name : str|None = None) -> None:
+		self.type = ""
+		self.name = ""
+		if name:
+			toks = name.split()
+			if len(toks) == 2:
+				self.type = toks[0]
+				self.name = toks[1]
+	def IsEmpty(self) -> bool:
+		return (len(self.type) == 0) or (len(self.name) == 0)
+	def GetSectionName(self) -> str:
+		assert len(self.type) and len(self.name), "Empty Object"
+		return self.type + ' ' + self.name
+
+
 class EditConfig_(Task):
 	def __init__(self, workflow : Workflow, label : str, state : TaskState) -> None:
 		super().__init__(workflow, label, state)
@@ -36,30 +52,32 @@ class EditConfig_(Task):
 		super().Do()
 		if not os.path.isdir(self.work_folder):
 			os.makedirs(self.work_folder)
-		if self.workflow.editor is None:
-			self.workflow.editor = Commands(self.target)
 	def Validate(self):
 		# File that is edited is here
 		if not os.path.isfile(self.target):
-			raise Exception(_("Cannot find the copy of te configuration file!"))
-	def GetKey(self, section : str, key : str) -> str | None:
-		assert self.workflow.editor is not None, "Invalid object state"
-		res = self.workflow.editor.GetKey(section, key)
-		if res is not None:
-			assert isinstance(res, str), "Multiline keys not expected in this method"
-			return res
-	def EditKey(self, section : str, key : str, value : str) -> bool | None:
-		assert self.workflow.editor is not None, "Invalid object state"
-		return self.workflow.editor.EditKey(section, key, value)
-	def EditKeyML(self, section : str, key : str, value : LinesB64) -> bool | None:
-		assert self.workflow.editor is not None, "Invalid object state"
-		return self.workflow.editor.EditKeyML(section, key, value)
-	def GetCRC(self, section : str, key : str) -> CrcKey | None:
-		assert self.workflow.editor is not None, "Invalid object state"
-		res = self.workflow.editor.ListKey(section, key)
-		if isinstance(res, KeyInfo):
-			return res.crc
-		return None
+			raise Exception(_("Cannot find the copy of the configuration file!"))
+		if self.workflow.editor is None:
+			raise Exception(_("Configuration file editor is missing!"))
+	def IdentifyFans(self) -> tuple[Pair_, Pair_]:
+		" Return heat-break and main-board fan sections respectively"
+		editor = self.workflow.editor
+		assert isinstance(editor, Commands), "Invalid object state"
+		heat_break = Pair_()
+		main_board = Pair_()
+		for s in editor.ListSections("heater_fan *"):
+			v = editor.GetKey(s.label, "pin")
+			if isinstance(v, str):
+				if v == "PC7":
+					heat_break = Pair_(s.label)
+				elif v == "PC9":
+					main_board = Pair_(s.label)
+		if main_board.IsEmpty():
+			for s in editor.ListSections("controller_fan *"):
+				v = editor.GetKey(s.label, "pin")
+				if v == "PC9":
+					main_board = Pair_(s.label)
+		return (heat_break, main_board)
+
 
 class BackupConfig(EditConfig_):
 	def __init__(self, workflow : Workflow) -> None:
@@ -105,6 +123,7 @@ class BackupConfig(EditConfig_):
 				os.unlink(self.target)
 			# Not copy the start configuration file
 			shutil.copyfile(src, self.target)
+		self.workflow.editor = Commands(self.target)
 
 
 class ConfigReset(EditConfig_):
@@ -164,6 +183,8 @@ _gcode_homing_ = K("homing_override", "gcode")
 _gcode_line_ = K("gcode_macro draw_line", "gcode")
 _bed_mesh_max_ = K("bed_mesh", "mesh_max")
 _gcode_G29_ = K("gcode_macro G29", "gcode")
+_gcode_M300_ = K("gcode_macro M300", "gcode")
+_gcode_M600_ = K("gcode_macro M600", "gcode")
 _gcode_wipe = K("gcode_macro nozzle_wipe", "gcode")
 _gcode_line_only = K("gcode_macro draw_line_only", "gcode")
 _gcode_point_0_ = K("gcode_macro move_to_point_0", "gcode")
@@ -230,7 +251,7 @@ class StmtList_(EditConfig_):
 				m = FixModelSettings.IDX_ARG_PAT.match(p)
 				if m:
 					v = vars[int(m[1])]
-					if isinstance(v, K) or isinstance(v, str):
+					if isinstance(v, (K, str, CrcKey, LinesB64)):
 						args.append(v)
 					else:
 						raise ValueError("Unsupported data-type")
@@ -303,42 +324,7 @@ class StmtList_(EditConfig_):
 		return self.combo_val == 2
 	def _is_combo_3_(self) -> bool:
 		return self.combo_val == 3
-	def _has_key_(self, k : K, value : CrcKey) -> bool:
-		assert self.workflow.editor is not None, "Invalid object state"
-		return self.workflow.editor.GetKey(k.section, k.key) is not None
-	def _get_crc_eq_(self, k : K, value : CrcKey) -> bool:
-		assert self.workflow.editor is not None, "Invalid object state"
-		res = self.workflow.editor.ListKey(k.section, k.key)
-		if isinstance(res, KeyInfo):
-			return res.crc == value
-		return False
-	def _get_crc_ne_(self, k : K, value : CrcKey) -> bool:
-		assert self.workflow.editor is not None, "Invalid object state"
-		res = self.workflow.editor.ListKey(k.section, k.key)
-		if isinstance(res, KeyInfo):
-			return res.crc != value
-		return True
-	def _get_key_ne_(self, k : K, value : str) -> bool:
-		assert self.workflow.editor is not None, "Invalid object state"
-		res = self.workflow.editor.GetKey(k.section, k.key)
-		if isinstance(res, str):
-			return str != value
-		return True
-	def _set_key_(self, k : K, value : str) -> bool:
-		assert self.workflow.editor is not None, "Invalid object state"
-		if self.workflow.editor.EditKey(k.section, k.key, value):
-			self._modified_inc_()
-			return True
-		return False
-	def _set_key_ml_(self, k : K, value : LinesB64) -> bool:
-		assert self.workflow.editor is not None, "Invalid object state"
-		if self.workflow.editor.EditKeyML(k.section, k.key, value):
-			self._modified_inc_()
-			return True
-		return False
-	def _del_key_(self, k : K, value : LinesB64) -> bool:
-		assert self.workflow.editor is not None, "Invalid object state"
-		return self.workflow.editor.DelKey(k.section, k.key) == True
+	##### SECTION ######
 	def _has_sec_(self, k : K|str) -> bool:
 		assert self.workflow.editor is not None, "Invalid object state"
 		if isinstance(k, K):
@@ -378,6 +364,44 @@ class StmtList_(EditConfig_):
 			k = k.section
 		self.workflow.editor.OvrSec(k, b64)
 		self._modified_inc_()
+	##### SECTION/KEY/VALUE ######
+	def _has_key_(self, k : K) -> bool:
+		assert self.workflow.editor is not None, "Invalid object state"
+		return self.workflow.editor.GetKey(k.section, k.key) is not None
+	def _get_crc_eq_(self, k : K, value : CrcKey) -> bool:
+		assert self.workflow.editor is not None, "Invalid object state"
+		res = self.workflow.editor.ListKey(k.section, k.key)
+		if isinstance(res, KeyInfo):
+			return res.crc == value
+		return False
+	def _get_crc_ne_(self, k : K, value : CrcKey) -> bool:
+		assert self.workflow.editor is not None, "Invalid object state"
+		res = self.workflow.editor.ListKey(k.section, k.key)
+		if isinstance(res, KeyInfo):
+			return res.crc != value
+		return True
+	def _get_key_ne_(self, k : K, value : str) -> bool:
+		assert self.workflow.editor is not None, "Invalid object state"
+		res = self.workflow.editor.GetKey(k.section, k.key)
+		if isinstance(res, str):
+			return str != value
+		return True
+	def _set_key_(self, k : K, value : str) -> bool:
+		assert self.workflow.editor is not None, "Invalid object state"
+		if self.workflow.editor.EditKey(k.section, k.key, value):
+			self._modified_inc_()
+			return True
+		return False
+	def _set_key_ml_(self, k : K, value : LinesB64) -> bool:
+		assert self.workflow.editor is not None, "Invalid object state"
+		if self.workflow.editor.EditKeyML(k.section, k.key, value):
+			self._modified_inc_()
+			return True
+		return False
+	def _del_key_(self, k : K, value : LinesB64) -> bool:
+		assert self.workflow.editor is not None, "Invalid object state"
+		return self.workflow.editor.DelKey(k.section, k.key) == True
+	##### PERSISTENCE BLOCK ######
 	def _save_persistence_(self, data : LinesB64) -> None:
 		assert self.workflow.editor is not None, "Invalid object state"
 		self.workflow.editor.SavePersistenceB64(data)
@@ -416,8 +440,9 @@ _3_ = '@3#'
 class FixModelSettings(StmtList_):
 	X4_PRO = (
 		# <var-array>								<filter-1>			<then-1: filter-2> 			<then-2> / <else-2> / <else-1>
-		((_gcode_line_, LINE_PRO_CRC_UPG),			(_always_, ),		(_get_crc_eq_, _1_, _2_), 	(_set_upgraded_cfg_, True),
-				 																						(_set_upgraded_cfg_, False)),
+		((_gcode_M300_, _gcode_M600_),				(_has_key_, _1_),	(_has_key_, _2_), 			(_set_upgraded_cfg_, True),
+				 																						(_set_upgraded_cfg_, False),
+				 																							(_set_upgraded_cfg_, False)),
 		((_stepper_x_max, X_MAX_PRO),				(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
 		((_stepper_y_dir, Y_DIR_PRO),				(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
 		((_stepper_y_min, Y_MIN_PRO),				(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
@@ -441,8 +466,9 @@ class FixModelSettings(StmtList_):
 	)
 	X4_PLUS = (
 		# <var-array>								<filter-1>			<filter-2> 					<then-2> / <else-2> / <else-1>
-		((_gcode_line_, LINE_PLUS_CRC_UPG),			(_always_, ), 		(_get_crc_eq_, _1_, _2_), 	(_set_upgraded_cfg_, True),
-   																						 				(_set_upgraded_cfg_, False)),
+		((_gcode_M300_, _gcode_M600_),				(_has_key_, _1_),	(_has_key_, _2_), 			(_set_upgraded_cfg_, True),
+				 																						(_set_upgraded_cfg_, False),
+				 																							(_set_upgraded_cfg_, False)),
 		((_stepper_x_max, X_MAX_PLUS),				(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
 		((_stepper_y_dir, Y_DIR_PLUS),				(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
 		((_stepper_y_min, Y_MIN_PLUS),				(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
@@ -607,18 +633,18 @@ class ProbeValidation(StmtList_):
 
 class ScrewsTiltAdjust(StmtList_):
 	X4_PRO = (
-		# <var-array>							<filter-1>			<then-1: filter-2> 							<then-2> / <else-2> / <else-1>
+		# <var-array>							<filter-1>			<then-1: filter-2> 				<then-2> / <else-2> / <else-1>
 		((_tilt_adjust_, SCREWS_PRO_CRC),		(_is_combo_1_, ),	(_has_sec_crc_ne_, _1_, _2_),	(_ovr_sec_ml_, _1_, SCREWS_PRO)),
 		((_tilt_adjust_, ),						(_is_combo_1_, ),	(_no_sec_, _1_),					(_set_sec_ml_, _1_, SCREWS_PRO)),
-		# <var-array>							<filter-1>			<then-1: filter-2> 							<then-2> / <else-2> / <else-1>
+		# <var-array>							<filter-1>			<then-1: filter-2> 				<then-2> / <else-2> / <else-1>
 		((_tilt_adjust_, SCREWS180_PRO_CRC),	(_is_combo_2_, ),	(_has_sec_crc_ne_, _1_, _2_),	(_set_key_, _1_, SCREWS180_PRO)),
 		((_tilt_adjust_, ),						(_is_combo_2_, ),	(_no_sec_, _1_),					(_set_sec_ml_, _1_, SCREWS180_PRO)),
 	)
 	X4_PLUS = (
-		# <var-array>							<filter-1>			<then-1: filter-2> 							<then-2> / <else-2> / <else-1>
+		# <var-array>							<filter-1>			<then-1: filter-2> 				<then-2> / <else-2> / <else-1>
 		((_tilt_adjust_, SCREWS_PLUS_CRC),		(_is_combo_1_, ),	(_has_sec_crc_ne_, _1_, _2_),	(_ovr_sec_ml_, _1_, SCREWS_PLUS)),
 		((_tilt_adjust_, ),						(_is_combo_1_, ),	(_no_sec_, _1_),					(_set_sec_ml_, _1_, SCREWS_PLUS)),
-		# <var-array>							<filter-1>			<then-1: filter-2> 							<then-2> / <else-2> / <else-1>
+		# <var-array>							<filter-1>			<then-1: filter-2> 				<then-2> / <else-2> / <else-1>
 		((_tilt_adjust_, SCREWS180_PLUS_CRC),	(_is_combo_2_, ),	(_has_sec_crc_ne_, _1_, _2_),	(_set_key_, _1_, SCREWS180_PLUS)),
 		((_tilt_adjust_, ),						(_is_combo_2_, ),	(_no_sec_, _1_),					(_set_sec_ml_, _1_, SCREWS180_PLUS)),
 	)
@@ -638,4 +664,120 @@ class ScrewsTiltAdjust(StmtList_):
 			# Changes for Artillery Sidewinder X4 Plus
 			plan = self.X4_PLUS
 		self.RunPlan(plan)
+
+
+class FanRename(EditConfig_):
+	def __init__(self, workflow: Workflow) -> None:
+		super().__init__(workflow, N_("Rename Fans"), workflow.opts.fan_rename and TaskState.READY or TaskState.DISABLED)
+	def Do(self):
+		editor = self.workflow.editor
+		assert isinstance(editor, Commands), "Invalid object state"
+		# Validate state
+		super().Do()
+		super().Validate()
+		heat_break, main_board = self.IdentifyFans()
+		if not heat_break.IsEmpty() and heat_break.name != "heatbreak_cooling_fan":
+			nn = Pair_(heat_break.GetSectionName())
+			nn.name = "heatbreak_cooling_fan"
+			editor.RenSec(heat_break.GetSectionName(), nn.GetSectionName())
+			self.workflow.modify_cfg += 1
+		if not main_board.IsEmpty() and main_board.name != "mainboard_fan":
+			nn = Pair_(main_board.GetSectionName())
+			nn.name = "mainboard_fan"
+			editor.RenSec(main_board.GetSectionName(), nn.GetSectionName())
+			self.workflow.modify_cfg += 1
+
+
+class MbFanFix(EditConfig_):
+	def __init__(self, workflow: Workflow) -> None:
+		super().__init__(workflow, N_("Improved Main-board Fan control"), workflow.opts.mb_fan_fix and TaskState.READY or TaskState.DISABLED)
+	def Do(self):
+		editor = self.workflow.editor
+		assert isinstance(editor, Commands), "Invalid object state"
+		# Validate state
+		super().Do()
+		super().Validate()
+		_, main_board = self.IdentifyFans()
+		if not main_board.IsEmpty():
+			section = main_board.GetSectionName()
+			if main_board.type != 'controller_fan':
+				old = Pair_(section)
+				main_board.type = 'controller_fan'
+				editor.RenSec(old.GetSectionName(), main_board.GetSectionName())
+				self.workflow.modify_cfg += 1
+				section = main_board.GetSectionName()
+			self.workflow.modify_cfg += (editor.EditKey(section, "idle_timeout", "180") == True)
+			self.workflow.modify_cfg += (editor.EditKey(section, "heater", "extruder,heater_bed") == True)
+
+
+class MbFanSpeed(EditConfig_):
+	def __init__(self, workflow: Workflow) -> None:
+		super().__init__(workflow, N_("Main-board Fan Speed"), TaskState.READY)
+	def Do(self):
+		editor = self.workflow.editor
+		assert isinstance(editor, Commands), "Invalid object state"
+		# Validate state
+		super().Do()
+		super().Validate()
+		_, main_board = self.IdentifyFans()
+		if not main_board.IsEmpty():
+			rate = 1.0 - self.workflow.opts.mb_fan_speed * 0.05
+			value = f"{rate:.2f}"
+			section = main_board.GetSectionName()
+			self.workflow.modify_cfg += (editor.EditKey(section, "fan_speed", value) == True)
+			if rate != 1.0:
+				self.workflow.modify_cfg += (editor.EditKey(section, "cycle_time", "0.016") == True)
+
+
+class HbFanSpeed(EditConfig_):
+	def __init__(self, workflow: Workflow) -> None:
+		super().__init__(workflow, N_("Heat-break Fan Speed"), TaskState.READY)
+	def Do(self):
+		editor = self.workflow.editor
+		assert isinstance(editor, Commands), "Invalid object state"
+		# Validate state
+		super().Do()
+		super().Validate()
+		heat_break, _ = self.IdentifyFans()
+		if not heat_break.IsEmpty():
+			rate = 1.0 - self.workflow.opts.hb_fan_speed * 0.05
+			value = f"{rate:.2f}"
+			section = heat_break.GetSectionName()
+			self.workflow.modify_cfg += (editor.EditKey(section, "fan_speed", value) == True)
+			if rate != 1.0:
+				self.workflow.modify_cfg += (editor.EditKey(section, "cycle_time", "0.016") == True)
+
+
+class TempMCU(EditConfig_):
+	def __init__(self, workflow: Workflow) -> None:
+		super().__init__(workflow, N_("Temperature Reading for Host and MCU"), workflow.opts.temp_mcu and TaskState.READY or TaskState.DISABLED)
+	def Do(self):
+		editor = self.workflow.editor
+		assert isinstance(editor, Commands), "Invalid object state"
+		# Validate state
+		super().Do()
+		super().Validate()
+		host = Pair_()
+		mcu = Pair_()
+		for s in editor.ListSections("temperature_sensor *"):
+			v = editor.GetKey(s.label, "sensor_type")
+			v2 = editor.GetKey(s.label, "sensor_mcu")
+			if isinstance(v, str):
+				if v == "temperature_host":
+					if host.IsEmpty():
+						host = Pair_(v)
+				elif v == "temperature_mcu" \
+					and isinstance(v2, str) \
+					and v2 == "mcu" \
+					and mcu.IsEmpty():
+					mcu = Pair_(v)
+		if host.IsEmpty():
+			editor.AddSec("verify_heater heater_bed", HOST_TEMP)
+			self.workflow.modify_cfg += 1
+		if mcu.IsEmpty():
+			editor.AddSec("verify_heater heater_bed", MCU_TEMP)
+			self.workflow.modify_cfg += 1
+
+
+
 
