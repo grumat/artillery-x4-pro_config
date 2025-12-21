@@ -1,7 +1,7 @@
 #
 # -*- coding: UTF-8 -*-
 #
-# Spellchecker: words USWX klipper gcode endstop grumat toks heatbreak mainboard
+# Spellchecker: words USWX klipper gcode endstop grumat toks heatbreak mainboard modlelight adxl sdcard neopixel
 
 
 import os
@@ -14,17 +14,99 @@ from typing import TYPE_CHECKING, Callable, Any
 TEST_MODE = os.getenv("USWX4_TEST")
 
 if TYPE_CHECKING:
-	from .my_env import GetBackupFolder, GetAssetsFolder, Debug
+	from .my_env import GetBackupFolder, GetAssetsFolder, Debug, Info
 	from .i18n import _, N_
 	from .encoded_data import *
-	from .my_workflow import Task, TaskState, Workflow # type: ignore
+	from .my_workflow import Task, TaskState, Workflow  # type: ignore
 	from .edit_cfg import *
 else:
-	from my_env import GetBackupFolder, GetAssetsFolder, Debug
+	from my_env import GetBackupFolder, GetAssetsFolder, Debug, Info
 	from i18n import _, N_
 	from encoded_data import *
 	from my_workflow import Task, TaskState, Workflow # type: ignore
 	from edit_cfg import *
+
+SECTIONS = [
+	("stepper_x", 									False ),
+	("stepper_y", 									False ),
+	("stepper_z", 									False ),
+	("extruder", 									False ),
+	("homing_override", 							False ),
+	("safe_z_home",									False ),
+	("probe", 										False ),
+	("bed_mesh", 									False ),
+	("verify_heater extruder", 						False ),
+	("heater_bed", 									False ),
+	("verify_heater heater_bed",					False ),
+	("temperature_sensor mcu_temp", 				False ),
+	("temperature_sensor rpi_cpu", 					False ),
+	("fan", 										False ),
+	("heater_fan fan0",								False ),
+	("heater_fan heatbreak_cooling_fan",			False ),
+	("heater_fan fan2", 							False ),
+	("controller_fan mainboard_fan", 				False ),
+	("printer", 									False ),
+	("input_shaper", 								False ),
+	("idle_timeout", 								False ),
+	("safe_z_home", 								False ),
+	("gcode_macro G29", 							False ),
+	("bed_mesh", 									False ),
+	("gcode_macro FLASHLIGHT_ON", 					False ),
+	("gcode_macro FLASHLIGHT_OFF",					False ),
+	("gcode_macro MODLELIGHT_ON",					False ),
+	("gcode_macro MODLELIGHT_OFF",					False ),
+	("filament_switch_sensor fila",					False ),
+	("tmc2209 stepper_x",							False ),
+	("tmc2209 stepper_y",							False ),
+	("tmc2209 stepper_z",							False ),
+	("tmc2209 extruder",							False ),
+	("mcu rpi",										False ),
+	("adxl345",										False ),
+	("resonance_tester",							False ),
+	("force_move",									False ),
+	("virtual_sdcard",								False ),
+	("gcode_macro nozzle_wipe",						False ),
+	("gcode_macro nozzle_clean",					False ),
+	("gcode_macro draw_line_only",					False ),
+	("gcode_macro draw_line",						False ),
+	("gcode_macro PRINT_START",						False ),
+	("gcode_macro PRINT_END",						False ),
+	("pause_resume",								False ),
+	("gcode_macro CANCEL_PRINT",					False ),
+	("output_pin BEEPER_pin",						False ),
+	("gcode_macro M300",							False ),
+	("gcode_macro M600",							False ),
+	("gcode_macro T600",							False ),
+	("gcode_macro PAUSE",							False ),
+	("gcode_macro RESUME",							False ),
+	("display_status",								False ),
+	("gcode_arcs",									False ),
+	("output_pin LAMP",								False ),
+	("neopixel my_neopixel",						False ),
+	("gcode_macro NEOPIXEL_DISPLAY",				False ),
+	("display_template led_extruder_temp_glow",		False ),
+	("display_template led_bed_temp_glow",			False ),
+	("display_template led_print_percent_progress",	False ),
+	("gcode_macro M109",							False ),
+	("gcode_macro M190",							False ),
+	("gcode_macro move_to_point_0",					False ),
+	("gcode_macro move_to_point_1",					False ),
+	("gcode_macro move_to_point_2",					False ),
+	("gcode_macro move_to_point_3",					False ),
+	("gcode_macro move_to_point_4",					False ),
+	("gcode_macro move_to_point_5",					False ),
+	("screws_tilt_adjust",							False ),
+]
+
+def InsertAfterSection(section : str, cur_set : list[SectionInfo]) -> str|int:
+	current = set([n.label for n in cur_set])
+	pos = 0
+	for s, _ in SECTIONS:
+		if s == section:
+			return pos
+		if s in current:
+			pos = s
+	return -1
 
 
 class Pair_(object):
@@ -43,21 +125,74 @@ class Pair_(object):
 		return self.type + ' ' + self.name
 
 
+class K(object):
+	def __init__(self, section : str, key : str) -> None:
+		self.section = section
+		self.key = key
+	def __str__(self):
+		return f"[{self.section}]/{self.key}"
+	def __repr__(self):
+		return f'K("[{self.section}]" / "{self.key}")'
+
+
+_stepper_x_max = K("stepper_x", "position_max")
+_stepper_y_max = K("stepper_y", "position_max")
+_stepper_y_dir = K("stepper_y", "dir_pin")
+_stepper_y_min = K("stepper_y", "position_min")
+_stepper_y_stop = K("stepper_y", "position_endstop")
+_stepper_z_max = K("stepper_z", "position_max")
+_gcode_homing_ = K("homing_override", "gcode")
+_bed_mesh_max_ = K("bed_mesh", "mesh_max")
+_gcode_G29_ = K("gcode_macro G29", "gcode")
+_gcode_M300_ = K("gcode_macro M300", "gcode")
+_gcode_M600_ = K("gcode_macro M600", "gcode")
+_gcode_wipe = K("gcode_macro nozzle_wipe", "gcode")
+_gcode_line = K("gcode_macro draw_line", "gcode")
+_gcode_line_only = K("gcode_macro draw_line_only", "gcode")
+_gcode_point_0_ = K("gcode_macro move_to_point_0", "gcode")
+_gcode_point_1_ = K("gcode_macro move_to_point_1", "gcode")
+_gcode_point_2_ = K("gcode_macro move_to_point_2", "gcode")
+_gcode_point_3_ = K("gcode_macro move_to_point_3", "gcode")
+_gcode_point_4_ = K("gcode_macro move_to_point_4", "gcode")
+_gcode_point_5_ = K("gcode_macro move_to_point_5", "gcode")
+_gcode_point_6_ = K("gcode_macro move_to_point_6", "gcode")
+_hold_current_z_ = K("tmc2209 stepper_z", "hold_current")
+_extruder_accel_ = K("extruder", "max_extrude_only_accel")
+_extruder_current_ = K("tmc2209 extruder", "run_current")
+_probe_x_offset_ = K("probe", "x_offset")
+_probe_y_offset_ = K("probe", "y_offset")
+_probe_speed_ = K("probe", "speed")
+_probe_lift_ = K("probe", "lift_speed")
+_probe_samples_ = K("probe", "samples")
+_probe_result_ = K("probe", "samples_result")
+_probe_tolerance_ = K("probe", "samples_tolerance")
+_probe_retries_ = K("probe", "samples_tolerance_retries")
+_tilt_adjust_ = K("screws_tilt_adjust", "")
+
+
+
 class EditConfig_(Task):
 	def __init__(self, workflow : Workflow, label : str, state : TaskState) -> None:
 		super().__init__(workflow, label, state)
 		self.work_folder = GetBackupFolder()
 		self.target = os.path.join(self.work_folder, 'printer.cfg')
+		# Modified flag
+		self.modified_cnt = self.workflow.modify_cfg
+		self.combo_val = 0
+		self.has_log = False
 	def Do(self):
 		super().Do()
 		if not os.path.isdir(self.work_folder):
 			os.makedirs(self.work_folder)
+		self.modified_cnt = self.workflow.modify_cfg
 	def Validate(self):
 		# File that is edited is here
 		if not os.path.isfile(self.target):
 			raise Exception(_("Cannot find the copy of the configuration file!"))
 		if self.workflow.editor is None:
 			raise Exception(_("Configuration file editor is missing!"))
+	def HasStepModified(self):
+		return self.modified_cnt != self.workflow.modify_cfg
 	def IdentifyFans(self) -> tuple[Pair_, Pair_]:
 		" Return heat-break and main-board fan sections respectively"
 		editor = self.workflow.editor
@@ -77,6 +212,228 @@ class EditConfig_(Task):
 				if v == "PC9":
 					main_board = Pair_(s.label)
 		return (heat_break, main_board)
+	def _start_log_(self):
+		if self.has_log == False:
+			self.has_log = True
+			self.Info('\n')
+	def _set_upgraded_cfg_(self, status : bool) -> None:
+		self.workflow.upgraded_cfg = status
+		if status:
+			msg = N_("An updated config file was found.")
+		else:
+			msg = N_("A legacy config file was found.")
+		Info(msg)
+		self._start_log_()
+		self.Info('\t' + _(msg) + '\n')
+	def _modified_inc_(self) -> None:
+		self.workflow.modify_cfg += 1
+	def _always_(self) -> bool:
+		return True
+	def _is_def_(self) -> bool:
+		" Is default factory config? (not an upgraded version) "
+		return self.workflow.upgraded_cfg == False
+	def _is_upg_(self) -> bool:
+		" Is upgraded config? (not a default version) "
+		return self.workflow.upgraded_cfg != False
+	def _is_modified_(self) -> bool:
+		return self.workflow.modify_cfg != 0
+	def _set_combobox_opt_(self, v : int) -> None:
+		self.combo_val = v
+	def _is_combo_0_(self) -> bool:
+		return self.combo_val == 0
+	def _is_combo_1_(self) -> bool:
+		return self.combo_val == 1
+	def _is_combo_2_(self) -> bool:
+		return self.combo_val == 2
+	def _is_combo_3_(self) -> bool:
+		return self.combo_val == 3
+
+	##### SECTION ######
+	def _has_sec_(self, k : K|str) -> bool:
+		assert self.workflow.editor is not None, "Invalid object state"
+		if isinstance(k, K):
+			k = k.section
+		return self.workflow.editor.ListSection(k) is not None
+	def _no_sec_(self, k : K|str) -> bool:
+		assert self.workflow.editor is not None, "Invalid object state"
+		if isinstance(k, K):
+			k = k.section
+		return self.workflow.editor.ListSection(k) is None
+	def _has_sec_crc_ne_(self, k : K|str, value : CrcKey) -> bool:
+		assert self.workflow.editor is not None, "Invalid object state"
+		if isinstance(k, K):
+			k = k.section
+		res = self.workflow.editor.ListSection(k)
+		if isinstance(res, SectionInfo):
+			return res.crc != value
+		return False
+	def _del_sec_(self, k : K|str) -> bool:
+		assert self.workflow.editor is not None, "Invalid object state"
+		if isinstance(k, K):
+			k = k.section
+		res = self.workflow.editor.DelSec(k)
+		if res:
+			self._modified_inc_()
+			msg = N_("The section {0} was removed.")
+			Warning(msg.format(f"[{k}]"))
+			self._start_log_()
+			self.Warning('\t' + _(msg).format(f"[{k}]") + '\n')
+			return True
+		return False
+	def _add_sec_(self, b64 : LinesB64) -> None:
+		assert self.workflow.editor is not None, "Invalid object state"
+		ns = None
+		ml = b64.Extract()
+		for l in ml:
+			if not ns and isinstance(l, SectionLine):
+				ns = l.section_name
+		assert ns is not None, "Invalid input argument"
+		sections = self.workflow.editor.ListSections()
+		w = InsertAfterSection(ns, sections)
+		self.workflow.editor.AddSec(w, ml)
+		self._modified_inc_()
+		msg = N_("The section {0} was added.")
+		Info(msg.format(f"[{ns}]"))
+		for l in ml:
+			Info('\t' + repr(l))
+		self._start_log_()
+		self.Bold('\t' + _(msg).format(f"[{ns}]") + '\n')
+	def _ovr_sec_ml_(self, k : K|str, b64 : LinesB64) -> None:
+		assert self.workflow.editor is not None, "Invalid object state"
+		if isinstance(k, K):
+			k = k.section
+		self.workflow.editor.OvrSec(k, b64)
+		self._modified_inc_()
+		msg = N_("The section {0} was replaced.")
+		Info(msg.format(f"[{k}]"))
+		for l in b64.Extract():
+			Info('\t' + repr(l))
+		self._start_log_()
+		self.Bold('\t' + _(msg).format(f"[{k}]") + '\n')
+	def _upd_sec_(self, k : K, crc_pro : CrcKey|None, b64_pro : LinesB64|None, crc_plus : CrcKey|None, b64_plus : LinesB64|None) -> None:
+		" Update section for pro/plus. A `None` value indicates section delete "
+		assert self.workflow.editor is not None, "Invalid object state"
+		if self.workflow.opts.IsArtillerySWX4Pro():
+			crc = crc_pro
+			b64 = b64_pro
+		else:
+			crc = crc_plus
+			b64 = b64_plus
+
+		info = self.workflow.editor.ListSection(k.section)
+		if crc is None:
+			assert b64 is None, "Invalid function argument"
+			if info is not None:
+				self._del_sec_(k)
+		else:
+			assert isinstance(b64, LinesB64), "Invalid function argument"
+			if info is not None:
+				if info.crc != crc:
+					self._ovr_sec_ml_(k, b64)
+			else:
+				self._add_sec_(b64)
+
+	##### SECTION/KEY/VALUE ######
+	def _has_key_(self, k : K) -> bool:
+		assert self.workflow.editor is not None, "Invalid object state"
+		return self.workflow.editor.GetKey(k.section, k.key) is not None
+	def _get_crc_eq_(self, k : K, value : CrcKey) -> bool:
+		assert self.workflow.editor is not None, "Invalid object state"
+		res = self.workflow.editor.ListKey(k.section, k.key)
+		if isinstance(res, KeyInfo):
+			return res.crc == value
+		return False
+	def _get_crc_ne_(self, k : K, value : CrcKey) -> bool:
+		assert self.workflow.editor is not None, "Invalid object state"
+		res = self.workflow.editor.ListKey(k.section, k.key)
+		if isinstance(res, KeyInfo):
+			return res.crc != value
+		return True
+	def _get_key_ne_(self, k : K, value : str) -> bool:
+		assert self.workflow.editor is not None, "Invalid object state"
+		res = self.workflow.editor.GetKey(k.section, k.key)
+		if isinstance(res, str):
+			return str != value
+		return True
+	def _set_key_(self, k : K, value : str) -> bool:
+		assert self.workflow.editor is not None, "Invalid object state"
+		if self.workflow.editor.EditKey(k.section, k.key, value):
+			self._modified_inc_()
+			msg : str = N_("The value {0}/{1} was added/updated to {2}.")
+			Info(msg.format(f"[{k.section}]", k.key, repr(value)))
+			self._start_log_()
+			self.Bold('\t' + _(msg).format(f"[{k.section}]", k.key, repr(value)) + '\n')
+			return True
+		return False
+	def _set_key_ml_(self, k : K, value : LinesB64) -> bool:
+		assert self.workflow.editor is not None, "Invalid object state"
+		if self.workflow.editor.EditKeyML(k.section, k.key, value):
+			self._modified_inc_()
+			msg : str = N_("The value {0}/{1} was added/updated.")
+			Info(msg.format(f"[{k.section}]", k.key))
+			for l in value.Extract():
+				Info('\t' + repr(l))
+			self._start_log_()
+			self.Bold('\t' + _(msg).format(f"[{k.section}]", k.key) + '\n')
+			return True
+		return False
+	def _del_key_(self, k : K) -> bool:
+		assert self.workflow.editor is not None, "Invalid object state"
+		if self.workflow.editor.DelKey(k.section, k.key) == True:
+			msg : str = N_("The value {0}/{1} was removed.")
+			Warning(msg.format(f"[{k.section}]", k.key))
+			self._start_log_()
+			self.Warning('\t' + _(msg).format(f"[{k.section}]", k.key) + '\n')
+			return True
+		return False
+	def _upt_val_(self, k : K, val_pro : str|None, val_plus : str|None) -> None:
+		" Update value for pro/plus. A `None` value indicates key delete "
+		assert val_pro is None or isinstance(val_pro, str), "Invalid function argument"
+		assert val_plus is None or isinstance(val_plus, str), "Invalid function argument"
+		if self.workflow.opts.IsArtillerySWX4Pro():
+			v = val_pro
+		else:
+			v = val_plus
+		if v is None:
+			self._del_key_(k)
+		else:
+			self._set_key_(k, v)
+	def _upt_ml_(self, k : K, crc_pro : CrcKey|None, b64_pro : LinesB64|None, crc_plus : CrcKey|None, b64_plus : LinesB64|None) -> None:
+		" Update multiline value for pro/plus.  A `None` value indicates key delete "
+		assert crc_pro is None or isinstance(crc_pro, CrcKey), "Invalid function argument"
+		assert crc_plus is None or isinstance(crc_plus, CrcKey), "Invalid function argument"
+		if self.workflow.opts.IsArtillerySWX4Pro():
+			crc = crc_pro
+			b64 = b64_pro
+		else:
+			crc = crc_plus
+			b64 = b64_plus
+		if crc is None:
+			assert b64 is None, "Invalid function argument"
+			self._del_key_(k)
+		else:
+			assert isinstance(b64, LinesB64), "Invalid function argument"
+			if self._get_crc_ne_(k, crc):
+				self._set_key_ml_(k, b64)
+
+	##### PERSISTENCE BLOCK ######
+	def _save_persistence_(self, data : LinesB64) -> None:
+		assert self.workflow.editor is not None, "Invalid object state"
+		self.workflow.editor.SavePersistenceB64(data)
+		self._modified_inc_()
+		self.workflow.persistence_upd = True
+		msg : str = N_("The persistence block was reset.")
+		Warning(msg)
+		self._start_log_()
+		self.Warning('\t' + _(msg) + '\n')
+	def _persist_(self, b64_pro : LinesB64, b64_plus : LinesB64) -> None:
+		" Saves persistence for pro/plus configuration"
+		assert isinstance(b64_pro, LinesB64), "Invalid function argument"
+		assert isinstance(b64_plus, LinesB64), "Invalid function argument"
+		if self.workflow.opts.IsArtillerySWX4Pro():
+			self._save_persistence_(b64_pro)
+		else:
+			self._save_persistence_(b64_plus)
 
 
 class BackupConfig(EditConfig_):
@@ -92,7 +449,7 @@ class BackupConfig(EditConfig_):
 			backup = os.path.join(self.work_folder, datetime.now().strftime('printer_%Y%m%d-%H%M%S.cfg'))
 			Debug(f"SFTP /home/mks/klipper_config/printer.cfg '{self.work_folder}'")
 			workflow.SftpGet('/home/mks/klipper_config/printer.cfg', self.work_folder)
-			self.Info(_("\n\tSuccessfully copy file '{}'").format('/home/mks/klipper_config/printer.cfg'))
+			self.Info(_("\n\tSuccessfully copy file '{}'").format(CONFIG_FILE))
 			if os.path.isfile(backup):
 				os.unlink(backup)
 			Debug(f"copy '{self.work_folder}' '{backup}'")
@@ -147,7 +504,9 @@ class ConfigReset(EditConfig_):
 				cal = RESET_CFG_PLUS
 		# Reset settings, but preserve calibration
 		if workflow.opts.reset == 2:
-			cal = workflow.editor.GetPersistenceB64()
+			tmp = Commands(self.target)
+			cal = tmp.GetPersistenceB64()
+			tmp = None
 		# Reset settings to factory default
 		if workflow.opts.reset in (2, 3):
 			# Use the latest Artillery upgrade file, according to printer model
@@ -160,52 +519,35 @@ class ConfigReset(EditConfig_):
 			shutil.copyfile(source, self.target)
 		# Apply calibration
 		if cal is not None:
+			workflow.editor = Commands(self.target)
 			workflow.editor.SavePersistenceB64(cal)
 
 
-class K(object):
-	def __init__(self, section : str, key : str) -> None:
-		self.section = section
-		self.key = key
-	def __str__(self):
-		return f"[{self.section}]/{self.key}"
-	def __repr__(self):
-		return f'K("[{self.section}]" / "{self.key}")'
+class ConfigValidate(EditConfig_):
+	def __init__(self, workflow: Workflow) -> None:
+		super().__init__(workflow, N_("Validate Printer Configuration"), TaskState.READY)
+	def Do(self):
+		workflow = self.workflow
+		if not workflow.editor:
+			workflow.editor = Commands(self.target)
+		self._set_upgraded_cfg_(self._has_key_(_gcode_M300_) and self._has_key_(_gcode_M600_))
+		# TODO
 
 
-_stepper_x_max = K("stepper_x", "position_max")
-_stepper_y_max = K("stepper_y", "position_max")
-_stepper_y_dir = K("stepper_y", "dir_pin")
-_stepper_y_min = K("stepper_y", "position_min")
-_stepper_y_stop = K("stepper_y", "position_endstop")
-_stepper_z_max = K("stepper_z", "position_max")
-_gcode_homing_ = K("homing_override", "gcode")
-_gcode_line_ = K("gcode_macro draw_line", "gcode")
-_bed_mesh_max_ = K("bed_mesh", "mesh_max")
-_gcode_G29_ = K("gcode_macro G29", "gcode")
-_gcode_M300_ = K("gcode_macro M300", "gcode")
-_gcode_M600_ = K("gcode_macro M600", "gcode")
-_gcode_wipe = K("gcode_macro nozzle_wipe", "gcode")
-_gcode_line_only = K("gcode_macro draw_line_only", "gcode")
-_gcode_point_0_ = K("gcode_macro move_to_point_0", "gcode")
-_gcode_point_1_ = K("gcode_macro move_to_point_1", "gcode")
-_gcode_point_2_ = K("gcode_macro move_to_point_2", "gcode")
-_gcode_point_3_ = K("gcode_macro move_to_point_3", "gcode")
-_gcode_point_4_ = K("gcode_macro move_to_point_4", "gcode")
-_gcode_point_5_ = K("gcode_macro move_to_point_5", "gcode")
-_gcode_point_6_ = K("gcode_macro move_to_point_6", "gcode")
-_hold_current_z_ = K("tmc2209 stepper_z", "hold_current")
-_extruder_accel_ = K("extruder", "max_extrude_only_accel")
-_extruder_current_ = K("tmc2209 extruder", "run_current")
-_probe_x_offset_ = K("probe", "x_offset")
-_probe_y_offset_ = K("probe", "y_offset")
-_probe_speed_ = K("probe", "speed")
-_probe_lift_ = K("probe", "lift_speed")
-_probe_samples_ = K("probe", "samples")
-_probe_result_ = K("probe", "samples_result")
-_probe_tolerance_ = K("probe", "samples_tolerance")
-_probe_retries_ = K("probe", "samples_tolerance_retries")
-_tilt_adjust_ = K("screws_tilt_adjust", "")
+_always_ = "_always_"					# Always true
+_is_def_ = "_is_def_"					# Is default factory config?
+_is_upg_ = "_is_upg_"					# Is upgraded config?
+_set_upgraded_cfg_ = "_set_upgraded_cfg_"
+_is_modified_ = "_is_modified_"			# Config file was changed?
+_is_combo_0_ = "_is_combo_0_"			# Item 0 of associated combobox is selected
+_is_combo_1_ = "_is_combo_1_"			# Item 1 of associated combobox is selected
+_is_combo_2_ = "_is_combo_2_"			# Item 2 of associated combobox is selected
+_is_combo_3_ = "_is_combo_3_"			# Item 2 of associated combobox is selected
+
+_upt_val_ = "_upt_val_"					# (_upt_val_, K, val_pro, val_plus)	 					## Use None values to delete key
+_upt_ml_ = "_upt_ml_"					# (_upt_ml_, K, crc_pro, b64_pro, crc_plus, b64_plus)	## Use None values to delete key
+_upd_sec_ = "_upd_sec_"					# (_upd_sec_, K, crc_pro, b64_pro, crc_plus, b64_plus)	## Use None values to delete section
+_persist_ = "_persist_"					# (_persist_, b64_pro, b64_plus)
 
 
 class StmtList_(EditConfig_):
@@ -235,268 +577,53 @@ class StmtList_(EditConfig_):
 
 	def __init__(self, workflow: Workflow, label: str, state: TaskState) -> None:
 		super().__init__(workflow, label, state)
-		# Modified flag
-		self.modified_cnt = self.workflow.modify_cfg
-		self.combo_val = 0
-	def HasStepModified(self):
-		return self.modified_cnt != self.workflow.modify_cfg
-	def _decode_call(self, op : list[Any], vars : list[Any]):
-		if len(op) == 0:
-			raise RuntimeError("Function call need at least a function value")
-		call : Callable = getattr(self, op[0])
-		del op[0]
-		args : list[Any] = []
-		for p in op:
-			if type(p) is str:
-				m = FixModelSettings.IDX_ARG_PAT.match(p)
-				if m:
-					v = vars[int(m[1])]
-					if isinstance(v, (K, str, CrcKey, LinesB64)):
-						args.append(v)
-					else:
-						raise ValueError("Unsupported data-type")
-				else:
-					args.append(p)
-			else:
-				args.append(p)
-		return call(*args)
 	def Do(self):
 		super().Do()
 		super().Validate()
-		self.modified_cnt = self.workflow.modify_cfg
-	def RunPlan(self, plan):
+	def RunPlan(self, plan, opt_idx : int):
+		self._set_combobox_opt_(opt_idx)
 		# Run the correction plan
 		for op in plan:
-			if isinstance(op[0], tuple):
-				# Build variable list <var-array>
-				vars : list[Any] = [None]
-				vars += list(op[0])
-				# Validate <filter-1>
-				if not isinstance(op[1], tuple):
-					raise RuntimeError("Filter 1 is not optional")
-				# Execute <filter-1>
-				if self._decode_call(list(op[1]), vars):
-					# Validate <filter-2>
-					if not isinstance(op[2], tuple):
-						raise RuntimeError("Filter 2 is not optional")
-					# Execute <filter-2>
-					if self._decode_call(list(op[2]), vars):
-						# <then> condition
-						if isinstance(op[3], tuple):
-							self._decode_call(list(op[3]), vars)
-						elif op[3] is not None:
-							raise RuntimeError("The `then` clause has an unexpected data-type")
-					elif len(op) > 4:
-						if isinstance(op[4], tuple):
-							# <else> condition
-							self._decode_call(list(op[4]), vars)
-						elif op[4] is not None:
-							raise RuntimeError("The `else` clause has an unexpected data-type")
-				elif len(op) > 5:
-					if isinstance(op[5], tuple):
-						# <else> condition
-						self._decode_call(list(op[5]), vars)
-					elif op[5] is not None:
-						raise RuntimeError("The `else` clause has an unexpected data-type")
-			else:
-				raise ValueError("Invalid `var-array` element")
-	def _set_upgraded_cfg_(self, status : bool) -> None:
-		self.workflow.upgraded_cfg = status
-	def _modified_inc_(self) -> None:
-		self.workflow.modify_cfg += 1
-	def _always_(self) -> bool:
-		return True
-	def _is_def_(self) -> bool:
-		" Is default factory config? (not an upgraded version) "
-		return self.workflow.upgraded_cfg == False
-	def _is_upg_(self) -> bool:
-		" Is upgraded config? (not a default version) "
-		return self.workflow.upgraded_cfg != False
-	def _is_modified_(self) -> bool:
-		return self.workflow.modify_cfg != 0
-	def _set_combobox_opt_(self, v : int) -> None:
-		self.combo_val = v
-	def _is_combo_0_(self) -> bool:
-		return self.combo_val == 0
-	def _is_combo_1_(self) -> bool:
-		return self.combo_val == 1
-	def _is_combo_2_(self) -> bool:
-		return self.combo_val == 2
-	def _is_combo_3_(self) -> bool:
-		return self.combo_val == 3
-	##### SECTION ######
-	def _has_sec_(self, k : K|str) -> bool:
-		assert self.workflow.editor is not None, "Invalid object state"
-		if isinstance(k, K):
-			k = k.section
-		return self.workflow.editor.ListSection(k) is not None
-	def _no_sec_(self, k : K|str) -> bool:
-		assert self.workflow.editor is not None, "Invalid object state"
-		if isinstance(k, K):
-			k = k.section
-		return self.workflow.editor.ListSection(k) is None
-	def _has_sec_crc_ne_(self, k : K|str, value : CrcKey) -> bool:
-		assert self.workflow.editor is not None, "Invalid object state"
-		if isinstance(k, K):
-			k = k.section
-		res = self.workflow.editor.ListSection(k)
-		if isinstance(res, SectionInfo):
-			return res.crc != value
-		return False
-	def _del_sec_(self, k : K|str) -> bool:
-		assert self.workflow.editor is not None, "Invalid object state"
-		if isinstance(k, K):
-			k = k.section
-		res = self.workflow.editor.DelSec(k)
-		if res:
-			self._modified_inc_()
-			return True
-		return False
-	def _set_sec_ml_(self, k : K|str, b64 : LinesB64) -> None:
-		assert self.workflow.editor is not None, "Invalid object state"
-		if isinstance(k, K):
-			k = k.section
-		self.workflow.editor.AddSec(k, b64)
-		self._modified_inc_()
-	def _ovr_sec_ml_(self, k : K|str, b64 : LinesB64) -> None:
-		assert self.workflow.editor is not None, "Invalid object state"
-		if isinstance(k, K):
-			k = k.section
-		self.workflow.editor.OvrSec(k, b64)
-		self._modified_inc_()
-	##### SECTION/KEY/VALUE ######
-	def _has_key_(self, k : K) -> bool:
-		assert self.workflow.editor is not None, "Invalid object state"
-		return self.workflow.editor.GetKey(k.section, k.key) is not None
-	def _get_crc_eq_(self, k : K, value : CrcKey) -> bool:
-		assert self.workflow.editor is not None, "Invalid object state"
-		res = self.workflow.editor.ListKey(k.section, k.key)
-		if isinstance(res, KeyInfo):
-			return res.crc == value
-		return False
-	def _get_crc_ne_(self, k : K, value : CrcKey) -> bool:
-		assert self.workflow.editor is not None, "Invalid object state"
-		res = self.workflow.editor.ListKey(k.section, k.key)
-		if isinstance(res, KeyInfo):
-			return res.crc != value
-		return True
-	def _get_key_ne_(self, k : K, value : str) -> bool:
-		assert self.workflow.editor is not None, "Invalid object state"
-		res = self.workflow.editor.GetKey(k.section, k.key)
-		if isinstance(res, str):
-			return str != value
-		return True
-	def _set_key_(self, k : K, value : str) -> bool:
-		assert self.workflow.editor is not None, "Invalid object state"
-		if self.workflow.editor.EditKey(k.section, k.key, value):
-			self._modified_inc_()
-			return True
-		return False
-	def _set_key_ml_(self, k : K, value : LinesB64) -> bool:
-		assert self.workflow.editor is not None, "Invalid object state"
-		if self.workflow.editor.EditKeyML(k.section, k.key, value):
-			self._modified_inc_()
-			return True
-		return False
-	def _del_key_(self, k : K, value : LinesB64) -> bool:
-		assert self.workflow.editor is not None, "Invalid object state"
-		return self.workflow.editor.DelKey(k.section, k.key) == True
-	##### PERSISTENCE BLOCK ######
-	def _save_persistence_(self, data : LinesB64) -> None:
-		assert self.workflow.editor is not None, "Invalid object state"
-		self.workflow.editor.SavePersistenceB64(data)
-		self._modified_inc_()
-		self.workflow.persistence_upd = True
-
-
-_always_ = "_always_"					# Always true
-_is_def_ = "_is_def_"					# Is default factory config?
-_is_upg_ = "_is_upg_"					# Is upgraded config?
-_set_upgraded_cfg_ = "_set_upgraded_cfg_"
-_is_modified_ = "_is_modified_"			# Config file was changed?
-_is_combo_0_ = "_is_combo_0_"			# Item 0 of associated combobox is selected
-_is_combo_1_ = "_is_combo_1_"			# Item 1 of associated combobox is selected
-_is_combo_2_ = "_is_combo_2_"			# Item 2 of associated combobox is selected
-_is_combo_3_ = "_is_combo_3_"			# Item 2 of associated combobox is selected
-_has_sec_ = "_has_sec_"					# Has Section?
-_has_sec_crc_ne_ = "_has_sec_crc_ne_"	# Section exists but differs CRC
-_no_sec_ = "_no_sec_"					# Does not have section?
-_del_sec_ = "_del_sec_"					# Delete a section
-_set_sec_ml_ = "_set_sec_ml_"			# Adds entire section contents after a section
-_ovr_sec_ml_ = "_ovr_sec_ml_"			# Overwrite entire section contents
-_has_key_ = "_has_key_"					# Does the section has the specified key?
-_get_crc_eq_ = "_get_crc_eq_"			# Exists and is CRC equal?
-_get_crc_ne_ = "_get_crc_ne_"			# Does not exists or CRC is not equal?
-_get_key_ne_ = "_get_key_ne_"			# Does not exists or key value differs?
-_set_key_ = "_set_key_"					# Sets simple key value
-_set_key_ml_ = "_set_key_ml_"			# Sets MultiLine key
-_del_key_ = "_del_key_"					# Delete a key
-_save_persistence_ = "_save_persistence_"
-_1_ = '@1#'
-_2_ = '@2#'
-_3_ = '@3#'
+			assert isinstance(op, tuple), "Invalid table"
+			cond : Callable = getattr(self, op[0])
+			if cond():
+				call : Callable = getattr(self, op[1])
+				args = op[2:]
+				call(*args)
 
 
 class FixModelSettings(StmtList_):
-	X4_PRO = (
-		# <var-array>								<filter-1>			<then-1: filter-2> 			<then-2> / <else-2> / <else-1>
-		((_gcode_M300_, _gcode_M600_),				(_has_key_, _1_),	(_has_key_, _2_), 			(_set_upgraded_cfg_, True),
-				 																						(_set_upgraded_cfg_, False),
-				 																							(_set_upgraded_cfg_, False)),
-		((_stepper_x_max, X_MAX_PRO),				(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		((_stepper_y_dir, Y_DIR_PRO),				(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		((_stepper_y_min, Y_MIN_PRO),				(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		((_stepper_y_stop, Y_STOP_PRO),				(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		((_stepper_y_max, Y_MAX_PRO),				(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		((_stepper_z_max, Z_MAX_PRO),				(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		((_gcode_homing_, HOME_OVR_PRO_CRC),		(_always_, ),		(_get_crc_ne_, _1_, _2_),	(_set_key_ml_, _1_, HOME_OVR_PRO)),
-		((_bed_mesh_max_, MESH_MAX_PRO),			(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		((_gcode_G29_, G29_PRO_CRC),				(_always_, ),		(_get_crc_ne_, _1_, _2_),	(_set_key_ml_, _1_, G29_PRO)),
-		((_gcode_wipe, WIPE_PLUS_CRC_DEF),			(_is_def_, ),		(_get_crc_eq_, _1_, _2_),	(_set_key_ml_, _1_, WIPE_PRO_DEF)),
-		((_gcode_wipe, WIPE_PLUS_CRC_UPG),			(_is_upg_, ),		(_get_crc_eq_, _1_, _2_),	(_set_key_ml_, _1_, WIPE_PRO_UPG)),
-		((_gcode_line_only, LINE_ONLY_PLUS_CRC),	(_is_upg_, ),		(_get_crc_eq_, _1_, _2_),	(_set_key_ml_, _1_, LINE_ONLY_PRO)),
-		((_gcode_point_0_, POINT0_PRO_CRC),			(_always_, ),		(_get_crc_ne_, _1_, _2_),	(_set_key_ml_, _1_, POINT0_PRO)),
-		((_gcode_point_1_, POINT1_PRO_CRC),			(_always_, ),		(_get_crc_ne_, _1_, _2_),	(_set_key_ml_, _1_, POINT1_PRO)),
-		((_gcode_point_2_, POINT2_PRO_CRC),			(_always_, ),		(_get_crc_ne_, _1_, _2_),	(_set_key_ml_, _1_, POINT2_PRO)),
-		((_gcode_point_3_, POINT3_PRO_CRC),			(_always_, ),		(_get_crc_ne_, _1_, _2_),	(_set_key_ml_, _1_, POINT3_PRO)),
-		((_gcode_point_4_, ),						(_always_, ),		(_has_sec_, _1_),			(_del_sec_, _1_)),
-		((_gcode_point_5_, ),						(_always_, ),		(_has_sec_, _1_),			(_del_sec_, _1_)),
-		((_gcode_point_6_, ),						(_always_, ),		(_has_sec_, _1_),			(_del_sec_, _1_)),
-		((RESET_CFG_PRO, ),							(_always_, ),		(_is_modified_, ),			(_save_persistence_, _1_)),
+	PLAN = (
+		# <cond>			<command>		<section/key>		<value pro>		<value plus>
+		( _always_,			_upt_val_,		_stepper_x_max,		X_MAX_PRO,		X_MAX_PLUS ),
+		( _always_,			_upt_val_,		_stepper_y_dir,		Y_DIR_PRO,		Y_DIR_PLUS ),
+		( _always_,			_upt_val_,		_stepper_y_min,		Y_MIN_PRO,		Y_MIN_PLUS ),
+		( _always_,			_upt_val_,		_stepper_y_stop,	Y_STOP_PRO,		Y_STOP_PLUS ),
+		( _always_,			_upt_val_,		_stepper_y_max,		Y_MAX_PRO,		Y_MAX_PLUS ),
+		( _always_,			_upt_val_,		_stepper_z_max,		Z_MAX_PRO,		Z_MAX_PLUS ),
+		# <cond>			<command>		<section/key>		<crc pro>			<b64 pro>		<crc plus>			<b64 plus>
+		( _always_,			_upt_ml_,		_gcode_homing_,		HOME_OVR_PRO_CRC,	HOME_OVR_PRO,	HOME_OVR_PLUS_CRC,	HOME_OVR_PLUS ),
+		# <cond>			<command>		<section/key>		<value pro>		<value plus>
+		( _always_,			_upt_val_,		_bed_mesh_max_,		MESH_MAX_PRO,	MESH_MAX_PLUS ),
+		# <cond>			<command>		<section/key>		<crc pro>			<b64 pro>		<crc plus>			<b64 plus>
+		( _always_,			_upt_ml_,		_gcode_G29_,		G29_PRO_CRC,		G29_PRO,		G29_PLUS_CRC,		G29_PLUS),
+		( _is_def_,			_upt_ml_,		_gcode_wipe,		WIPE_PRO_CRC_DEF,	WIPE_PRO_DEF,	WIPE_PLUS_CRC_DEF,	WIPE_PLUS_DEF ),
+		( _is_upg_,			_upt_ml_,		_gcode_wipe,		WIPE_PRO_CRC_UPG,	WIPE_PRO_UPG,	WIPE_PLUS_CRC_UPG,	WIPE_PLUS_UPG ),
+		( _is_def_,			_upt_ml_,		_gcode_line,		LINE_PRO_CRC_DEF,	LINE_PRO_DEF,	LINE_PLUS_CRC_DEF,	LINE_PLUS_DEF ),
+		( _is_upg_,			_upt_ml_,		_gcode_line,		LINE_PRO_CRC_UPG,	LINE_PRO_UPG,	LINE_PLUS_CRC_UPG,	LINE_PLUS_UPG ),
+		# <cond>			<command>		<section/key>		<crc pro>				<b64 pro>			<crc plus>				<b64 plus>
+		( _is_upg_,			_upd_sec_,		_gcode_line_only,	LINE_ONLY_PRO_CRC_UPG,	LINE_ONLY_PRO_UPG,	LINE_ONLY_PLUS_CRC_UPG,	LINE_ONLY_PLUS_UPG ),	
+		# <cond>			<command>		<section/key>		<crc pro>			<b64 pro>		<crc plus>			<b64 plus>
+		( _always_,			_upt_ml_,		_gcode_point_0_,	POINT0_PRO_CRC,		POINT0_PRO,		POINT0_PLUS_CRC,	POINT0_PLUS ),
+		( _always_,			_upt_ml_,		_gcode_point_1_,	POINT1_PRO_CRC,		POINT1_PRO,		POINT1_PLUS_CRC,	POINT1_PLUS ),
+		( _always_,			_upt_ml_,		_gcode_point_2_,	POINT2_PRO_CRC,		POINT2_PRO,		POINT2_PLUS_CRC,	POINT2_PLUS ),
+		( _always_,			_upt_ml_,		_gcode_point_3_,	POINT3_PRO_CRC,		POINT3_PRO,		POINT3_PLUS_CRC,	POINT3_PLUS ),
+		( _always_,			_upd_sec_,		_gcode_point_4_,	None,				None,			POINT4_PLUS_CRC,	POINT4_SEC_PLUS ),
+		( _always_,			_upd_sec_,		_gcode_point_5_,	None,				None,			POINT5_PLUS_CRC,	POINT5_SEC_PLUS ),
+		( _always_,			_upd_sec_,		_gcode_point_6_,	None,				None,			POINT6_PLUS_CRC,	POINT6_SEC_PLUS ),
+		# <cond>			<command>		<b64 pro>			<b64 plus>
+		( _is_modified_,	_persist_,		RESET_CFG_PRO,		RESET_CFG_PLUS),
 	)
-	X4_PLUS = (
-		# <var-array>								<filter-1>			<filter-2> 					<then-2> / <else-2> / <else-1>
-		((_gcode_M300_, _gcode_M600_),				(_has_key_, _1_),	(_has_key_, _2_), 			(_set_upgraded_cfg_, True),
-				 																						(_set_upgraded_cfg_, False),
-				 																							(_set_upgraded_cfg_, False)),
-		((_stepper_x_max, X_MAX_PLUS),				(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		((_stepper_y_dir, Y_DIR_PLUS),				(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		((_stepper_y_min, Y_MIN_PLUS),				(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		((_stepper_y_stop, Y_STOP_PLUS),			(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		((_stepper_y_max, Y_MAX_PLUS),				(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		((_stepper_z_max, Z_MAX_PLUS),				(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		((_gcode_homing_, HOME_OVR_PLUS_CRC),		(_always_, ),		(_get_crc_ne_, _1_, _2_),	(_set_key_ml_, _1_, HOME_OVR_PLUS)),
-		((_bed_mesh_max_, MESH_MAX_PLUS),			(_always_, ),		(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		((_gcode_G29_, G29_PLUS_CRC),				(_always_, ),		(_get_crc_ne_, _1_, _2_),	(_set_key_ml_, _1_, G29_PLUS)),
-		((_gcode_wipe, WIPE_PRO_CRC_DEF),			(_is_def_, ),		(_get_crc_eq_, _1_, _2_),	(_set_key_ml_, _1_, WIPE_PLUS_DEF)),
-		((_gcode_wipe, WIPE_PRO_CRC_UPG),			(_is_upg_, ),		(_get_crc_eq_, _1_, _2_),	(_set_key_ml_, _1_, WIPE_PLUS_UPG)),
-		((_gcode_line_only, LINE_ONLY_PRO_CRC),		(_is_upg_, ),		(_get_crc_eq_, _1_, _2_),	(_set_key_ml_, _1_, LINE_ONLY_PLUS)),
-		((_gcode_point_0_, POINT0_PLUS_CRC),		(_always_, ),		(_get_crc_ne_, _1_, _2_),	(_set_key_ml_, _1_, POINT0_PLUS)),
-		((_gcode_point_1_, POINT1_PLUS_CRC),		(_always_, ),		(_get_crc_ne_, _1_, _2_),	(_set_key_ml_, _1_, POINT1_PLUS)),
-		((_gcode_point_2_, POINT2_PLUS_CRC),		(_always_, ),		(_get_crc_ne_, _1_, _2_),	(_set_key_ml_, _1_, POINT2_PLUS)),
-		((_gcode_point_3_, POINT3_PLUS_CRC),		(_always_, ),		(_get_crc_ne_, _1_, _2_),	(_set_key_ml_, _1_, POINT3_PLUS)),
-		((_gcode_point_4_, POINT4_PLUS_CRC),		(_has_sec_, _1_),	(_get_crc_eq_, _1_, _2_),	None,
-   																										(_set_key_ml_, _1_, POINT4_PLUS),
-																											(_set_sec_ml_, _gcode_point_3_, POINT4_SEC_PLUS)),
-		((_gcode_point_5_, POINT5_PLUS_CRC),		(_has_sec_, _1_),	(_get_crc_eq_, _1_, _2_),	None,
-   																										(_set_key_ml_, _1_, POINT5_PLUS),
-																											(_set_sec_ml_, _gcode_point_4_, POINT5_SEC_PLUS)),
-		((_gcode_point_6_, POINT6_PLUS_CRC),		(_has_sec_, _1_),	(_get_crc_eq_, _1_, _2_),	None,
-   																										(_set_key_ml_, _1_, POINT6_PLUS),
-																											(_set_sec_ml_, _gcode_point_5_, POINT6_SEC_PLUS)),
-		((RESET_CFG_PLUS, ),						(_always_, ),		(_is_modified_, ),			(_save_persistence_, _1_)),
-	)
-
 	def __init__(self, workflow: Workflow) -> None:
 		super().__init__(workflow, N_("Fix Printer Model Settings"), workflow.opts.model_attr and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
@@ -506,147 +633,116 @@ class FixModelSettings(StmtList_):
 			raise Exception("This item is disabled, why got called?")
 		super().Do()
 		# Select by printer
-		if workflow.opts.IsArtillerySWX4Pro():
-			# Changes for Artillery Sidewinder X4 Pro
-			plan = self.X4_PRO
-		else:
-			# Changes for Artillery Sidewinder X4 Plus
-			plan = self.X4_PLUS
-		self.RunPlan(plan)
+		self.RunPlan(self.PLAN, 0)
 
 
 class StepperZCurrent(StmtList_):
 	PLAN =(
-		# <var-array>									<filter-1>			<then-1: filter-2> 			<then-2> / <else-2> / <else-1>
-		((_hold_current_z_, HOLD_CURRENT_Z_LOW),		(_is_combo_1_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		((_hold_current_z_, HOLD_CURRENT_Z_HI),			(_is_combo_2_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		# <cond>			<command>		<section/key>		<value pro>				<value plus>
+		( _is_combo_1_,		_upt_val_,		_hold_current_z_,	HOLD_CURRENT_Z_LOW,		HOLD_CURRENT_Z_LOW ),
+		( _is_combo_2_,		_upt_val_,		_hold_current_z_,	HOLD_CURRENT_Z_HI,		HOLD_CURRENT_Z_HI ),
 	)
-
 	def __init__(self, workflow: Workflow) -> None:
 		super().__init__(workflow, N_("Stepper Z Hold Current"), workflow.opts.stepper_z_current and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		workflow = self.workflow
 		# Validate state
 		super().Do()
-		self._set_combobox_opt_(workflow.opts.stepper_z_current)
-		self.RunPlan(self.PLAN)
+		self.RunPlan(self.PLAN, workflow.opts.stepper_z_current)
 
 
 class ExtruderAccel(StmtList_):
 	PLAN =(
-		# <var-array>									<filter-1>			<then-1: filter-2> 			<then-2> / <else-2> / <else-1>
-		((_extruder_accel_, EXTRUDER_ACCEL_LOW),		(_is_combo_1_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		((_extruder_accel_, EXTRUDER_ACCEL_MID),		(_is_combo_2_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		((_extruder_accel_, EXTRUDER_ACCEL_HI),			(_is_combo_3_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		# <cond>			<command>		<section/key>		<value pro>				<value plus>
+		( _is_combo_1_,		_upt_val_,		_extruder_accel_,	EXTRUDER_ACCEL_LOW,		EXTRUDER_ACCEL_LOW ),
+		( _is_combo_2_,		_upt_val_,		_extruder_accel_,	EXTRUDER_ACCEL_MID,		EXTRUDER_ACCEL_MID ),
+		( _is_combo_3_,		_upt_val_,		_extruder_accel_,	EXTRUDER_ACCEL_HI,		EXTRUDER_ACCEL_HI ),
 	)
-
 	def __init__(self, workflow: Workflow) -> None:
 		super().__init__(workflow, N_("Extruder Acceleration Limit"), workflow.opts.extruder_accel and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		workflow = self.workflow
 		# Validate state
 		super().Do()
-		self._set_combobox_opt_(workflow.opts.extruder_accel)
-		self.RunPlan(self.PLAN)
+		self.RunPlan(self.PLAN, workflow.opts.extruder_accel)
 
 
 class ExtruderCurrent(StmtList_):
 	PLAN =(
-		# <var-array>									<filter-1>			<then-1: filter-2> 			<then-2> / <else-2> / <else-1>
-		((_extruder_current_, EXTRUDER_CURRENT_LOW),	(_is_combo_1_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		((_extruder_current_, EXTRUDER_CURRENT_MID),	(_is_combo_2_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		((_extruder_current_, EXTRUDER_CURRENT_HI),		(_is_combo_3_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		# <cond>			<command>		<section/key>		<value pro>				<value plus>
+		( _is_combo_1_,		_upt_val_,		_extruder_current_,	EXTRUDER_CURRENT_LOW,	EXTRUDER_CURRENT_LOW ),
+		( _is_combo_2_,		_upt_val_,		_extruder_current_,	EXTRUDER_CURRENT_MID,	EXTRUDER_CURRENT_MID ),
+		( _is_combo_3_,		_upt_val_,		_extruder_current_,	EXTRUDER_CURRENT_HI,	EXTRUDER_CURRENT_HI ),
 	)
-
 	def __init__(self, workflow: Workflow) -> None:
 		super().__init__(workflow, N_("Extruder Run Current"), workflow.opts.extruder_current and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		workflow = self.workflow
 		# Validate state
 		super().Do()
-		self._set_combobox_opt_(workflow.opts.extruder_current)
-		self.RunPlan(self.PLAN)
+		self.RunPlan(self.PLAN, workflow.opts.extruder_current)
 
 
 class ProbeOffset(StmtList_):
 	PLAN =(
-		# <var-array>							<filter-1>			<then-1: filter-2> 			<then-2> / <else-2> / <else-1>
-		((_probe_x_offset_, PROBE_X_OFFSET),	(_is_combo_1_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		((_probe_y_offset_, PROBE_Y_OFFSET),	(_is_combo_1_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		((_probe_x_offset_, PROBE180_X_OFFSET),	(_is_combo_2_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		((_probe_y_offset_, PROBE180_Y_OFFSET),	(_is_combo_2_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		# <cond>			<command>		<section/key>		<value pro>			<value plus>
+		( _is_combo_1_,		_upt_val_,		_probe_x_offset_,	PROBE_X_OFFSET,		PROBE_X_OFFSET ),
+		( _is_combo_1_,		_upt_val_,		_probe_y_offset_,	PROBE_Y_OFFSET,		PROBE_Y_OFFSET ),
+		( _is_combo_2_,		_upt_val_,		_probe_x_offset_,	PROBE180_X_OFFSET,	PROBE180_X_OFFSET ),
+		( _is_combo_2_,		_upt_val_,		_probe_y_offset_,	PROBE180_Y_OFFSET,	PROBE180_Y_OFFSET ),
 	)
-
 	def __init__(self, workflow: Workflow) -> None:
 		super().__init__(workflow, N_("Probe Offset"), workflow.opts.probe_offset and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		workflow = self.workflow
 		# Validate state
 		super().Do()
-		self._set_combobox_opt_(workflow.opts.probe_offset)
-		self.RunPlan(self.PLAN)
+		self.RunPlan(self.PLAN, workflow.opts.probe_offset)
 
 
 class ProbeSampling(StmtList_):
 	PLAN =(
-		# <var-array>							<filter-1>			<then-1: filter-2> 			<then-2> / <else-2> / <else-1>
-		((_probe_speed_, PROBE_SPEED),			(_is_combo_1_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		((_probe_lift_, ),						(_is_combo_1_, ),	(_has_key_, _1_),			(_del_key_, _1_)),
-		((_probe_samples_, PROBE_SAMPLE),		(_is_combo_1_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		((_probe_result_, PROBE_RESULT),		(_is_combo_1_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		# <var-array>							<filter-1>			<then-1: filter-2> 			<then-2> / <else-2> / <else-1>
-		((_probe_speed_, PROBE180_SPEED),		(_is_combo_2_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		((_probe_lift_, PROBE180_LIFT),			(_is_combo_2_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		((_probe_samples_, PROBE180_SAMPLE),	(_is_combo_2_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		((_probe_result_, PROBE180_RESULT),		(_is_combo_2_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		# <cond>			<command>		<section/key>		<value pro>			<value plus>
+		( _is_combo_1_,		_upt_val_,		_probe_speed_,		PROBE_SPEED,		PROBE_SPEED ),
+		( _is_combo_2_,		_upt_val_,		_probe_speed_,		PROBE180_SPEED,		PROBE180_SPEED ),
+		( _is_combo_1_,		_upt_val_,		_probe_lift_,		None,				None ),
+		( _is_combo_2_,		_upt_val_,		_probe_lift_,		PROBE180_LIFT,		PROBE180_LIFT ),
+		( _is_combo_1_,		_upt_val_,		_probe_samples_,	PROBE_SAMPLE,		PROBE_SAMPLE ),
+		( _is_combo_2_,		_upt_val_,		_probe_samples_,	PROBE180_SAMPLE,	PROBE180_SAMPLE ),
+		( _is_combo_1_,		_upt_val_,		_probe_result_,		PROBE_RESULT,		PROBE_RESULT ),
+		( _is_combo_2_,		_upt_val_,		_probe_result_,		PROBE180_RESULT,	PROBE180_RESULT ),
 	)
-
 	def __init__(self, workflow: Workflow) -> None:
 		super().__init__(workflow, N_("Z-Offset Sampling"), workflow.opts.probe_sampling and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		workflow = self.workflow
 		# Validate state
 		super().Do()
-		self._set_combobox_opt_(workflow.opts.probe_sampling)
-		self.RunPlan(self.PLAN)
+		self.RunPlan(self.PLAN, workflow.opts.probe_sampling)
 
 
 class ProbeValidation(StmtList_):
 	PLAN =(
-		# <var-array>								<filter-1>			<then-1: filter-2> 			<then-2> / <else-2> / <else-1>
-		((_probe_tolerance_, PROBE_TOLERANCE),		(_is_combo_1_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		((_probe_retries_, PROBE_RETRIES),			(_is_combo_1_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		# <var-array>								<filter-1>			<then-1: filter-2> 			<then-2> / <else-2> / <else-1>
-		((_probe_tolerance_, PROBE180_TOLERANCE),	(_is_combo_2_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
-		((_probe_retries_, PROBE180_RETRIES),		(_is_combo_2_, ),	(_get_key_ne_, _1_, _2_),	(_set_key_, _1_, _2_)),
+		# <cond>			<command>		<section/key>		<value pro>			<value plus>
+		( _is_combo_1_,		_upt_val_,		_probe_tolerance_,	PROBE_TOLERANCE,	PROBE_TOLERANCE ),
+		( _is_combo_2_,		_upt_val_,		_probe_tolerance_,	PROBE180_TOLERANCE,	PROBE180_TOLERANCE ),
+		( _is_combo_1_,		_upt_val_,		_probe_retries_,	PROBE_RETRIES,		PROBE_RETRIES ),
+		( _is_combo_2_,		_upt_val_,		_probe_retries_,	PROBE180_RETRIES,	PROBE180_RETRIES ),
 	)
-
 	def __init__(self, workflow: Workflow) -> None:
 		super().__init__(workflow, N_("Z-Offset Error Margin"), workflow.opts.probe_validation and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		workflow = self.workflow
 		# Validate state
 		super().Do()
-		self._set_combobox_opt_(workflow.opts.probe_validation)
-		self.RunPlan(self.PLAN)
+		self.RunPlan(self.PLAN, workflow.opts.probe_validation)
 
 
 class ScrewsTiltAdjust(StmtList_):
-	X4_PRO = (
-		# <var-array>							<filter-1>			<then-1: filter-2> 				<then-2> / <else-2> / <else-1>
-		((_tilt_adjust_, SCREWS_PRO_CRC),		(_is_combo_1_, ),	(_has_sec_crc_ne_, _1_, _2_),	(_ovr_sec_ml_, _1_, SCREWS_PRO)),
-		((_tilt_adjust_, ),						(_is_combo_1_, ),	(_no_sec_, _1_),					(_set_sec_ml_, _1_, SCREWS_PRO)),
-		# <var-array>							<filter-1>			<then-1: filter-2> 				<then-2> / <else-2> / <else-1>
-		((_tilt_adjust_, SCREWS180_PRO_CRC),	(_is_combo_2_, ),	(_has_sec_crc_ne_, _1_, _2_),	(_set_key_, _1_, SCREWS180_PRO)),
-		((_tilt_adjust_, ),						(_is_combo_2_, ),	(_no_sec_, _1_),					(_set_sec_ml_, _1_, SCREWS180_PRO)),
-	)
-	X4_PLUS = (
-		# <var-array>							<filter-1>			<then-1: filter-2> 				<then-2> / <else-2> / <else-1>
-		((_tilt_adjust_, SCREWS_PLUS_CRC),		(_is_combo_1_, ),	(_has_sec_crc_ne_, _1_, _2_),	(_ovr_sec_ml_, _1_, SCREWS_PLUS)),
-		((_tilt_adjust_, ),						(_is_combo_1_, ),	(_no_sec_, _1_),					(_set_sec_ml_, _1_, SCREWS_PLUS)),
-		# <var-array>							<filter-1>			<then-1: filter-2> 				<then-2> / <else-2> / <else-1>
-		((_tilt_adjust_, SCREWS180_PLUS_CRC),	(_is_combo_2_, ),	(_has_sec_crc_ne_, _1_, _2_),	(_set_key_, _1_, SCREWS180_PLUS)),
-		((_tilt_adjust_, ),						(_is_combo_2_, ),	(_no_sec_, _1_),					(_set_sec_ml_, _1_, SCREWS180_PLUS)),
+	PLAN =(
+		# <cond>			<command>	<section/key>		<crc pro>			<b64 pro>			<crc plus>			<b64 plus>
+		( _is_combo_1_,		_upd_sec_,	_tilt_adjust_,		SCREWS_PRO_CRC,		SCREWS_PRO,			SCREWS_PLUS_CRC,	SCREWS_PLUS ),
+		( _is_combo_2_,		_upd_sec_,	_tilt_adjust_,		SCREWS180_PRO_CRC,	SCREWS180_PRO,		SCREWS180_PLUS_CRC,	SCREWS180_PLUS),
 	)
 
 	def __init__(self, workflow: Workflow) -> None:
@@ -655,15 +751,7 @@ class ScrewsTiltAdjust(StmtList_):
 		workflow = self.workflow
 		# Validate state
 		super().Do()
-		self._set_combobox_opt_(workflow.opts.screws_tilt_adjust)
-		# Select by printer
-		if workflow.opts.IsArtillerySWX4Pro():
-			# Changes for Artillery Sidewinder X4 Pro
-			plan = self.X4_PRO
-		else:
-			# Changes for Artillery Sidewinder X4 Plus
-			plan = self.X4_PLUS
-		self.RunPlan(plan)
+		self.RunPlan(self.PLAN, workflow.opts.screws_tilt_adjust)
 
 
 class FanRename(EditConfig_):
@@ -778,6 +866,39 @@ class TempMCU(EditConfig_):
 			editor.AddSec("verify_heater heater_bed", MCU_TEMP)
 			self.workflow.modify_cfg += 1
 
+
+class NozzleWipe(StmtList_):
+	PLAN =(
+		# <cond>			<command>	<section/key>		<crc pro>			<b64 pro>			<crc plus>			<b64 plus>
+		( _is_combo_1_,		_upt_ml_,	_gcode_wipe,		WIPE_PRO_CRC_DEF,	WIPE_PRO_DEF,		WIPE_PLUS_CRC_DEF,	WIPE_PLUS_DEF ),
+		( _is_combo_2_,		_upt_ml_,	_gcode_wipe,		WIPE_PRO_CRC_UPG,	WIPE_PRO_UPG,		WIPE_PLUS_CRC_UPG,	WIPE_PLUS_UPG),
+	)
+	def __init__(self, workflow: Workflow) -> None:
+		super().__init__(workflow, N_("Nozzle Wipe"), workflow.opts.nozzle_wipe and TaskState.READY or TaskState.DISABLED)
+	def Do(self):
+		workflow = self.workflow
+		# Validate state
+		super().Do()
+		self.RunPlan(self.PLAN, workflow.opts.nozzle_wipe)
+
+
+class PurgeLine(StmtList_):
+	PLAN =(
+		# <cond>			<command>	<section/key>		<crc pro>				<b64 pro>			<crc plus>				<b64 plus>
+		( _is_combo_1_,		_upt_ml_,	_gcode_line,		LINE_PRO_CRC_DEF,		LINE_PRO_DEF,		LINE_PLUS_CRC_DEF,		LINE_PLUS_DEF ),
+		( _is_combo_2_,		_upt_ml_,	_gcode_line,		LINE_PRO_CRC_UPG,		LINE_PRO_UPG,		LINE_PLUS_CRC_UPG,		LINE_PLUS_UPG ),
+		( _is_combo_3_,		_upt_ml_,	_gcode_line,		LINE_PRO_CRC_UPG,		LINE_PRO_UPG,		LINE_PLUS_CRC_UPG,		LINE_PLUS_UPG ),
+		( _is_combo_1_,		_upd_sec_,	_gcode_line_only,	None,					None,				None,					None ),
+		( _is_combo_2_,		_upd_sec_,	_gcode_line_only,	LINE_ONLY_PRO_CRC_UPG,	LINE_ONLY_PRO_UPG,	LINE_ONLY_PLUS_CRC_UPG,	LINE_ONLY_PLUS_UPG ),
+		( _is_combo_3_,		_upd_sec_,	_gcode_line_only,	LINE_ONLY_PRO_CRC_GRU,	LINE_ONLY_PRO_GRU,	LINE_ONLY_PLUS_CRC_GRU,	LINE_ONLY_PLUS_GRU ),
+	)
+	def __init__(self, workflow: Workflow) -> None:
+		super().__init__(workflow, N_("Purge Line"), workflow.opts.purge_line and TaskState.READY or TaskState.DISABLED)
+	def Do(self):
+		workflow = self.workflow
+		# Validate state
+		super().Do()
+		self.RunPlan(self.PLAN, workflow.opts.purge_line)
 
 
 

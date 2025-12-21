@@ -187,9 +187,10 @@ Note that updating this setting may not change anything for you, since it's use 
 
 tt_purge_line = N_(
 	"""Purge Line
-This macro controls how the purge line is drawn and "Artillery" published two different versions of it.
+This macro controls how the purge line is drawn and "Artillery" published two different versions of it and a simple improvement is also offered.
 
 The legacy version draws multiple lines in a stack. Because this pattern causes more adhesion a newer version was developed that is very easy to be removed.
+My "Grumat" version compensates retraction used on this routine to avoid a under-extrusion on the start of the print.
 
 Note that updating this setting may not change anything for you, since it's use depends on your slicer software configuration.""")
 

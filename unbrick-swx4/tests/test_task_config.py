@@ -19,12 +19,13 @@ project_dir = os.path.normpath(os.path.join(current_dir, '..'))
 # Add the 'project_dir' directory to sys.path
 sys.path.append(project_dir)
 
-#from my_env import Info
 if TYPE_CHECKING:
+	from ..my_env import Error, Info, Warn
 	from ..user_options import UserOptions
 	from ..my_workflow import Workflow
 	from .test_utils import *
 else:
+	from my_env import Error, Info, Warn
 	from user_options import UserOptions
 	from my_workflow import Workflow
 	from test_utils import *
@@ -51,6 +52,8 @@ def step_002(opts : UserOptions):
 	opts.model_attr = True
 	opts.mb_fan_speed = 1
 	opts.hb_fan_speed = 1
+	opts.nozzle_wipe = 0
+	opts.purge_line = 0
 	wf = Workflow(opts)
 	wf.Test('step_002')
 
@@ -68,6 +71,8 @@ def step_003(opts : UserOptions):
 	opts.mb_fan_fix = True
 	opts.mb_fan_speed = 2
 	opts.hb_fan_speed = 2
+	opts.nozzle_wipe = 0
+	opts.purge_line = 0
 	wf = Workflow(opts)
 	wf.Test('step_003')
 
@@ -85,6 +90,8 @@ def step_004(opts : UserOptions):
 	opts.mb_fan_fix = False
 	opts.mb_fan_speed = 3
 	opts.hb_fan_speed = 3
+	opts.nozzle_wipe = 1
+	opts.purge_line = 1
 	wf = Workflow(opts)
 	wf.Test('step_004')
 
@@ -103,6 +110,8 @@ def step_005(opts : UserOptions):
 	opts.mb_fan_speed = 5
 	opts.hb_fan_speed = 5
 	opts.temp_mcu = True
+	opts.nozzle_wipe = 2
+	opts.purge_line = 2
 	wf = Workflow(opts)
 	wf.Test('step_005')
 
@@ -133,22 +142,35 @@ def main():
 		test += 1
 		method = f'step_{test:03d}'
 		if hasattr(sys.modules[__name__], method):
-			print("\033[1m" + f"Starting Test {test}" + NORMAL)
+			msg = f"Starting Test {test}"
+			print(BOLD + msg + NORMAL)
+			Info(msg)
 			getattr(sys.modules[__name__], method)(opts)
 			right = os.path.join(current_dir, 'results', f'printer-{test:03d}.cfg')
 			res = files_equal(left, right)
 			success += res
 			if res:
-				print(GREEN + f"Test {test} PASSED" + NORMAL)
+				msg = f"Test {test} PASSED"
+				print(GREEN + msg + NORMAL)
+				Info(msg)
 			else:
-				print('\033[31m' + f"Test {test} FAILED" + NORMAL)
+				msg = f"Test {test} FAILED"
+				print(RED + msg + NORMAL)
+				Error(msg)
+				msg = f"Files '{left}' and '{right}' didn't match"
+				print(YELLOW + msg + NORMAL)
+				Warn(msg)
 		else:
 			break
 	test -= 1
 	if test == success:
-		print(GREEN + f"Result: {success} of {test} have passed." + NORMAL)
+		msg = f"Result: {success} of {test} have passed."
+		print(GREEN + msg + NORMAL)
+		Info(msg)
 	else:
-		print(RED + f"Result: {success} of {test} have failed." + NORMAL)
+		msg = f"Result: {test-success} of {test} have failed."
+		print(RED + msg + NORMAL)
+		Error(msg)
 
 
 if __name__ == "__main__":

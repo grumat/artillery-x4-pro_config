@@ -148,6 +148,8 @@ class ProgressDialog:
 		# Define tags for styling
 		self.log.tag_config("bold", font=("Helvetica", 10, "bold"))
 		self.log.tag_config("warning", foreground="orange")
+		self.log.tag_config("action", font=("Helvetica", 10, "bold"), foreground="blue")
+		self.log.tag_config("success", font=("Helvetica", 10, "bold"), foreground="green")
 		self.log.tag_config("error", foreground="red")
 
 	def _log_insert(self, text, tag=None):

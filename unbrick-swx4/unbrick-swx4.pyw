@@ -277,7 +277,7 @@ fields = [
 
 	{"type": "title", 										"text": N_("G-Code")},
 	{"type": "combobox",  	"name": "nozzle_wipe", 			"label": N_("Nozzle Wipe"), "options": [N_("Do not Change"), N_("Legacy Version"), N_("New Version")], },
-	{"type": "combobox",  	"name": "purge_line", 			"label": N_("Purge Line"), "options": [N_("Do not Change"), N_("Legacy Version"), N_("New Version")], },
+	{"type": "combobox",  	"name": "purge_line", 			"label": N_("Purge Line"), "options": [N_("Do not Change"), N_("Legacy Version"), N_("New Version"), N_("Grumat Version")], },
 	{"type": "checkbox", 	"name": "enable_m600",			"text": N_("M600: Filament Change Support"), "label": ""},
 	{"type": "combobox",  	"name": "pause", 				"label": N_("Pause Macro"), "options": [N_("Do not Change"), N_("Legacy Version"), N_("New Version"), N_("Grumat Version")], },
 ]

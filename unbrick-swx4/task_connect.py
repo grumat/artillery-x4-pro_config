@@ -47,7 +47,7 @@ class CheckConnect(Task):
 					self.Info(msg)
 					found += 1
 		if found != 2:
-			self.Warning(_("Failed to retrieve OS version information!"))
+			self.Warning(_("Failed to retrieve OS version information!\n"))
 		else:
 			time.sleep(0.2)
 			# Check `./get_id` mkspi utility and verify MCU model
@@ -61,7 +61,7 @@ class CheckConnect(Task):
 					found += 1
 					break
 		if found != 3:
-			self.Warning(_("Failed to retrieve MCU Klipper connection!"))
+			self.Warning(_("Failed to retrieve MCU Klipper connection!\n"))
 		else:
 			time.sleep(0.2)
 			# Check `ls -1 /home/mks/Desktop/myfile/others/artillery_X4_*.cfg` to find configuration restore files

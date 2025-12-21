@@ -142,7 +142,7 @@ class Commands(object):
 	def Save(self):
 		self.contents.file_buffer.Save(self.fname)
 
-	def ListSections(self, qry : str) -> list[SectionInfo]:
+	def ListSections(self, qry : str = '*') -> list[SectionInfo]:
 		res = []
 		for s in self.contents.file_buffer.MatchSection(qry):
 			is_head = False
@@ -182,14 +182,17 @@ class Commands(object):
 			self.contents.sections.remove(buffer)
 			return pos
 	
-	def AddSec(self, where : str|int, b64 : LinesB64):
+	def AddSec(self, where : str|int, b64 : LinesB64|Lines):
 		" Adds a section to the specified position. Specify one of the following: "
 		"  - 0 for top; "
 		"  - -1 for bottom; "
 		"  - A line number of a section where new section will be added after; "
 		"  - A section name where new section will be added after. If the section does "
 		"    not exists it will be added to the bottom "
-		ml = b64.Extract()
+		if isinstance(b64, LinesB64):
+			ml = b64.Extract()
+		else:
+			ml = b64
 		if type(where) is int:
 			if (where == -1):
 				return self.contents.AddSectionAtBottom(ml)

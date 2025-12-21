@@ -11,19 +11,20 @@ import threading
 import time
 from enum import Enum
 from typing import TYPE_CHECKING
+from abc import ABC, abstractmethod
 
 TEST_MODE = os.getenv("USWX4_TEST")
 
 if TYPE_CHECKING:
 	from .user_options import UserOptions
-	from .i18n import _
-	from .my_env import Info, Error, GetBackupFolder, GetMainScriptPath, YELLOW, NORMAL
+	from .i18n import _, N_
+	from .my_env import Info, Error, GetBackupFolder, GetMainScriptPath, YELLOW, NORMAL, BOLD, RED, GREEN
 	from .my_shell import ArtillerySideWinder, DiskUsage
 	from .edit_cfg import Commands
 else:
 	from user_options import UserOptions
-	from i18n import _
-	from my_env import Info, Error, GetBackupFolder, GetMainScriptPath, YELLOW, NORMAL
+	from i18n import _, N_
+	from my_env import Info, Error, GetBackupFolder, GetMainScriptPath, YELLOW, NORMAL, BOLD, RED, GREEN
 	from my_shell import ArtillerySideWinder, DiskUsage
 	from edit_cfg import Commands
 
@@ -31,6 +32,8 @@ else:
 
 class MessageType(Enum):
 	NORMAL = "normal"
+	SUCCESS = "success"
+	ACTION = "action"
 	BOLD = "bold"
 	WARNING = "warning"
 	ERROR = "error"
@@ -52,11 +55,12 @@ class TaskState(Enum):
 	CANCELLED = 6
 	FAIL = 7
 
-class Task:
+class Task(ABC):
 	def __init__(self, workflow : "Workflow", label : str, state : TaskState) -> None:
 		self.workflow = workflow
 		self.label = label
 		self.state = state
+	@abstractmethod
 	def Do(self):
 		if self.state == TaskState.DISABLED:
 			raise Exception("This item is disabled, why got called?")
@@ -68,8 +72,7 @@ class Task:
 	def SetState(self, state : TaskState) -> None:
 		if self.state != state:
 			self.state = state
-			if (TEST_MODE is None) and not TYPE_CHECKING:
-				self.workflow.UpdateUI(self)
+			self.workflow.UpdateUI(self)
 	def UpdateState(self) -> None:
 		workflow = self.workflow
 		if self.CanFail():
@@ -80,20 +83,13 @@ class Task:
 		elif (self.state == TaskState.CONNECTED) and workflow.failed_connection:
 				self.SetState(TaskState.FAIL)
 	def Bold(self, msg : str) -> None:
-		if (TEST_MODE is None) and not TYPE_CHECKING:
-			self.workflow.UpdateUI(Message(MessageType.BOLD, msg))
-		else:
-			print('\033[1m' + msg + NORMAL, end='')
+		self.workflow.UpdateUI(Message(MessageType.BOLD, msg))
 	def Info(self, msg : str) -> None:
-		if (TEST_MODE is None) and not TYPE_CHECKING:
-			self.workflow.UpdateUI(Message(MessageType.NORMAL, msg))
-		else:
-			print(msg, end='')
+		self.workflow.UpdateUI(Message(MessageType.NORMAL, msg))
 	def Warning(self, msg : str) -> None:
-		if (TEST_MODE is None) and not TYPE_CHECKING:
-			self.workflow.UpdateUI(Message(MessageType.WARNING, msg))
-		else:
-			print(YELLOW + msg + '\033[30m', end='')
+		self.workflow.UpdateUI(Message(MessageType.WARNING, msg))
+	def Success(self, msg : str) -> None:
+		self.workflow.UpdateUI(Message(MessageType.SUCCESS, msg))
 
 
 #class MinTemplate(Task):
@@ -141,11 +137,13 @@ class Workflow(ArtillerySideWinder):
 						StopUserInterface, StartUserInterface, EnableUserInterface, StopWebCam, StartWebCam, EnableWebCam, FixCardResizeBug
 				from task_erasefiles import EraseGcodeFiles, EraseMiniatures, EraseLogFiles, EraseOldConfig, EraseClutterFiles
 		if TYPE_CHECKING:
-			from .task_config import BackupConfig, ConfigReset, FixModelSettings, StepperZCurrent, ExtruderAccel, ExtruderCurrent, ProbeOffset, \
-						ProbeSampling, ProbeValidation, ScrewsTiltAdjust, FanRename, MbFanFix, MbFanSpeed, HbFanSpeed, TempMCU
+			from .task_config import BackupConfig, ConfigReset, ConfigValidate, FixModelSettings, StepperZCurrent, ExtruderAccel, ExtruderCurrent, \
+						ProbeOffset, ProbeSampling, ProbeValidation, ScrewsTiltAdjust, FanRename, MbFanFix, MbFanSpeed, HbFanSpeed, TempMCU, \
+						NozzleWipe, PurgeLine
 		else:
-			from task_config import BackupConfig, ConfigReset, FixModelSettings, StepperZCurrent, ExtruderAccel, ExtruderCurrent, ProbeOffset, \
-						ProbeSampling, ProbeValidation, ScrewsTiltAdjust, FanRename, MbFanFix, MbFanSpeed, HbFanSpeed, TempMCU
+			from task_config import BackupConfig, ConfigReset, ConfigValidate, FixModelSettings, StepperZCurrent, ExtruderAccel, ExtruderCurrent, \
+						ProbeOffset, ProbeSampling, ProbeValidation, ScrewsTiltAdjust, FanRename, MbFanFix, MbFanSpeed, HbFanSpeed, TempMCU, NozzleWipe, \
+						PurgeLine
 
 		if (TEST_MODE is None):
 			self.tasks.append(Connect(self))
@@ -166,6 +164,7 @@ class Workflow(ArtillerySideWinder):
 
 		self.tasks.append(BackupConfig(self))
 		self.tasks.append(ConfigReset(self))
+		self.tasks.append(ConfigValidate(self))
 		self.tasks.append(FixModelSettings(self))
 		self.tasks.append(StepperZCurrent(self))
 		self.tasks.append(ExtruderAccel(self))
@@ -179,6 +178,8 @@ class Workflow(ArtillerySideWinder):
 		self.tasks.append(MbFanSpeed(self))
 		self.tasks.append(HbFanSpeed(self))
 		self.tasks.append(TempMCU(self))
+		self.tasks.append(NozzleWipe(self))
+		self.tasks.append(PurgeLine(self))
 
 		if (TEST_MODE is None):
 			self.tasks.append(TrimDisk(self))
@@ -194,10 +195,22 @@ class Workflow(ArtillerySideWinder):
 			# Always the Last
 			self.tasks.append(Disconnect(self))
 
-	if (TEST_MODE is None):
-		def UpdateUI(self, task: Task|Message|int|None):
+	def UpdateUI(self, task: Task|Message|int|None):
+		if (TEST_MODE is None):
 			self.queue.put(task)
 			self.dlg.event_generate("<<UpdateUI>>", when="tail")
+		elif isinstance(task, Message):
+			if task.type == MessageType.BOLD:
+				print(BOLD, end='')
+			elif task.type == MessageType.ERROR:
+				print(RED, end='')
+			elif task.type == MessageType.SUCCESS:
+				print(GREEN, end='')
+			elif task.type == MessageType.WARNING:
+				print(YELLOW, end='')
+			print(task.msg, end='')
+			if task.type != MessageType.NORMAL:
+				print(NORMAL, end='')
 
 	def _update_states(self):
 		for task in self.tasks:
@@ -208,8 +221,7 @@ class Workflow(ArtillerySideWinder):
 				self.exception = True
 				self._set_task_state(task, TaskState.FAIL)
 				Error(f'{error_message}\n')
-				if (TEST_MODE is None) and not TYPE_CHECKING:
-					self.UpdateUI(Message(MessageType.ERROR, _('ERROR!') + '\n\t' + _(error_message) + '\n'))
+				self.UpdateUI(Message(MessageType.ERROR, _('ERROR!') + '\n\t' + _(error_message) + '\n'))
 
 	def _update_progress(self, cnt : int):
 		for task in self.tasks:
@@ -218,8 +230,7 @@ class Workflow(ArtillerySideWinder):
 
 	def _set_task_state(self, task : Task, state : TaskState) -> None:
 		task.state = state
-		if (TEST_MODE is None) and not TYPE_CHECKING:
-			self.UpdateUI(task)
+		self.UpdateUI(task)
 
 	if (TEST_MODE is None) and not TYPE_CHECKING:
 		def _worker_thread(self):
@@ -235,10 +246,10 @@ class Workflow(ArtillerySideWinder):
 						self.UpdateUI((cnt * 100 + total//2) // total)
 					try:
 						Info(f'Begin Step: {task.label}...')
-						self.UpdateUI(Message(MessageType.BOLD, _('Begin Step: ') + _(task.label) + '...  '))
+						self.UpdateUI(Message(MessageType.ACTION, _('Begin Step: ') + _(task.label) + '...  '))
 						self._set_task_state(task, TaskState.RUNNING)
 						task.Do()
-						self.UpdateUI(Message(MessageType.BOLD, _('OK!') + '\n'))
+						self.UpdateUI(Message(MessageType.ACTION, _('OK!') + '\n'))
 						Info('  OK!')
 						self._set_task_state(task, TaskState.DONE)
 					except Exception as e:
@@ -249,7 +260,7 @@ class Workflow(ArtillerySideWinder):
 						self.UpdateUI(Message(MessageType.ERROR, _('ERROR!') + '\n\t' + _(error_message) + '\n'))
 			self.UpdateUI(100)
 			if persistence_upd:
-				msg = N_("Printer configuration has been reset, printer needs recalibration")
+				msg = N_("Printer configuration has been reset, printer needs recalibration.")
 				Warning(msg)
 				self.UpdateUI(Message(MessageType.BOLD, _(msg)))
 			self._update_states()
@@ -264,22 +275,28 @@ class Workflow(ArtillerySideWinder):
 			self.thread.start()
 
 	def Test(self, test_name : str):
+		import fnmatch
+		temp_dir = os.path.join(GetMainScriptPath(), "temp")
+		pat = f"{test_name}-??-*.cfg"
+		for f in os.listdir(temp_dir):
+			if fnmatch.fnmatch(f, pat):
+				fp = os.path.join(temp_dir, f)
+				os.unlink(fp)
 		i = 0
 		for task in self.tasks:
 			cnt_ref = self.modify_cfg
 			self._update_states()
 			if task.CanRun():
 				try:
-					print('\033[1m' + f'Begin Step: {task.label}...' + NORMAL)
+					self.UpdateUI(Message(MessageType.ACTION, _('Begin Step: ') + _(task.label) + '...  '))
 					self._set_task_state(task, TaskState.RUNNING)
 					task.Do()
-					print('\033[1m' + '  OK!' + NORMAL)
+					self.UpdateUI(Message(MessageType.ACTION, _('OK!') + '\n'))
 					self._set_task_state(task, TaskState.DONE)
 					if (i == 0) or (cnt_ref != self.modify_cfg):
-						fname = os.path.join(GetMainScriptPath(), "temp")
-						if not os.path.isdir(fname):
-							os.makedirs(fname)
-						fname = os.path.join(fname, f"{test_name}-{i:02}-{type(task).__name__}.cfg")
+						if not os.path.isdir(temp_dir):
+							os.makedirs(temp_dir)
+						fname = os.path.join(temp_dir, f"{test_name}-{i:02}-{type(task).__name__}.cfg")
 						if self.editor:
 							self.editor.contents.file_buffer.Save(fname)
 						i += 1
@@ -288,9 +305,11 @@ class Workflow(ArtillerySideWinder):
 					self.exception = True
 					self._set_task_state(task, TaskState.FAIL)
 					Error(f'{error_message}\n')
-					print('\033[31m' + f'\n\t{error_message}\n' + '\033[30m')
+					self.UpdateUI(Message(MessageType.ERROR, _('ERROR!') + '\n\t' + _(error_message) + '\n'))
 		if self.editor:
 			self.editor.Save()
 		if self.persistence_upd:
-			Warning("Printer configuration has been reset, printer needs recalibration")
-			print(YELLOW + "Printer configuration has been reset, printer needs recalibration" + NORMAL)
+			msg = N_("Printer configuration has been reset, printer needs recalibration.")
+			Warning(msg)
+			self.UpdateUI(Message(MessageType.BOLD, '\n' + _(msg) + '\n'))
+
