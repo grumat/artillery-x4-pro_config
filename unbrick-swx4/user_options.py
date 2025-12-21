@@ -19,6 +19,7 @@ class UserOptions(object):
 		# klipper
 		self.reset = 0
 		self.model_attr = True
+		self.exclude_object = True
 		# gantry
 		self.stepper_z_current = 1
 		# extruder
@@ -64,6 +65,7 @@ class UserOptions(object):
 		config['klipper'] = {
 			'reset': str(self.reset),
 			'model_attr': str(self.model_attr),
+			'exclude_object': str(self.exclude_object),
 		}
 		config['gantry'] = {
 			'stepper_z_current': str(self.stepper_z_current),
@@ -122,17 +124,18 @@ class UserOptions(object):
 
 		update_attr('klipper', 'reset', 				self.reset, int)
 		update_attr('klipper', 'model_attr', 			self.model_attr, lambda x: x.lower() == 'true')
+		update_attr('klipper', 'exclude_object', 		self.exclude_object, lambda x: x.lower() == 'true')
 
 		update_attr('gantry', 'stepper_z_current', 		self.stepper_z_current, int)
 
-		update_attr('extruder', 'extruder_accel', 		self.extruder_accel, lambda x: x.lower() == 'true')
+		update_attr('extruder', 'extruder_accel', 		self.extruder_accel, int)
 		update_attr('extruder', 'extruder_current', 	self.extruder_current, int)
 
 		update_attr('probe', 'probe_offset', 		self.probe_offset, int)
-		update_attr('probe', 'probe_sampling', 		self.probe_sampling, lambda x: x.lower() == 'true')
-		update_attr('probe', 'probe_validation', 	self.probe_validation, lambda x: x.lower() == 'true')
+		update_attr('probe', 'probe_sampling', 		self.probe_sampling, int)
+		update_attr('probe', 'probe_validation', 	self.probe_validation, int)
 
-		update_attr('bed', 'screws_tilt_adjust', 	self.screws_tilt_adjust, lambda x: x.lower() == 'true')
+		update_attr('bed', 'screws_tilt_adjust', 	self.screws_tilt_adjust, int)
 
 		update_attr('fans', 'fan_rename', 			self.fan_rename, lambda x: x.lower() == 'true')
 		update_attr('fans', 'mb_fan_fix', 			self.mb_fan_fix, lambda x: x.lower() == 'true')
@@ -143,5 +146,5 @@ class UserOptions(object):
 
 		update_attr('gcode', 'nozzle_wipe', 		self.nozzle_wipe, int)
 		update_attr('gcode', 'purge_line', 			self.purge_line, int)
-		update_attr('gcode', 'enable_m600', 		self.enable_m600, lambda x: x.lower() == 'true')
+		update_attr('gcode', 'enable_m600', 		self.enable_m600, int)
 		update_attr('gcode', 'pause', 				self.pause, int)

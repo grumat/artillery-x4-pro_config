@@ -1,15 +1,15 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: unbrick-swx4\n"
-"POT-Creation-Date: 2025-08-07 06:03+0200\n"
-"PO-Revision-Date: 2025-08-07 06:04+0200\n"
+"POT-Creation-Date: 2025-12-21 20:30+0100\n"
+"PO-Revision-Date: 2025-12-21 20:30+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: de_DE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.4.3\n"
+"X-Generator: Poedit 2.4.2\n"
 "X-Poedit-Basepath: ../../..\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-KeywordsList: _;N_\n"
@@ -19,809 +19,1408 @@ msgstr ""
 "X-Poedit-SearchPathExcluded-1: mk-assets\n"
 "X-Poedit-SearchPathExcluded-2: tests\n"
 
-#: SetupDialog.py:42
+#: help.py:10
 msgid ""
-"Please select the correct printer.\n"
-"This parameter is very critical because hardware properties of both models "
-"are very different and incompatible.\n"
+"Printer IP Address\n"
 "\n"
-"If you fail to set the correct option, bad things will happen when you try "
-"to print something.\n"
+"What to do: Enter the IP address displayed in your printer's network setup "
+"menu. This tool uses SSH to connect to your printer, using Artillery's "
+"default password.\n"
 "\n"
-"You can always repeat this tool with the correct option to fix a bad choice."
+"Important Note: If you've changed the SSH password from the factory default, "
+"this tool won't be able to connect. You'll need to reset the password."
 msgstr ""
-"Bitte wählen Sie den richtigen Drucker aus.\n"
-"Dieser Parameter ist sehr wichtig, da sich die Hardwareeigenschaften beider "
-"Modelle stark unterscheiden und nicht kompatibel sind.\n"
+"IP-Adresse des Druckers\n"
 "\n"
-"Wenn Sie nicht die richtige Option auswählen, kann es zu Problemen kommen, "
-"wenn Sie etwas drucken möchten.\n"
+"Anleitung: Geben Sie die IP-Adresse ein, die im Netzwerk-Setup-Menü Ihres "
+"Druckers angezeigt wird. Dieses Tool verbindet sich per SSH mit dem "
+"Standardpasswort von Artillery.\n"
 "\n"
-"Sie können dieses Tool jederzeit mit der richtigen Option wiederholen, um "
-"eine falsche Auswahl zu korrigieren."
+"Wichtiger Hinweis: Falls Sie das SSH-Passwort geändert haben, kann sich "
+"dieses Tool nicht verbinden. Sie müssen das Passwort in diesem Fall "
+"zurücksetzen."
 
-#: SetupDialog.py:51
+#: help.py:19
 msgid ""
-"Configuration Reset\n"
-"This option controls if your printer configuration file will be initialized "
-"to factory default.\n"
-"Usually, there is no need to reset your configuration completely, because "
-"the tool will modify only very specific settings.\n"
+"Select Your Printer Model\n"
 "\n"
-"So, leave the default value and only if the tool notices that your Klipper "
-"configuration is broken it will stop and suggests the reset option.\n"
-"Then you have two options, with or without Klipper calibration data. If your "
-"printer behavior is absolutely weird, you should also reset calibration."
+"Why this matters: The Sidewinder X4 Pro and X4 Plus have different hardware. "
+"Choosing the wrong model can cause serious printing issues.\n"
+"\n"
+"What to do:\n"
+"- Double-check your printer model before selecting.\n"
+"- If you make a mistake, simply run this tool again with the correct model.\n"
+"\n"
+"Warning: Using the wrong setting may lead to failed prints or other "
+"problems. Always verify your selection!"
 msgstr ""
-"Konfiguration zurücksetzen\n"
-"Diese Option legt fest, ob Ihre Druckerkonfigurationsdatei auf die "
-"Werkseinstellungen zurückgesetzt wird.\n"
-"In der Regel ist es nicht erforderlich, Ihre Konfiguration vollständig "
-"zurückzusetzen, da das Tool nur ganz bestimmte Einstellungen ändert.\n"
+"Druckermodell auswählen\n"
 "\n"
-"Behalten Sie daher den Standardwert bei. Nur wenn das Tool feststellt, dass "
-"Ihre Klipper-Konfiguration fehlerhaft ist, wird es angehalten und schlägt "
-"die Option zum Zurücksetzen vor.\n"
-"Sie haben dann zwei Möglichkeiten: mit oder ohne Klipper-Kalibrierungsdaten. "
-"Wenn sich Ihr Drucker absolut seltsam verhält, sollten Sie auch die "
-"Kalibrierung zurücksetzen."
+"Warum das wichtig ist: Sidewinder X4 Pro und X4 Plus nutzen unterschiedliche "
+"Hardware. Die Wahl des falschen Modells kann zu schwerwiegenden "
+"Druckproblemen führen.\n"
+"\n"
+"Vorgehensweise:\n"
+"- Überprüfen Sie Ihr Modell genau, bevor Sie fortfahren.\n"
+"- Falls Sie sich geirrt haben, führen Sie das Tool einfach erneut mit dem "
+"korrekten Modell aus.\n"
+"\n"
+"Warnung: Falsche Einstellungen können zu Fehldrucken führen. Bitte Auswahl "
+"prüfen!"
 
-#: SetupDialog.py:60
+#: help.py:31
 msgid ""
-"Optimize Disk Space\n"
-"This option erases old files, miniatures and also remove known developer "
-"files that \"Artillery\" just forgot to clear.\n"
+"Reset Printer Configuration\n"
 "\n"
-"It is recommended to activate this option, because these printers are sold "
-"with an 8GB eMMC disk, which is quite restrictive. If the OS has no space "
-"for its own duties, your printer might not boot anymore."
+"What it does: This option lets you restore your printer's configuration file "
+"to factory defaults.\n"
+"\n"
+"When to use it:\n"
+"- Usually, you don't need this. The tool only adjusts specific settings, so "
+"a full reset is rarely required.\n"
+"- Enable it only if the tool fails to fix your Klipper configuration "
+"issues.\n"
+"\n"
+"Your choices:\n"
+"- Reset settings only: Keeps your calibration data intact.\n"
+"- Reset settings and calibration: Use this if your printer is behaving "
+"unpredictably.\n"
+"\n"
+"Recommendation: Start with the default (no reset). Only use this option as a "
+"last resort."
 msgstr ""
-"Optimieren des Festplattenspeichers\n"
-"Diese Option löscht alte Dateien, Miniaturen und entfernt auch bekannte "
-"Entwicklerdateien, die \"Artillery\" gerade vergessen hat zu löschen.\n"
+"Druckerkonfiguration zurücksetzen\n"
 "\n"
-"Es wird empfohlen, diese Option zu aktivieren, da diese Drucker mit einer 8-"
-"GB-eMMC-Festplatte verkauft werden, was recht restriktiv ist. Wenn das "
-"Betriebssystem keinen Platz für seine eigenen Aufgaben hat, startet der "
-"Drucker möglicherweise nicht mehr."
-
-#: SetupDialog.py:68
-msgid ""
-"Fix File Permissions\n"
-"There are known files on a factory default installation which have wrong "
-"file permission. Most of them are still harmless.\n"
+"Funktion: Hiermit stellen Sie die Konfigurationsdatei auf Werkszustand "
+"zurück.\n"
 "\n"
-"Also, this tool makes sure that Klipper environment has proper access to all "
-"related contents."
-msgstr ""
-"Dateiberechtigungen korrigieren\n"
-"Es gibt bekannte Dateien auf einer Werksinstallation, die die falsche "
-"Dateiberechtigung haben. Die meisten von ihnen sind doch harmlos.\n"
-"\n"
-"Außerdem stellt dieses Tool sicher, dass die Klipper-Umgebung "
-"ordnungsgemäßen Zugriff auf alle zugehörigen Inhalte hat."
-
-#: SetupDialog.py:76
-msgid ""
-"Fix Resize Bug\n"
-"The \"Artillery Sidewinder X4 Plus\" has a known bug that issues a warning "
-"on the system log related to disk partition resizing. \n"
-"\n"
-"Except for some performance impact this problem is rather harmless.\n"
-"\n"
-"You can safely enable this tool, as it will check if the problem exists "
-"before trying to apply a fix."
-msgstr ""
-"Fehler bei der Größenänderung beheben\n"
-"Das „Artillery Sidewinder X4 Plus” weist einen bekannten Fehler auf, der "
-"eine Warnung im Systemprotokoll bezüglich der Größenänderung von "
-"Festplattenpartitionen ausgibt.\n"
-"\n"
-"Abgesehen von einigen Auswirkungen auf die Leistung ist dieses Problem eher "
-"harmlos.\n"
-"\n"
-"Sie können dieses Tool bedenkenlos aktivieren, da es vor dem Versuch, eine "
-"Korrektur vorzunehmen, überprüft, ob das Problem tatsächlich vorliegt."
-
-#: SetupDialog.py:86
-msgid ""
-"Trim eMMC\n"
-"Your printer has an 8GB (or optional 32GB) to store a Linux operating "
-"system, Klipper services and all your prints.\n"
-"This type of memory technology suffers from one strong limitation: Memory "
-"clean costs too much time.\n"
-"\n"
-"As a countermeasure OS uses a technique called garbage collection, which "
-"means, old data is actually not erased.\n"
-"At some point, OS has to execute an operation called TRIM, that really erase "
-"the garbage.\n"
-"\n"
-"This tool runs a TRIM operation to keep your eMMC fresh and speedy."
-msgstr ""
-"eMMC Trimmen\n"
-"Ihr Drucker verfügt über 8 GB (oder optional 32 GB) Speicherplatz für das "
-"Linux-Betriebssystem, Klipper-Dienste und alle Ihre Druckaufträge.\n"
-"Diese Art von Speichertechnologie hat jedoch eine große Einschränkung: Das "
-"Bereinigen des Speichers kostet zu viel Zeit.\n"
-"\n"
-"Als Gegenmaßnahme verwendet das Betriebssystem eine Technik namens Garbage "
-"Collection, was bedeutet, dass alte Daten nicht tatsächlich gelöscht "
-"werden.\n"
-"Irgendwann muss das Betriebssystem einen Vorgang namens TRIM ausführen, der "
-"den Müll tatsächlich löscht.\n"
-"\n"
-"Dieses Tool führt einen TRIM-Vorgang durch, um Ihr eMMC frisch und schnell "
-"zu halten."
-
-#: SetupDialog.py:98
-msgid ""
-"Fix Printer Model Settings\n"
-"This option checks the various specific configurations for the selected "
-"printer model, and fixes elements that doesn't match your selection.\n"
-"\n"
-"These tool checks very essential Klipper settings. This may affect the "
-"following settings: stepper motors, printer homing, bed mesh and macros."
-msgstr ""
-"Druckermodell-Einstellungen korrigieren\n"
-"Diese Option überprüft die verschiedenen spezifischen Konfigurationen für "
-"das ausgewählte Druckermodell und korrigiert Elemente, die nicht mit Ihrer "
-"Auswahl übereinstimmen.\n"
-"\n"
-"Dieses Tool überprüft sehr wichtige Klipper-Einstellungen. Dies kann sich "
-"auf die folgenden Einstellungen auswirken: Schrittmotoren, Drucker-Homing, "
-"Bettgitter und Makros."
-
-#: SetupDialog.py:105
-msgid ""
-"Limits Extruder Acceleration\n"
-"This setting can help reduce extruder temperature.\n"
-"\n"
-"Some older firmware have a higher extruder acceleration setting. But it has "
-"been reduced in recent configurations, probably to avoid higher temperatures "
-"on the extruder.\n"
-"\n"
-"Too much temperature in the extruder stepper has the potential to soften "
-"your filament and cause clogs."
-msgstr ""
-"Begrenzung der Extruder-Beschleunigung\n"
-"Diese Einstellung kann dazu beitragen, die Extrudertemperatur zu senken.\n"
-"\n"
-"Einige ältere Firmware-Versionen haben eine höhere Einstellung für die "
-"Extruder-Beschleunigung. In neueren Konfigurationen wurde diese jedoch "
-"reduziert, wahrscheinlich um höhere Temperaturen am Extruder zu vermeiden.\n"
-"\n"
-"Eine zu hohe Temperatur im Extruder-Schrittmotor kann dazu führen, dass Ihr "
-"Filament weich wird und Verstopfungen verursacht."
-
-#: SetupDialog.py:114
-msgid ""
-"Stepper Z Current\n"
-"For this option you can select between 800mA and 900mA. It is recommended to "
-"use the lower value except if you are experiencing Z-Axis movement issues.\n"
-"\n"
-"Note: Factory default values for the X4-Plus model is 800mA, while the X4-"
-"Pro model uses 900mA. This seems inconsistent, since the Plus model has more "
-"mass to move."
-msgstr ""
-"Stepper Z-Strom\n"
-"Für diese Option können Sie zwischen 800 mA und 900 mA wählen. Es wird "
-"empfohlen, den niedrigeren Wert zu verwenden, es sei denn, Sie haben "
-"Probleme mit der Bewegung der Z-Achse.\n"
-"\n"
-"Hinweis: Die werkseitigen Standardwerte für das Modell X4-Plus sind 800 mA, "
-"während das Modell X4-Pro 900 mA verwendet. Dies erscheint inkonsistent, da "
-"das Plus-Modell mehr Masse zu bewegen hat."
-
-#: SetupDialog.py:121
-msgid ""
-"Extruder Run Current\n"
-"Comparing configurations of the X4-Plus and X4-Pro has an inconsistency on "
-"the extruder current. It does not make sense if both uses the same head and "
-"seems that the factory did not pay due attention to the point.\n"
-"The following settings happens to exist:\n"
-"\t- 800mA: SW X4-Plus\n"
-"\t- 900mA: average recommendation\n"
-"\t- 1000mA: SW X4=Pro\n"
-"\n"
-"Please note that increasing the current will make your extruder stepper "
-"warmer and potentially more susceptible to clogging. On the other side, max "
-"filament flow could benefit of it, for faster prints."
-msgstr ""
-"Extruder-Betriebsstrom\n"
-"Beim Vergleich der Konfigurationen des X4-Plus und des X4-Pro fällt eine "
-"Unstimmigkeit beim Extruder-Betriebsstrom auf. Da beide Modelle denselben "
-"Kopf verwenden, erscheint dies nicht sinnvoll, und es scheint, dass der "
-"Hersteller diesem Punkt nicht die gebührende Aufmerksamkeit geschenkt hat.\n"
-"Die folgenden Einstellungen sind vorhanden:\n"
-"\t- 800mA: SW X4-Plus\n"
-"\t- 900mA: durchschnittliche Empfehlung\n"
-"\t- 1000mA: SW X4=Pro\n"
-"\n"
-"Bitte beachten Sie, dass eine Erhöhung des Stroms Ihren Extruder-Stepper "
-"wärmer und möglicherweise anfälliger für Verstopfungen macht. Auf der "
-"anderen Seite könnte der maximale Filamentfluss davon profitieren, um "
-"schnellere Drucke zu ermöglichen."
-
-#: SetupDialog.py:132
-msgid ""
-"Distance Sensor Offset\n"
-"The offset value of the probe is slightly inconsistent on the factory "
-"settings. You can use this option to correct the offset values for the "
-"probe.\n"
-"\n"
-"Note that Artillery mount this component on the opposite orientation of the "
-"data-sheet recommendation. So I strongly recommended a mod that reorient "
-"this sensor and follows the data-sheet mounting examples.\n"
-"If your printer has this mod, then you have to select the \"180° Mount\" "
-"option.\n"
-"\n"
-"My repository contains series of tests, procedures on how to do this and "
-"also links to the data-sheet."
-msgstr ""
-"Abstandssensor-Offset\n"
-"Der Offset-Wert der Sonde ist bei den Werkseinstellungen leicht "
-"inkonsistent. Mit dieser Option können Sie die Offset-Werte für die Sonde "
-"korrigieren.\n"
-"\n"
-"Beachten Sie, dass Artillery diese Komponente entgegen der Empfehlung im "
-"Datenblatt montiert. Ich empfehle daher dringend eine Modifikation, bei der "
-"dieser Sensor neu ausgerichtet wird und den Montagebeispielen im Datenblatt "
-"entspricht.\n"
-"Wenn Ihr Drucker über diese Modifikation verfügt, müssen Sie die Option "
-"„180°-Montage” auswählen.\n"
-"\n"
-"Mein Repository enthält eine Reihe von Tests, Anleitungen zur Durchführung "
-"dieser Modifikation sowie Links zum Datenblatt."
-
-#: SetupDialog.py:142
-msgid ""
-"Improved Z-Offset sampling\n"
-"Regardless of the orientation of your distance sensor, you can improve the Z-"
-"offset sampling by using lower approximation speeds and more samples.\n"
-"\n"
-"By using a more accurate sampling method, the overall Z-offset errors are "
-"reduced and first layer of your prints should be more consistent."
-msgstr ""
-"Verbesserte Z-Offset-Abtastung\n"
-"Unabhängig von der Ausrichtung Ihres Abstandssensors können Sie die Z-Offset-"
-"Abtastung verbessern, indem Sie niedrigere Annäherungsgeschwindigkeiten und "
-"mehr Abtastungen verwenden.\n"
-"\n"
-"Durch die Verwendung einer genaueren Abtastmethode werden die gesamten Z-"
-"Offset-Fehler reduziert und die erste Schicht Ihrer Drucke sollte "
-"konsistenter sein."
-
-#: SetupDialog.py:149
-msgid ""
-"Improved Z-Offset validation\n"
-"Besides improving sampling conditions, you can reduce the acceptance "
-"threshold for the sampled data.\n"
-"This means that after performing the samples, value differences have to fit "
-"a lower error margin to be accepted.\n"
-"\n"
-"Note that error margins are on the limit. If you activate this option with "
-"an unmodified printer it may happen that you printer stops with errors "
-"during Z-offset calibration and also during bed-mesh calibration."
-msgstr ""
-"Verbesserte Z-Offset-Validierung\n"
-"Neben der Verbesserung der Abtastbedingungen können Sie auch die "
-"Akzeptanzschwelle für die abgetasteten Daten senken.\n"
-"Das bedeutet, dass nach der Durchführung der Stichproben die Wertdifferenzen "
-"eine geringere Fehlermarge aufweisen müssen, um akzeptiert zu werden.\n"
-"\n"
-"Beachten Sie, dass die Fehlermargen am Limit sind. Wenn Sie diese Option mit "
-"einem unveränderten Drucker aktivieren, kann es vorkommen, dass Ihr Drucker "
-"bei der Z-Offset-Kalibrierung und auch bei der Bettnetzkalibrierung mit "
-"Fehlern stoppt."
-
-#: SetupDialog.py:157
-msgid ""
-"Activate Manual Leveling Feature\n"
-"Klipper offers you a tool that helps adjusting the screws of your print bed. "
-"This option installs the necessary configuration.\n"
-"\n"
-"When activating this option the 'fluidd' interface will show a new "
-"\"BED_SCREWS_ADJUST\" button to perform the calibration. There are various "
-"guides on the web on how to use this command.\n"
-"\n"
-"If you uncheck this option and your configuration already contains screws "
-"information, it will be left untouched."
-msgstr ""
-"Manuelle Nivellierungsfunktion aktivieren\n"
-"Klipper bietet Ihnen ein Tool, mit dem Sie die Schrauben Ihres Druckbetts "
-"einstellen können. Diese Option installiert die erforderliche "
-"Konfiguration.\n"
-"\n"
-"Wenn Sie diese Option aktivieren, zeigt die 'fluidd'-Schnittstelle eine neue "
-"\"BED_SCREWS_ADJUST\"-Schaltfläche an, um die Kalibrierung durchzuführen. Es "
-"gibt verschiedene Anleitungen im Internet, wie Sie diesen Befehl verwenden "
+"Anwendung:\n"
+"- Normalerweise nicht nötig, da das Tool nur gezielte Änderungen vornimmt.\n"
+"- Nur aktivieren, wenn Klipper-Probleme anderweitig nicht gelöst werden "
 "können.\n"
 "\n"
-"Wenn Sie diese Option deaktivieren und Ihre Konfiguration bereits "
-"Schraubeninformationen enthält, bleiben diese unverändert."
+"Optionen:\n"
+"- Nur Einstellungen zurücksetzen: Kalibrierungsdaten bleiben erhalten.\n"
+"- Alles zurücksetzen: Falls der Drucker unvorhersehbares Verhalten zeigt.\n"
+"\n"
+"Empfehlung: Zuerst ohne Reset versuchen. Reset nur als letzte Lösung nutzen."
 
-#: SetupDialog.py:166
+#: help.py:48
 msgid ""
-"Rename Fans\n"
-"This option renames printer fans to nice names. This is used on the 'fluidd' "
-"interface.\n"
+"Optimize Disk Space\n"
 "\n"
-"The 'Fan 0' is renamed to 'Heatbreak Cooling Fan';\n"
-"The 'Fan 2' is renamed to 'Mainboard Fan'."
+"What it does: This tool cleans up unnecessary files, such as:\n"
+"- Old print files and thumbnails\n"
+"- Leftover developer files that Artillery forgot to remove\n"
+"\n"
+"Why use it? Your printer's 8GB eMMC disk has limited space. If the system "
+"runs out of space, your printer may fail to boot or function properly.\n"
+"\n"
+"Recommendation: Enable this option regularly to free up space and keep your "
+"printer running smoothly."
 msgstr ""
-"Lüfter umbenennen\n"
-"Diese Option benennt Druckerlüfter in schöne Namen um. Dies wird auf der "
-"\"fluidd\"-Schnittstelle verwendet.\n"
+"Speicherplatz optimieren\n"
 "\n"
-"Der \"Fan 0\" wird in \"Heatbreak Cooling Fan\" umbenannt.\n"
-"Der 'Fan 2' wird in 'Mainboard Fan' umbenannt."
+"Funktion: Bereinigt unnötige Dateien, wie:\n"
+"- Alte Druckdateien und Vorschaubilder (Thumbnails)\n"
+"- Überflüssige Entwicklerdateien aus der Werksinstallation\n"
+"\n"
+"Grund: Der 8GB eMMC-Speicher ist begrenzt. Bei vollem Speicher startet der "
+"Drucker evtl. nicht mehr korrekt.\n"
+"\n"
+"Empfehlung: Regelmäßig nutzen, um die Systemstabilität zu gewährleisten."
 
-#: SetupDialog.py:174
+#: help.py:61
 msgid ""
-"Improved Mainboard Fan\n"
-"On the original configuration main-board fan is only activated by the print "
-"nozzle. This configuration is OK if you are doing only printing.\n"
+"Fix File Permissions\n"
 "\n"
-"But it's main function is to keep stepper motor drivers cool. This means "
-"that, if you activate steppers but keep the nozzle off, then perform lots of "
-"motion operations, you will overheat your stepper drivers and get errors.\n"
+"What it does: Some files on your printer's factory installation may have "
+"incorrect permissions. While most of these issues are harmless, they can "
+"occasionally cause problems.\n"
 "\n"
-"By applying this option, your main-board fan will turn on as soon as any of "
-"the following elements are active: heat bed, print nozzle or any of your "
-"stepper drivers. So, I strongly recommend you set this option.\n"
+"Why use this tool? This tool checks and corrects file permissions to "
+"ensure:\n"
+"- The Klipper environment can access all necessary files.\n"
+"- Your printer runs smoothly without permission-related errors.\n"
 "\n"
-"In the case you already have this modification the routine will not modify "
-"it, regardless if its 'on' or 'off'."
+"When to use it: Run this tool if you notice unexpected errors or after a "
+"fresh installation. It's safe and won't make unnecessary changes."
 msgstr ""
-"Verbesserter Mainboard-Lüfter\n"
-"In der Originalkonfiguration wird der Lüfter auf der Hauptplatine nur über "
-"die Druckdüse aktiviert. Diese Konfiguration ist in Ordnung, wenn Sie nur "
-"drucken.\n"
+"Dateiberechtigungen reparieren\n"
 "\n"
-"Aber seine Hauptfunktion besteht darin, Schrittmotortreiber kühl zu halten. "
-"Das bedeutet, dass Sie Ihre Stepper-Treiber überhitzen und Fehler erhalten, "
-"wenn Sie die Stepper aktivieren, aber die Düse ausgeschaltet lassen und dann "
-"viele Bewegungsvorgänge ausführen.\n"
+"Funktion: Korrigiert fehlerhafte Zugriffsrechte der Werksinstallation. Dies "
+"verhindert sporadische Fehler im Klipper-System.\n"
 "\n"
-"Wenn Sie diese Option anwenden, schaltet sich der Lüfter der Hauptplatine "
-"ein, sobald eines der folgenden Elemente aktiv ist: Heizbett, Druckdüse oder "
-"einer Ihrer Schrittmotortreiber. Daher empfehle ich Ihnen dringend, diese "
-"Option einzustellen.\n"
+"Vorteil: Stellt sicher, dass Klipper auf alle nötigen Dateien zugreifen "
+"kann.\n"
 "\n"
-"Falls Sie diese Änderung bereits haben, wird die Routine sie nicht ändern, "
-"unabhängig davon, ob sie 'an' oder 'aus' ist."
+"Zeitpunkt: Bei unerwarteten Fehlern oder nach einer Neuinstallation "
+"ausführen."
 
-#: SetupDialog.py:185
+#: help.py:74
 msgid ""
-"Main-board Fan Speed\n"
-"This option allows you to reduce the speed of the main-board fan. The main "
-"goal is to lower noise levels.\n"
+"Fix Disk Resize Bug\n"
 "\n"
-"You should note that the main function of this fan is to cool the stepper "
-"motor drivers down, which may get hot depending on the intensity of "
-"acceleration and speed values. If cooling is insufficient a thermal "
-"protection may occur on one of the stepper drivers and the motion for the "
-"affected axis stops.\n"
+"What it does: The Artillery Sidewinder X4 Plus sometimes shows a warning in "
+"the system log about disk partition resizing. This is a known issue, but "
+"it's mostly harmless — it only affects performance slightly.\n"
 "\n"
-"In my repository I suggest the mount of a 'fan duct' that concentrates more "
-"air flow to the steppers drivers and allows you to safely reduce the fan "
-"speed."
+"Why use this tool? This tool checks if the problem exists on your printer "
+"and applies a fix if needed. It's safe to run and won't make changes unless "
+"the issue is detected.\n"
+"\n"
+"When to use it: Enable this tool if you see disk resize warnings in your "
+"logs or want to ensure optimal performance."
 msgstr ""
-"Lüfterdrehzahl der Hauptplatine\n"
-"Mit dieser Option können Sie die Drehzahl des Lüfters auf der Hauptplatine "
-"reduzieren. Das Hauptziel ist es, den Geräuschpegel zu senken.\n"
+"Disk-Resize-Bug beheben\n"
 "\n"
-"Sie sollten beachten, dass die Hauptfunktion dieses Lüfters darin besteht, "
-"die Schrittmotortreiber abzukühlen, die je nach Intensität der "
-"Beschleunigung und Geschwindigkeitswerten heiß werden können. Wenn die "
-"Kühlung nicht ausreicht, kann es zu einem thermischen Schutz an einem der "
-"Schrittmotoren kommen und die Bewegung für die betroffene Achse stoppt.\n"
+"Funktion: Behebt eine Warnung beim X4 Plus bezüglich der Partitionsgröße. "
+"Obwohl meist harmlos, kann dies die Performance leicht beeinträchtigen.\n"
 "\n"
-"In meinem Repository schlage ich die Montage eines \"Lüfterkanals\" vor, der "
-"mehr Luftstrom zu den Schritttreibern konzentriert und es Ihnen ermöglicht, "
-"die Lüfterdrehzahl sicher zu reduzieren."
+"Das Tool prüft den Status und wendet den Fix nur bei Bedarf an."
 
-#: SetupDialog.py:194
+#: help.py:85
 msgid ""
-"Heatbreak Fan Speed\n"
-"This option allows you to reduce the speed of the heatbreak fan. This should "
-"reduce the noise levels.\n"
+"Trim eMMC Storage\n"
 "\n"
-"Please consider the following: the main function of this fan is to protect "
-"the filament smoothing near the entry of the hot-end, which could deform "
-"when the extruder pushes. If you reduce the cooling fan too much you may "
-"experience clogs on the cold end.\n"
+"What it does: Your printer uses an 8GB (or optional 32GB) eMMC to store the "
+"operating system, Klipper, and your print files. Over time, deleted files "
+"leave behind \"garbage\" data, which can slow down the system.\n"
 "\n"
-"But notice that this setup was designed for very high temperatures. If your "
-"max temperature never goes above 250°C you can reduce this value. This is my "
-"case and I use 90%, which already does a good job in noise levels.\n"
+"Why use this tool?\n"
+"- eMMC memory doesn't automatically clean up deleted files right away.\n"
+"- Running TRIM removes this leftover data, keeping your printer's storage "
+"fast and reliable.\n"
 "\n"
-"Speculative Note: Artillery launched recently a new print head, which seems "
-"to have less heatsink mass, which reduces inertia. On the other hand, this "
-"indicates that the old heatsink is over dimensioned."
+"When to use it: Run this tool occasionally to maintain performance, "
+"especially if your printer feels sluggish."
 msgstr ""
-"Heatbreak-Lüfterdrehzahl\n"
-"Mit dieser Option können Sie die Drehzahl des Heatbreak-Lüfters reduzieren. "
-"Dadurch soll der Geräuschpegel gesenkt werden.\n"
+"Die eMMC Speicher Optimieren\n"
 "\n"
-"Bitte beachten Sie Folgendes: Die Hauptfunktion dieses Lüfters besteht "
-"darin, die Filamentglättung in der Nähe des Eingangs des Hotends zu "
-"schützen, die sich verformen könnte, wenn der Extruder drückt. Wenn Sie den "
-"Lüfter zu stark reduzieren, kann es zu Verstopfungen am kalten Ende kommen.\n"
+"Was es bewirkt: Dein Drucker verwendet ein 8GB (oder optional 32GB) eMMC, um "
+"das Betriebssystem, Klipper und deine Druckdateien zu speichern. Mit der "
+"Zeit hinterlassen gelöschte Dateien \"Müll\"-Daten, die das System "
+"verlangsamen können.\n"
 "\n"
-"Beachten Sie jedoch, dass dieser Aufbau für sehr hohe Temperaturen ausgelegt "
-"ist. Wenn Ihre maximale Temperatur nie über 250°C steigt, können Sie diesen "
-"Wert reduzieren. Dies ist mein Fall und ich verwende 90%, was bereits einen "
-"guten Job im Geräuschpegel macht.\n"
+"Warum dieses Werkzeug verwenden?\n"
+"- eMMC-Speicher beseitigt gelöschte Dateien nicht automatisch sofort.\n"
+"- Das Ausführen von TRIM entfernt diese übrig gebliebenen Daten, sodass der "
+"Speicher Ihres Druckers schnell und zuverlässig bleibt.\n"
 "\n"
-"Spekulative Anmerkung: Artillery hat kürzlich einen neuen Druckkopf auf den "
-"Markt gebracht, der anscheinend eine geringere Kühlkörpermasse hat, was die "
-"Trägheit reduziert. Auf der anderen Seite deutet dies darauf hin, dass der "
-"alte Kühlkörper überdimensioniert ist."
+"Wann sollte man es verwenden: Nutze dieses Tool gelegentlich, um die "
+"Leistung zu erhalten, besonders wenn dein Drucker träge wirkt."
 
-#: SetupDialog.py:205
+#: help.py:98
 msgid ""
-"Temperature Reading for Host and MCU\n"
-"If you use the 'fluidd' interface you will like this option: It activates "
-"the temperature sensors for the Host CPU and the drivers MCU.\n"
+"Fix Printer Model Settings\n"
 "\n"
-"Note that this option does not modify your settings if this sensors are "
-"already active."
+"What it does: This tool checks your printer's current settings and "
+"automatically corrects any mismatches with the selected printer model (e.g., "
+"Sidewinder X4 Pro or X4 Plus).\n"
+"\n"
+"Why use it?\n"
+"It ensures that critical Klipper settings are properly configured for your "
+"specific printer model. This may include:\n"
+"- Stepper motor settings\n"
+"- Printer homing behavior\n"
+"- Bed mesh configuration\n"
+"- Custom macros\n"
+"\n"
+"When to use it: Run this tool if you've changed your printer model in the "
+"control panel or if you suspect settings are incorrect."
 msgstr ""
-"Temperaturmessung für Host und MCU\n"
-"Wenn Sie die 'fluidd' Schnittstelle verwenden, wird Ihnen diese Option "
-"gefallen: Sie aktiviert die Temperatursensoren für die Host-CPU und die "
-"Treiber-MCU.\n"
+"Modell-Einstellungen korrigieren\n"
 "\n"
-"Beachten Sie, dass diese Option Ihre Einstellungen nicht ändert, wenn diese "
-"bereits aktiv sind."
+"Funktion: Gleicht Klipper-Parameter mit dem gewählten Modell (Pro/Plus) ab. "
+"Korrigiert Motorströme, Homing-Verhalten und Bed-Mesh-Einstellungen."
 
-#: SetupDialog.py:212
+#: help.py:114
 msgid ""
-"Nozzle Wipe\n"
-"This macro controls how the nozzle will be cleaned. But, \"Artillery\" "
-"published two different versions of it.\n"
+"Enable Exclude Object\n"
 "\n"
-"The legacy version wipes the nozzle many times at a slower speed, but it "
-"tends to wear the wipe pad prematurely out. The new version wipes less times "
-"but at a faster speed.\n"
+"What it does: Turns on Klipper's \"Exclude Object\" feature, allowing you to "
+"cancel individual objects during a multi-object print.\n"
 "\n"
-"Note that updating this setting may not change anything for you, since it's "
-"use depends on your slicer software configuration."
+"How it works:\n"
+"- Pause your print, select the object(s) to exclude, and resume — Klipper "
+"will skip them.\n"
+"\n"
+"Important: This feature only works if your slicer is configured to support "
+"it. Check your slicer's settings for \"Exclude Object\" or \"Cancel Objects"
+"\" options."
 msgstr ""
-"Düsen-Wischen\n"
-"Dieses Makro steuert, wie die Düse gereinigt wird. Aber \"Artillery\" "
-"veröffentlichte zwei verschiedene Versionen davon.\n"
+"„Exclude Object“ aktivieren\n"
 "\n"
-"Die ältere Version wischt die Düse viele Male mit langsamerer "
-"Geschwindigkeit, neigt aber dazu, das Wischpad vorzeitig abzunutzen. Die "
-"neue Version löscht seltener, aber schneller.\n"
+"Funktion: Erlaubt das Abbrechen einzelner Objekte während eines Drucks mit "
+"mehreren Teilen, ohne den gesamten Druck zu stoppen.\n"
 "\n"
-"Beachten Sie, dass sich durch das Aktualisieren dieser Einstellung "
-"möglicherweise nichts für Sie ändert, da ihre Verwendung von der "
-"Konfiguration Ihrer Slicer-Software abhängt."
+"Hinweis: Muss auch im Slicer aktiviert sein."
 
-#: SetupDialog.py:221
+#: help.py:126
 msgid ""
-"Purge Line\n"
-"This macro controls how the purge line is drawn and \"Artillery\" published "
-"two different versions of it.\n"
+"Z-Axis Stepper Motor Hold Current\n"
 "\n"
-"The legacy version draws multiple lines in a stack. Because this pattern "
-"causes more adhesion a newer version was developed that is very easy to be "
-"removed.\n"
+"What it does: This setting determines how much power the Z-axis motors use "
+"to hold their position when the printer is idle.\n"
 "\n"
-"Note that updating this setting may not change anything for you, since it's "
-"use depends on your slicer software configuration."
+"Available options:\n"
+"- 800mA (recommended for most users)\n"
+"- 900mA (only if you notice the Z-axis slipping or losing position)\n"
+"\n"
+"Factory defaults:\n"
+"- X4-Plus: 800mA\n"
+"- X4-Pro: 900mA\n"
+"\n"
+"Note: The X4-Plus has more weight to hold, so the factory default of 800mA "
+"might seem low compared to the X4-Pro. However, 800mA is usually sufficient "
+"unless you experience issues."
 msgstr ""
-"Säuberungslinie\n"
-"Dieses Makro steuert, wie die Säuberungslinie gezeichnet wird, und "
-"\"Artillery\" hat zwei verschiedene Versionen davon veröffentlicht.\n"
+"Haltestrom der Z-Achsen-Motoren\n"
 "\n"
-"Die Legacy-Version zeichnet mehrere Linien in einem Stapel. Da dieses Muster "
-"eine stärkere Haftung verursacht, wurde eine neuere Version entwickelt, die "
-"sich sehr leicht entfernen lässt.\n"
+"Bestimmt die Kraft, mit der die Z-Motoren ihre Position im Stillstand "
+"halten.\n"
 "\n"
-"Beachten Sie, dass sich durch das Aktualisieren dieser Einstellung "
-"möglicherweise nichts für Sie ändert, da ihre Verwendung von der "
-"Konfiguration Ihrer Slicer-Software abhängt."
+"Werksvorgaben:\n"
+"- X4-Plus: 800mA\n"
+"- X4-Pro: 900mA\n"
+"\n"
+"Empfehlung: 800mA ist meist ausreichend."
 
-#: SetupDialog.py:230
+#: help.py:143
 msgid ""
-"Enable M600\n"
-"This option adds the new published macros to support the M600 filament "
-"change feature.\n"
+"Extruder Acceleration Limit\n"
 "\n"
-"The following changes will be done:\n"
-"\t- Configuration support for beeper\n"
-"\t- M300 g-code macro (Play Tone)\n"
-"\t- M600 g-code macro (Filament Change)\n"
-"\t- T600 g-code macro (Artillery custom: Resume Print)\n"
+"Why it matters: This setting controls how quickly the extruder motor speeds "
+"up or slows down. Older firmware versions used higher acceleration, but "
+"newer versions have reduced it.\n"
 "\n"
-"Note that if these settings are already installed this tool will not modify, "
-"neither remove them."
+"What you need to know:\n"
+"- Higher acceleration can cause the extruder motor to heat up more.\n"
+"- Too much heat may soften the filament inside the extruder, increasing the "
+"risk of clogs.\n"
+"\n"
+"Recommendation: Unless you're experiencing issues, stick with the default or "
+"lower acceleration setting to keep temperatures stable."
 msgstr ""
-"M600 aktivieren\n"
-"Diese Option fügt die neuen veröffentlichten Makros hinzu, um die M600-"
-"Filamentwechselfunktion zu unterstützen.\n"
+"Extruder-Beschleunigungslimit\n"
 "\n"
-"Die folgenden Änderungen werden vorgenommen:\n"
-"\t- Konfigurationsunterstützung für Beeper\n"
-"\t- M300 G-Code-Makro (Ton abspielen)\n"
-"\t- M600 G-Code-Makro (Filamentwechsel)\n"
-"\t- T600 G-Code-Makro (Artillery-Benutzerdefiniert: Drucken neu starten)\n"
-"\n"
-"Beachten Sie, dass dieses Tool diese Einstellungen nicht ändert oder "
-"entfernt, wenn sie bereits installiert sind."
+"Begrenzt die Beschleunigung des Extrudermotors. Hohe Werte können den Motor "
+"erhitzen und das Filament im Extruder weich machen, was zu Verstopfungen "
+"führt."
 
-#: SetupDialog.py:243
+#: help.py:156
 msgid ""
-"Pause Macro\n"
-"The pause macro controls the behavior of your printer, if for any reason, "
-"the printer has to pause the print job.\n"
+"Extruder Motor Current Settings\n"
 "\n"
-"The following options are offered:\n"
-"\t- Do Not Change: will not modify it\n"
-"\t- Legacy: Use legacy \"Artillery\" code\n"
-"\t- New: Use newer \"Artillery\" code\n"
-"\t- Grumat: My custom version.\n"
+"The Sidewinder X4-Plus and X4-Pro use the same extruder, but their factory "
+"settings for motor current differ. This inconsistency might be an oversight. "
+"Here's what you need to know:\n"
+"- X4-Plus: 800mA (factory setting)\n"
+"- Common recommendation: 900mA\n"
+"- X4-Pro: 1000mA (factory setting)\n"
 "\n"
-"The new version of \"Artillery\" adds support for control parameters used by "
-"the M600 (filament change) command.\n"
+"What does this mean for you?\n"
 "\n"
-"My custom version is based on the new \"Artillery\" macro and evaluates the "
-"filament sensor. In the case the filament runs out, it homes the print head "
-"and moves the printed object away.\n"
-"This avoids purging filament right over your printed object."
+"Higher current (e.g., 1000mA): The extruder motor runs hotter, which may "
+"increase the risk of clogs. Can improve filament flow for faster prints.\n"
+"\n"
+"Lower current (e.g., 800mA): Motor stays cooler, reducing clog risk. May "
+"limit maximum print speed.\n"
+"\n"
+"Recommendation: If you're unsure, start with 900mA — a balanced setting for "
+"most users. Adjust based on your printing needs and monitor for overheating "
+"or clogs."
 msgstr ""
-"Pause-Makro\n"
-"Das Pause-Makro steuert das Verhalten Ihres Druckers, falls der Drucker aus "
-"irgendeinem Grund den Druckauftrag anhalten muss.\n"
+"Extruder-Motorstrom\n"
 "\n"
-"Folgende Optionen werden angeboten:\n"
-"\t- Nicht ändern: bleibt unverändert\n"
-"\t- Legacy: Den alten „Artillery”-Code verwenden.\n"
-"\t- Neu: Neueren \"Artillery\"-Code verwenden\n"
-"\t- Grumat: Meine benutzerdefinierte Version.\n"
+"X4 Plus und Pro nutzen den gleichen Extruder mit unterschiedlichen "
+"Werkseinstellungen.\n"
+"- Höherer Strom (1000mA): Mehr Kraft, aber Motor wird heißer (Clog-Gefahr).\n"
+"- Niedrigerer Strom (800mA): Kühlerer Motor, evtl. Limit bei High-Speed.\n"
 "\n"
-"Die neue Version von \"Artillery\" bietet Unterstützung für "
-"Steuerungsparameter, die vom Befehl M600 (Filamentwechsel) verwendet "
-"werden.\n"
-"\n"
-"Meine Custom-Version basiert auf dem neuen \"Artillery\"-Makro und wertet "
-"den Filamentsensor aus. Wenn das Filament aufgebraucht ist, fährt der "
-"Druckkopf in die Ausgangsposition zurück und entfernt das gedruckte Objekt.\n"
-"Dadurch wird vermieden, dass das Filament direkt über Ihr gedrucktes Objekt "
-"gespült wird."
+"Empfehlung: 900mA bietet meist die beste Balance."
 
-#: SetupDialog.py:305
-msgid "Select Printer Model"
-msgstr "Druckermodell auswählen"
+#: help.py:174
+msgid ""
+"Distance Sensor Offset\n"
+"\n"
+"What it does: Adjusts the probe offset to correct inconsistencies in the "
+"factory settings.\n"
+"\n"
+"Important Note: Artillery mounts the sensor backwards compared to the "
+"manufacturer's recommendations. For best results, we recommend modifying the "
+"sensor's orientation to match the official data sheet.\n"
+"\n"
+"If you've already done this mod: Select the \"180° Mount\" option.\n"
+"\n"
+"Need help? My repository includes:\n"
+"- Test procedures\n"
+"- Step-by-step guides\n"
+"- Links to the official data sheet"
+msgstr ""
+"Entfernungssensor-Offset\n"
+"\n"
+"Was es macht: Passt den Sondenoffset an, um Inkonsistenzen in den "
+"Werkseinstellungen zu korrigieren.\n"
+"\n"
+"Wichtiger Hinweis: Die Artillerie montiert den Sensor rückwärts im Vergleich "
+"zu den Herstellerempfehlungen. Für beste Ergebnisse empfehlen wir, die "
+"Ausrichtung des Sensors so anzupassen, dass sie mit dem offiziellen "
+"Datenblatt übereinstimmt.\n"
+"\n"
+"Wenn du diesen Mod schon gemacht hast: Wähle die Option \"180° Mount\".\n"
+"\n"
+"Brauchst du Hilfe? Mein Repository enthält:\n"
+"- Testverfahren\n"
+"- Schritt-für-Schritt-Anleitungen\n"
+"- Links zum offiziellen Datenblatt"
 
-#: SetupDialog.py:305
+#: help.py:190
+msgid ""
+"Improve Z-Offset Sampling\n"
+"\n"
+"What it does: Enhances the accuracy of your Z-offset by using:\n"
+"- Slower sampling speeds\n"
+"- More samples for better precision\n"
+"\n"
+"Why use it? A more accurate Z-offset reduces errors and helps ensure a "
+"consistent first layer for your prints — regardless of your distance "
+"sensor's orientation."
+msgstr ""
+"Z-Offset-Abtastung verbessern\n"
+"\n"
+"Erhöht die Präzision des Z-Offsets durch langsamere Messgeschwindigkeit und "
+"mehr Messpunkte."
+
+#: help.py:201
+msgid ""
+"Improve Z-Offset Validation\n"
+"\n"
+"What it does: Makes Z-offset calibration stricter by reducing the allowed "
+"error margin for sampled data. This ensures only the most precise "
+"measurements are accepted.\n"
+"\n"
+"Result: More reliable Z-offset and bed mesh calibration, leading to better "
+"first layers.\n"
+"\n"
+"Important: If your printer hasn't been modified, enabling this option may "
+"cause calibration errors or failures. Use only if your printer is properly "
+"tuned."
+msgstr ""
+"Z-Offset-Validierung verschärfen\n"
+"\n"
+"Reduziert die Toleranz bei Messabweichungen. Nur bei mechanisch gut "
+"eingestelltem Drucker nutzen, da sonst Kalibrierungsfehler auftreten können."
+
+#: help.py:212
+msgid ""
+"Enable Manual Bed Leveling\n"
+"\n"
+"What it does: Activates Klipper's manual bed leveling tool, which helps you "
+"adjust your print bed screws for a perfectly level surface.\n"
+"\n"
+"How it works:\n"
+"- A \"BED_SCREWS_ADJUST\" button will appear in the Fluidd interface.\n"
+"- Follow the on-screen instructions or check online guides for step-by-step "
+"help.\n"
+"\n"
+"Note: If you disable this option later, any existing screw adjustment "
+"settings in your configuration will remain unchanged."
+msgstr ""
+"Manuelles Leveln aktivieren\n"
+"\n"
+"Aktiviert den Klipper-Assistenten für die Bettschrauben. Ein Button "
+"„BED_SCREWS_ADJUST“ erscheint in Fluidd."
+
+#: help.py:225
+msgid ""
+"Rename Fans for Clarity\n"
+"\n"
+"What it does: Renames your printer's fans in the Fluidd interface for easier "
+"identification:\n"
+"- \"Fan 0\" → \"Heat Break Cooling Fan\"\n"
+"- \"Fan 2\" → \"Mainboard Fan\"\n"
+"\n"
+"Why use it? Makes it simpler to control and monitor the right fan at a "
+"glance."
+msgstr ""
+"Lüfter zur Klarheit umbenennen\n"
+"\n"
+"Ändert „Fan 0“ und „Fan 2“ in aussagekräftige Namen in der Fluidd-Oberfläche."
+
+#: help.py:236
+msgid ""
+"Enhanced Mainboard Fan Control\n"
+"\n"
+"What's the issue? The factory setting only turns on the mainboard fan when "
+"the print nozzle is active. While this works for basic printing, it ignores "
+"the fan's real purpose: cooling the stepper motor drivers.\n"
+"\n"
+"Why is this a problem? If you move the printer a lot (e.g., homing, manual "
+"moves) without heating the nozzle, the stepper drivers can overheat, causing "
+"errors or shutdowns.\n"
+"\n"
+"What this option does: The fan will now activate whenever any of these are "
+"active:\n"
+"- Heat bed\n"
+"- Print nozzle\n"
+"- Stepper drivers (most critical!)\n"
+"\n"
+"Recommendation: Enable this option to prevent overheating and improve "
+"reliability.\n"
+"\n"
+"Note: If you've already customized this setting, the tool won't override "
+"your changes."
+msgstr ""
+"Verbesserte Mainboard-Lüftersteuerung\n"
+"\n"
+"Ab Werk läuft der Lüfter nur, wenn die Düse heizt. Diese Option schaltet den "
+"Lüfter auch bei Motoraktivität ein, um die Treiber beim Homing oder bei "
+"manuellen Bewegungen vor Überhitzung zu schützen."
+
+#: help.py:254
+msgid ""
+"Adjust Mainboard Fan Speed\n"
+"\n"
+"What it does: Lets you reduce the speed of the mainboard fan to lower noise "
+"levels.\n"
+"\n"
+"Important Note: The mainboard fan's primary job is to cool the stepper motor "
+"drivers, which can heat up during fast or intense movements. If cooling is "
+"insufficient, a driver may overheat, triggering thermal protection and "
+"stopping the affected axis.\n"
+"\n"
+"Recommendation:\n"
+"- If you want to reduce fan noise, consider installing a fan duct (available "
+"in my repository). This focuses airflow directly on the stepper drivers, "
+"allowing you to safely lower the fan speed.\n"
+"- Only reduce fan speed if you've not speeding your printer to the limits."
+msgstr ""
+"Mainboard-Lüftergeschwindigkeit anpassen\n"
+"\n"
+"Erlaubt die Reduzierung der Drehzahl zur Geräuschminderung. Achtung: Zu "
+"geringe Kühlung kann zum Abschalten der Motortreiber führen."
+
+#: help.py:267
+msgid ""
+"Adjust Heat-Break Fan Speed\n"
+"\n"
+"What it does: Lets you reduce the speed of the heat-break fan to lower noise "
+"levels.\n"
+"\n"
+"Key Considerations:\n"
+"- The heat-break fan prevents filament from softening near the hot-end "
+"entry, which can cause clogs if cooling is insufficient.\n"
+"- The default speed is designed for high-temperature printing (above "
+"250°C).\n"
+"\n"
+"Recommendation:\n"
+"- If you rarely print above 250°C, you can safely reduce the fan speed (e."
+"g., to 90%), which noticeably lowers noise without risking clogs.\n"
+"- Monitor your prints after adjusting — if clogs occur, increase the fan "
+"speed.\n"
+"\n"
+"Note: Artillery's newer print heads use a smaller heat sink, suggesting the "
+"original design may be overbuilt. This further supports reducing fan speed "
+"for most users."
+msgstr ""
+"Heat-Break-Lüftergeschwindigkeit anpassen\n"
+"\n"
+"Reduziert das hochfrequente Geräusch am Druckkopf. 90 % sind meist sicher, "
+"solange nicht dauerhaft über 250 °C gedruckt wird."
+
+#: help.py:284
+msgid ""
+"Enable Host & MCU Temperature Monitoring\n"
+"\n"
+"What it does: Activates temperature sensors for:\n"
+"- Host CPU (your printer's main processor)\n"
+"- MCU drivers (stepper motor controllers)\n"
+"\n"
+"Why use it? If you use the Fluidd interface, this lets you monitor "
+"temperatures in real time — helping you spot overheating issues early.\n"
+"\n"
+"Note: If these sensors are already enabled, this option won't change your "
+"existing settings."
+msgstr ""
+"Host- & MCU-Temperaturüberwachung\n"
+"\n"
+"Zeigt die Temperaturen von CPU und Mainboard-Chip in Fluidd an."
+
+#: help.py:297
+msgid ""
+"Nozzle Wipe Settings\n"
+"\n"
+"What it does: Controls how the nozzle is cleaned between prints. Artillery "
+"offers two versions of this macro:\n"
+"- Legacy version: Multiple slow wipes — can wear out the wipe pad faster.\n"
+"- New version: Fewer, faster wipes — reduces pad wear but cleans "
+"efficiently.\n"
+"\n"
+"Note: Changing this setting only affects prints if your slicer is configured "
+"to use the nozzle wipe feature. If your slicer doesn't trigger it, you won't "
+"see a difference."
+msgstr ""
+"Düsereinigung-Einstellungen (Wipe)\n"
+"\n"
+"Wahl zwischen langsamer (Legacy) und schneller (New) Reinigung am "
+"Abstreifpad."
+
+#: help.py:308
+msgid ""
+"Purge Line Settings\n"
+"\n"
+"What it does: Controls how the purge line is printed before your model "
+"starts. Artillery offers two versions, plus an improved option:\n"
+"- Legacy version: Prints stacked lines — can stick too well to the bed.\n"
+"- New version: Prints a single, easy-to-remove line.\n"
+"- \"Grumat\" version: Adjusts for retraction to prevent under-extrusion at "
+"the start of your print.\n"
+"\n"
+"Note: This setting only applies if your slicer is configured to use a purge "
+"line. If your slicer doesn't trigger it, you won't see any changes."
+msgstr ""
+"Purge-Line-Einstellungen\n"
+"\n"
+"Die „Grumat“-Version optimiert den Druckstart, um Lücken nach der "
+"Reinigungslinie zu vermeiden."
+
+#: help.py:320
+msgid ""
+"Enable Filament Change (M600 Support)\n"
+"\n"
+"What it does: Adds support for the M600 filament change feature, including:\n"
+"- Beeper configuration (for audio alerts)\n"
+"- M300 macro (Play Tone)\n"
+"- M600 macro (Filament Change)\n"
+"- T600 macro (Artillery's custom \"Resume Print\" command)\n"
+"\n"
+"Why use it? Lets you pause prints, swap filament, and resume seamlessly — "
+"ideal for multi-color or multi-material prints.\n"
+"\n"
+"Note: The \"Grumat\" version includes the same functionality but follows "
+"best practices for cleaner, more maintainable code."
+msgstr ""
+"Filamentwechsel aktivieren (M600)\n"
+"\n"
+"Fügt Makros für Pausen zum Rollenwechsel während des Drucks hinzu."
+
+#: help.py:335
+msgid ""
+"Pause Macro Settings\n"
+"\n"
+"What it does: Controls how your printer behaves when a print job is paused — "
+"whether manually or due to an issue (e.g., filament change or power loss).\n"
+"\n"
+"Available Options:\n"
+"- Do Not Change: Keeps your current pause macro.\n"
+"- Legacy: Uses Artillery's original pause macro.\n"
+"- New: Uses Artillery's updated pause macro, with support for M600 filament "
+"change parameters.\n"
+"- Grumat (Custom): Based on Artillery's new macro, but adds filament sensor "
+"support. If filament runs out, it:\n"
+"   - Homes the print head.\n"
+"   - Moves the printed object away to avoid purging filament over it.\n"
+"\n"
+"Recommendation: Choose \"Grumat\" for the most reliable pause behavior, "
+"especially if you use a filament sensor or frequently change filament mid-"
+"print."
+msgstr ""
+"Pause-Makro-Einstellungen\n"
+"\n"
+"Die „Grumat“-Option wird empfohlen, da sie den Kopf bei leerem Filament "
+"sicher wegfährt, um das Bauteil nicht zu beschädigen."
+
+#: my_lib.py:16
+msgid "GBi"
+msgstr "GiB"
+
+#: my_lib.py:19
+msgid "MBi"
+msgstr "MiB"
+
+#: my_lib.py:22
+msgid "KBi"
+msgstr "KiB"
+
+#: my_shell.py:76 my_shell.py:163 my_shell.py:165 task_config.py:451
+msgid "Connection is invalid to complete the command!"
+msgstr "Verbindung ungültig, Befehl abgebrochen!"
+
+#: my_shell.py:174
+msgid "No response seen during the specified timeout!"
+msgstr "Keine Antwort innerhalb des Zeitlimits erhalten!"
+
+#: my_workflow.py:227 my_workflow.py:263 my_workflow.py:311
+msgid "ERROR!"
+msgstr "FEHLER!"
+
+#: my_workflow.py:252 my_workflow.py:294
+msgid "Begin Step: "
+msgstr "Starte Schritt: "
+
+#: my_workflow.py:255 my_workflow.py:297
+msgid "OK!"
+msgstr "OK!"
+
+#: my_workflow.py:266 my_workflow.py:315
+msgid "Printer configuration has been reset, printer needs recalibration."
+msgstr "Konfiguration zurückgesetzt, Drucker muss neu kalibriert werden."
+
+#: progress_dialog.py:104
+msgid "disabled"
+msgstr "deaktiviert"
+
+#: progress_dialog.py:108
+msgid "running"
+msgstr "läuft"
+
+#: progress_dialog.py:111
+msgid "success"
+msgstr "erfolgreich"
+
+#: progress_dialog.py:114
+msgid "error"
+msgstr "fehler"
+
+#: progress_dialog.py:117
+msgid "cancelled"
+msgstr "abgebrochen"
+
+#: progress_dialog.py:120
+msgid "ready"
+msgstr "bereit"
+
+#: progress_dialog.py:186
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: progress_dialog.py:200
+msgid "Cancelling..."
+msgstr "Wird abgebrochen..."
+
+#: progress_dialog.py:226
+msgid "Close"
+msgstr "Schließen"
+
+#: progress_dialog.py:231
+msgid "Process completed successfully.\n"
+msgstr "Vorgang erfolgreich abgeschlossen.\n"
+
+#: task_config.py:196
+msgid "Cannot find the copy of the configuration file!"
+msgstr "Kopie der Konfigurationsdatei nicht gefunden!"
+
+#: task_config.py:198
+msgid "Configuration file editor is missing!"
+msgstr "Editor für Konfigurationsdatei fehlt!"
+
+#: task_config.py:227
+msgid "An updated config file was found."
+msgstr "Aktualisierte Konfigurationsdatei gefunden."
+
+#: task_config.py:229
+msgid "A legacy config file was found."
+msgstr "Alte Konfigurationsdatei gefunden."
+
+#: task_config.py:282
+#, python-brace-format
+msgid "The section {0} was removed."
+msgstr "Sektion {0} wurde entfernt."
+
+#: task_config.py:300
+#, python-brace-format
+msgid "The section {0} was added."
+msgstr "Sektion {0} wurde hinzugefügt."
+
+#: task_config.py:312
+#, python-brace-format
+msgid "The section {0} was replaced."
+msgstr "Sektion {0} wurde ersetzt."
+
+#: task_config.py:367
+#, python-brace-format
+msgid "The value {0}/{1} was added/updated to {2}."
+msgstr "Wert {0}/{1} wurde auf {2} gesetzt/aktualisiert."
+
+#: task_config.py:377
+#, python-brace-format
+msgid "The value {0}/{1} was added/updated."
+msgstr "Wert {0}/{1} wurde hinzugefügt/aktualisiert."
+
+#: task_config.py:388
+#, python-brace-format
+msgid "The value {0}/{1} was removed."
+msgstr "Wert {0}/{1} wurde entfernt."
+
+#: task_config.py:430
+msgid "The persistence block was reset."
+msgstr "Persistenz-Block wurde zurückgesetzt."
+
+#: task_config.py:446
+msgid "Backup Current Configuration"
+msgstr "Aktuelle Konfiguration sichern"
+
+#: task_config.py:457
+msgid ""
+"\n"
+"\tSuccessfully copy file '{}'"
+msgstr ""
+"\n"
+"\tDatei '{}' erfolgreich kopiert"
+
+#: task_config.py:462
+msgid ""
+"\n"
+"\tCreated a backup in '{}'\n"
+msgstr ""
+"\n"
+"\tBackup erstellt unter '{}'\n"
+
+#: task_config.py:493
+msgid "Reset Printer Configuration"
+msgstr "Konfiguration zurücksetzen"
+
+#: task_config.py:533
+msgid "Validate Printer Configuration"
+msgstr "Konfiguration validieren"
+
+#: task_config.py:633 unbrick-swx4.pyw:261
+msgid "Fix Printer Model Settings"
+msgstr "Modell-Einstellungen fixen"
+
+#: task_config.py:649 unbrick-swx4.pyw:262
+msgid "Enable Exclude Object"
+msgstr "„Exclude Object“ aktivieren"
+
+#: task_config.py:665 unbrick-swx4.pyw:265
+msgid "Z-Axis Stepper Motor Hold Current"
+msgstr "Z-Motor-Haltestrom"
+
+#: task_config.py:682 unbrick-swx4.pyw:268
+msgid "Extruder Acceleration Limit"
+msgstr "Extruder Beschleunigungslimit"
+
+#: task_config.py:699 unbrick-swx4.pyw:269
+msgid "Extruder Motor Current Settings"
+msgstr "Extruder Motorstrom"
+
+#: task_config.py:717 unbrick-swx4.pyw:272
+msgid "Distance Sensor Offset"
+msgstr "Abstandssensor-Offset"
+
+#: task_config.py:739 unbrick-swx4.pyw:273
+msgid "Z-Offset Sampling"
+msgstr "Z-Offset-Abtastung"
+
+#: task_config.py:757 unbrick-swx4.pyw:274
+msgid "Z-Offset Error Margin"
+msgstr "Z-Offset Fehlertoleranz"
+
+#: task_config.py:774 unbrick-swx4.pyw:280
+msgid "Enable Manual Bed Leveling"
+msgstr "Manuelles Leveln aktivieren"
+
+#: task_config.py:785 unbrick-swx4.pyw:283
+msgid "Rename Fans for Clarity"
+msgstr "Lüfter umbenennen"
+
+#: task_config.py:807 unbrick-swx4.pyw:284
+msgid "Enhanced Mainboard Fan Control"
+msgstr "Mainboard-Lüftersteuerung"
+
+#: task_config.py:829 unbrick-swx4.pyw:285
+msgid "Adjust Mainboard Fan Speed"
+msgstr "Mainboard-Lüfterdrehzahl"
+
+#: task_config.py:848 unbrick-swx4.pyw:286
+msgid "Adjust Heat-Break Fan Speed"
+msgstr "Heat-Break-Lüfterdrehzahl"
+
+#: task_config.py:867 unbrick-swx4.pyw:289
+msgid "Enable Host & MCU Temperature Monitoring"
+msgstr "Host/MCU Temperaturüberwachung"
+
+#: task_config.py:903 unbrick-swx4.pyw:292
+msgid "Nozzle Wipe Settings"
+msgstr "Düsereinigung (Wipe)"
+
+#: task_config.py:924 unbrick-swx4.pyw:293
+msgid "Purge Line Settings"
+msgstr "Purge-Line (Startlinie)"
+
+#: task_config.py:943 unbrick-swx4.pyw:294
+msgid "Enable Filament Change (M600 Support)"
+msgstr "Filamentwechsel (M600)"
+
+#: task_config.py:960 unbrick-swx4.pyw:295
+msgid "Pause Macro Settings"
+msgstr "Pause-Makro-Einstellungen"
+
+#: task_connect.py:18
+msgid "Connecting to printer using SSH"
+msgstr "Verbindung zum Drucker per SSH"
+
+#: task_connect.py:22
+msgid ""
+"\n"
+"\tSSH connection established."
+msgstr ""
+"\n"
+"\tSSH-Verbindung hergestellt."
+
+#: task_connect.py:26
+msgid "Check if Artillery Sidewinder X4 Printer Connected"
+msgstr "Prüfe auf Artillery SW X4 Verbindung"
+
+#: task_connect.py:46
+#, python-brace-format
+msgid ""
+"\n"
+"\tDetected OS is Linux mkspi {0}\n"
+msgstr ""
+"\n"
+"\tErkanntes OS: Linux mkspi {0}\n"
+
+#: task_connect.py:50
+msgid "Failed to retrieve OS version information!\n"
+msgstr "OS-Versionsinfo konnte nicht geladen werden!\n"
+
+#: task_connect.py:59
+#, python-brace-format
+msgid "\tMCU STM32F401XC found on {0}\n"
+msgstr "\tMCU STM32F401XC gefunden unter {0}\n"
+
+#: task_connect.py:64
+msgid "Failed to retrieve MCU Klipper connection!\n"
+msgstr "MCU Klipper-Verbindung fehlgeschlagen!\n"
+
+#: task_connect.py:74
+#, python-brace-format
+msgid "\tDefault printer configuration file '{0}' was found\n"
+msgstr "\tStandard-Konfigurationsdatei '{0}' gefunden\n"
+
+#: task_connect.py:79
+msgid "One of the configuration file is missing!\n"
+msgstr "Eine Konfigurationsdatei fehlt!\n"
+
+#: task_connect.py:81
+msgid "The connection does not report an Artillery SW X4 printer"
+msgstr "Verbindung meldet keinen Artillery SW X4 Drucker"
+
+#: task_connect.py:85
+msgid "Disconnecting SSH Client"
+msgstr "SSH-Verbindung wird getrennt"
+
+#: task_connect.py:90
+msgid ""
+"\n"
+"\n"
+"\tRecovered disk space: {}\n"
+msgstr ""
+"\n"
+"\n"
+"\tFreigegebener Speicherplatz: {}\n"
+
+#: task_connect.py:96
+msgid ""
+"\n"
+"\tRebooting printer\n"
+msgstr ""
+"\n"
+"\tDrucker wird neu gestartet\n"
+
+#: task_disk.py:13
+msgid "Reading initial disk space"
+msgstr "Lese aktuellen Speicherplatz"
+
+#: task_disk.py:17 task_disk.py:29
+#, python-brace-format
+msgid ""
+"\n"
+"\tBoot partition total size: {0}"
+msgstr ""
+"\n"
+"\tBoot-Partition Gesamtgröße: {0}"
+
+#: task_disk.py:18 task_disk.py:30
+#, python-brace-format
+msgid ""
+"\n"
+"\tBoot partition free size: {0}"
+msgstr ""
+"\n"
+"\tBoot-Partition Freier Speicher: {0}"
+
+#: task_disk.py:19 task_disk.py:31
+#, python-brace-format
+msgid ""
+"\n"
+"\tRoot partition total size: {0}"
+msgstr ""
+"\n"
+"\tRoot-Partition Gesamtgröße: {0}"
+
+#: task_disk.py:20 task_disk.py:32
+#, python-brace-format
+msgid ""
+"\n"
+"\tRoot partition free size: {0}"
+msgstr ""
+"\n"
+"\tRoot-Partition Freier Speicher: {0}"
+
+#: task_disk.py:25
+msgid "Reading final disk space"
+msgstr "Lese abschließenden Speicherplatz"
+
+#: task_disk.py:37
+msgid "Trimming eMMC disk"
+msgstr "Speicheroptimierung (TRIM) läuft"
+
+#: task_disk.py:40
+msgid ""
+"\n"
+"\tFlushing file data...\n"
+msgstr ""
+"\n"
+"\tSchreibe Dateipuffer...\n"
+
+#: task_disk.py:43
+msgid ""
+"\n"
+"\tTrimming eMMC...\n"
+msgstr ""
+"\n"
+"\tFühre TRIM aus...\n"
+
+#: task_erasefiles.py:61
+msgid ""
+"\n"
+"\tSearching {}..."
+msgstr ""
+"\n"
+"\tSuche {}..."
+
+#: task_erasefiles.py:63
+msgid ""
+"\n"
+"\t\tDeleting {}..."
+msgstr ""
+"\n"
+"\t\tLösche {}..."
+
+#: task_erasefiles.py:67
+msgid "Erase .gcode files"
+msgstr "G-Code Dateien löschen"
+
+#: task_erasefiles.py:71
+msgid ""
+"\n"
+"\tRemoved {} .gcode files.\n"
+msgstr ""
+"\n"
+"\t{} G-Code Dateien entfernt.\n"
+
+#: task_erasefiles.py:75
+msgid "Erase miniature files"
+msgstr "Vorschaubilder löschen"
+
+#: task_erasefiles.py:78
+msgid ""
+"\n"
+"\tRemoved {} miniature files.\n"
+msgstr ""
+"\n"
+"\t{} Vorschaubilder entfernt.\n"
+
+#: task_erasefiles.py:82
+msgid "Erase old configuration files"
+msgstr "Alte Konfigurationen löschen"
+
+#: task_erasefiles.py:86
+msgid ""
+"\n"
+"\tRemoved {} old configuration files.\n"
+msgstr ""
+"\n"
+"\t{} alte Konfigurationen entfernt.\n"
+
+#: task_erasefiles.py:90
+msgid "Erase log files"
+msgstr "Log-Dateien löschen"
+
+#: task_erasefiles.py:94
+msgid ""
+"\n"
+"\tRemoved {} log files.\n"
+msgstr ""
+"\n"
+"\t{} Log-Dateien entfernt.\n"
+
+#: task_erasefiles.py:98
+msgid "Erase Artillery clutter files"
+msgstr "Artillery-Datenmüll löschen"
+
+#: task_erasefiles.py:104
+msgid ""
+"\n"
+"\tRemoved {} unneeded files.\n"
+msgstr ""
+"\n"
+"\t{} unnötige Dateien entfernt.\n"
+
+#: task_permissions.py:35
+msgid "Fix file permission"
+msgstr "Zugriffsrechte fixen"
+
+#: task_permissions.py:40
+msgid ""
+"\n"
+"\tApplying default permission for {}"
+msgstr ""
+"\n"
+"\tSetze Standardrechte für {}"
+
+#: task_permissions.py:46
+msgid "Fix home folder permissions"
+msgstr "Home-Verzeichnis Rechte fixen"
+
+#: task_permissions.py:50
+msgid ""
+"\n"
+"\tSearching for locked files on user folder...  "
+msgstr ""
+"\n"
+"\tSuche nach gesperrten Dateien im User-Ordner...  "
+
+#: task_permissions.py:62
+msgid "{} files found\n"
+msgstr "{} Dateien gefunden\n"
+
+#: task_permissions.py:64
+msgid "\tFixing file {}...\n"
+msgstr "\tFixe Datei {}...\n"
+
+#: task_services.py:20
+msgid "Stopping User Interface Service"
+msgstr "Stoppe Display-Dienst"
+
+#: task_services.py:24
+msgid ""
+"\n"
+"\tPrinter display is now unresponsive.\n"
+msgstr ""
+"\n"
+"\tDrucker-Display reagiert nun vorübergehend nicht.\n"
+
+#: task_services.py:28
+msgid "Stopping WebCam Service"
+msgstr "Stoppe WebCam-Dienst"
+
+#: task_services.py:35
+msgid "Stopping Moonraker Service"
+msgstr "Stoppe Moonraker-Dienst"
+
+#: task_services.py:40
+msgid ""
+"\n"
+"\tWeb access is down.\n"
+msgstr ""
+"\n"
+"\tWeb-Zugriff ist offline.\n"
+
+#: task_services.py:44
+msgid "Stopping Klipper Service"
+msgstr "Stoppe Klipper-Dienst"
+
+#: task_services.py:48
+msgid ""
+"\n"
+"\tKlipper is down.\n"
+msgstr ""
+"\n"
+"\tKlipper wurde beendet.\n"
+
+#: task_services.py:52
+msgid "Enabling User Interface Service"
+msgstr "Aktiviere Display-Dienst"
+
+#: task_services.py:59
+msgid "Enabling WebCam Service"
+msgstr "Aktiviere WebCam-Dienst"
+
+#: task_services.py:66
+msgid "Enabling Moonraker Service"
+msgstr "Aktiviere Moonraker-Dienst"
+
+#: task_services.py:74
+msgid "Enabling Klipper Service"
+msgstr "Aktiviere Klipper-Dienst"
+
+#: task_services.py:81
+msgid "Starting Klipper Service"
+msgstr "Starte Klipper-Dienst"
+
+#: task_services.py:85
+msgid ""
+"\n"
+"\tWaiting for Klipper to start..."
+msgstr ""
+"\n"
+"\tWarte auf Klipper-Start..."
+
+#: task_services.py:90
+msgid "Starting Moonraker Service"
+msgstr "Starte Moonraker-Dienst"
+
+#: task_services.py:95
+msgid ""
+"\n"
+"\tWaiting for Moonraker to start..."
+msgstr ""
+"\n"
+"\tWarte auf Moonraker-Start..."
+
+#: task_services.py:100
+msgid "Starting WebCam Service"
+msgstr "Starte WebCam-Dienst"
+
+#: task_services.py:103
+msgid ""
+"\n"
+"\tBe patient...\n"
+msgstr ""
+"\n"
+"\tBitte Geduld...\n"
+
+#: task_services.py:108
+msgid "Starting User Interface Service"
+msgstr "Starte Display-Dienst"
+
+#: task_services.py:112
+msgid ""
+"\n"
+"\tWaiting for User Interface to start..."
+msgstr ""
+"\n"
+"\tWarte auf Display-Start..."
+
+#: task_services.py:117
+msgid "Fix for card resize bug"
+msgstr "Fix für Partitionsfehler"
+
+#: unbrick-swx4.pyw:157
+msgid "Exit"
+msgstr "Beenden"
+
+#: unbrick-swx4.pyw:159
+msgid "Run"
+msgstr "Starten"
+
+#: unbrick-swx4.pyw:161
+msgid "Help"
+msgstr "Hilfe"
+
+#: unbrick-swx4.pyw:215
+msgid "Processing..."
+msgstr "Wird verarbeitet..."
+
+#: unbrick-swx4.pyw:248
+msgid "Printer IP Address"
+msgstr "IP-Adresse"
+
+#: unbrick-swx4.pyw:250
+msgid "Select Your Printer Model"
+msgstr "Druckermodell wählen"
+
+#: unbrick-swx4.pyw:250
 msgid "Artillery SideWinder X4 Pro"
 msgstr "Artillery SideWinder X4 Pro"
 
-#: SetupDialog.py:305
+#: unbrick-swx4.pyw:250
 msgid "Artillery SideWinder X4 Plus"
 msgstr "Artillery SideWinder X4 Plus"
 
-#: SetupDialog.py:311
+#: unbrick-swx4.pyw:253
 msgid "Linux Operating System Cleanup"
-msgstr "Bereinigung des Linux-Betriebssystems"
+msgstr "Linux-Systembereinigung"
 
-#: SetupDialog.py:312
+#: unbrick-swx4.pyw:254
 msgid "Optimize Disk Space"
-msgstr "Optimieren des Festplattenspeichers"
+msgstr "Platz optimieren"
 
-#: SetupDialog.py:313
+#: unbrick-swx4.pyw:255
 msgid "Fix File Permission"
-msgstr "Dateiberechtigung korrigieren"
+msgstr "Rechte fixen"
 
-#: SetupDialog.py:314
-msgid "Fix Resize Bug"
-msgstr "Fehlerbehebung bei der Festplattengrößenänderung"
+#: unbrick-swx4.pyw:256
+msgid "Fix Disk Resize Bug"
+msgstr "Resize-Bug fixen"
 
-#: SetupDialog.py:315
+#: unbrick-swx4.pyw:257
 msgid "Trim eMMC"
-msgstr "eMMC trimmen"
+msgstr "Trim eMMC"
 
-#: SetupDialog.py:316
-msgid "Klipper Hardware Configuration"
-msgstr "Klipper-Hardware-Konfiguration"
+#: unbrick-swx4.pyw:259
+msgid "Klipper Configuration"
+msgstr "Klipper-Konfiguration"
 
-#: SetupDialog.py:317
+#: unbrick-swx4.pyw:260
 msgid "Configuration Reset"
-msgstr "Konfiguration zurücksetzen"
+msgstr "Reset-Optionen"
 
-#: SetupDialog.py:317
+#: unbrick-swx4.pyw:260
 msgid "Update only (default)"
 msgstr "Nur Update (Standard)"
 
-#: SetupDialog.py:317
+#: unbrick-swx4.pyw:260
+msgid "Reset calibration"
+msgstr "Kalibrierung zurücksetzen"
+
+#: unbrick-swx4.pyw:260
 msgid "Factory Reset (keep calibration)"
-msgstr "Zurücksetzen auf die Werkseinstellungen (Kalibrierung beibehalten)"
+msgstr "Werksreset (mit Kalibrierung)"
 
-#: SetupDialog.py:317
+#: unbrick-swx4.pyw:260
 msgid "Complete Factory Reset"
-msgstr "Vollständiges Zurücksetzen auf die Werkseinstellungen"
+msgstr "Vollständiger Werksreset"
 
-#: SetupDialog.py:318
-msgid "Fix Printer Model Settings"
-msgstr "Druckermodell-Einstellungen korrigieren"
-
-#: SetupDialog.py:319
+#: unbrick-swx4.pyw:264
 msgid "Gantry"
-msgstr "Portalgerüst"
+msgstr "Achsen/Gantry"
 
-#: SetupDialog.py:320
-msgid "Stepper Z Current"
-msgstr "Stepper Z Strom"
+#: unbrick-swx4.pyw:265 unbrick-swx4.pyw:268 unbrick-swx4.pyw:269
+#: unbrick-swx4.pyw:272 unbrick-swx4.pyw:273 unbrick-swx4.pyw:274
+#: unbrick-swx4.pyw:280
+msgid "Do not change"
+msgstr "Nicht ändern"
 
-#: SetupDialog.py:320
+#: unbrick-swx4.pyw:265
 msgid "800mA"
 msgstr "800mA"
 
-#: SetupDialog.py:320
+#: unbrick-swx4.pyw:265
 msgid "900mA"
 msgstr "900mA"
 
-#: SetupDialog.py:321
+#: unbrick-swx4.pyw:267
 msgid "Extruder"
 msgstr "Extruder"
 
-#: SetupDialog.py:322
-msgid "Limits Extruder Acceleration"
-msgstr "Begrenzung der Extruder-Beschleunigung"
+#: unbrick-swx4.pyw:268
+msgid "6000mm/s² (SW X4-Pro)"
+msgstr "6000mm/s² (SW X4-Pro)"
 
-#: SetupDialog.py:323
-msgid "Extruder Run Current"
-msgstr "Extruder-Laufstrom"
+#: unbrick-swx4.pyw:268
+msgid "7000mm/s²"
+msgstr "7000mm/s²"
 
-#: SetupDialog.py:323
+#: unbrick-swx4.pyw:268
+msgid "8000mm/s² (SW X4-Plus)"
+msgstr "8000mm/s² (SW X4-Plus)"
+
+#: unbrick-swx4.pyw:269
 msgid "800mA (SW X4-Plus)"
 msgstr "800mA (SW X4-Plus)"
 
-#: SetupDialog.py:323
+#: unbrick-swx4.pyw:269
 msgid "900mA (recommendation)"
 msgstr "900mA (Empfehlung)"
 
-#: SetupDialog.py:323
+#: unbrick-swx4.pyw:269
 msgid "1000mA (SW X4-Pro)"
 msgstr "1000mA (SW X4-Pro)"
 
-#: SetupDialog.py:324
+#: unbrick-swx4.pyw:271
 msgid "Z-Axis Distance Sensor"
-msgstr "Z-Achsen-Abstandssensor"
+msgstr "Z-Abstandssensor"
 
-#: SetupDialog.py:325
-msgid "Offset"
-msgstr "Offset"
-
-#: SetupDialog.py:325
-msgid "Do not change"
-msgstr "Unverändert"
-
-#: SetupDialog.py:325
+#: unbrick-swx4.pyw:272 unbrick-swx4.pyw:280
 msgid "Factory Mount (default)"
-msgstr "Werkseitige Montage (Standard)"
+msgstr "Werksmontage (Standard)"
 
-#: SetupDialog.py:325
+#: unbrick-swx4.pyw:272 unbrick-swx4.pyw:280
 msgid "180° Mount"
-msgstr "180° Halterung"
+msgstr "180° gedreht montiert"
 
-#: SetupDialog.py:326
-msgid "Improved Z-Offset Sampling"
-msgstr "Verbessertes Z-Offset-Sampling"
+#: unbrick-swx4.pyw:273 unbrick-swx4.pyw:274
+msgid "Factory default"
+msgstr "Werkseinstellung"
 
-#: SetupDialog.py:327
-msgid "Improved Z-Offset Error Margin"
-msgstr "Verbesserte Z-Offset-Fehlermarge"
+#: unbrick-swx4.pyw:273
+msgid "Improved"
+msgstr "Verbessert"
 
-#: SetupDialog.py:333
+#: unbrick-swx4.pyw:274
+msgid "Higher precision"
+msgstr "Höhere Präzision"
+
+#: unbrick-swx4.pyw:279
 msgid "Print Bed"
 msgstr "Druckbett"
 
-#: SetupDialog.py:334
-msgid "Activate Manual Leveling Feature"
-msgstr "Manuelle Nivellierungsfunktion aktivieren"
-
-#: SetupDialog.py:335
+#: unbrick-swx4.pyw:282
 msgid "Printer Fans"
 msgstr "Drucker-Lüfter"
 
-#: SetupDialog.py:336
-msgid "Rename Fans"
-msgstr "Lüfter umbenennen"
-
-#: SetupDialog.py:337
-msgid "Improved Mainboard Fan control"
-msgstr "Verbesserte Steuerung der Mainboard-Lüfter"
-
-#: SetupDialog.py:338
-msgid "Mainboard Fan Speed"
-msgstr "Lüfterdrehzahl des Mainboards"
-
-#: SetupDialog.py:338 SetupDialog.py:339
+#: unbrick-swx4.pyw:285 unbrick-swx4.pyw:286
 msgid "Max (default)"
 msgstr "Max (Standard)"
 
-#: SetupDialog.py:338 SetupDialog.py:339
+#: unbrick-swx4.pyw:285 unbrick-swx4.pyw:286
 msgid "95%"
 msgstr "95%"
 
-#: SetupDialog.py:338 SetupDialog.py:339
+#: unbrick-swx4.pyw:285 unbrick-swx4.pyw:286
 msgid "90%"
 msgstr "90%"
 
-#: SetupDialog.py:338 SetupDialog.py:339
+#: unbrick-swx4.pyw:285 unbrick-swx4.pyw:286
 msgid "85%"
 msgstr "85%"
 
-#: SetupDialog.py:338 SetupDialog.py:339
+#: unbrick-swx4.pyw:285 unbrick-swx4.pyw:286
 msgid "80%"
 msgstr "80%"
 
-#: SetupDialog.py:338 SetupDialog.py:339
+#: unbrick-swx4.pyw:285 unbrick-swx4.pyw:286
 msgid "75%"
 msgstr "75%"
 
-#: SetupDialog.py:338 SetupDialog.py:339
+#: unbrick-swx4.pyw:285 unbrick-swx4.pyw:286
 msgid "70%"
 msgstr "70%"
 
-#: SetupDialog.py:339
-msgid "Heatbreak Fan Speed"
-msgstr "Heatbreak-Lüfterdrehzahl"
-
-#: SetupDialog.py:340
+#: unbrick-swx4.pyw:288
 msgid "Temperatures"
 msgstr "Temperaturen"
 
-#: SetupDialog.py:341
-msgid "Temperature Reading for Host and MCU"
-msgstr "Temperaturmessung für Host und MCU"
-
-#: SetupDialog.py:342
+#: unbrick-swx4.pyw:291
 msgid "G-Code"
 msgstr "G-Code"
 
-#: SetupDialog.py:343
-msgid "Nozzle Wipe"
-msgstr "Düsen-Wischen"
-
-#: SetupDialog.py:343 SetupDialog.py:344 SetupDialog.py:346
+#: unbrick-swx4.pyw:292 unbrick-swx4.pyw:293 unbrick-swx4.pyw:294
+#: unbrick-swx4.pyw:295
 msgid "Do not Change"
 msgstr "Nicht ändern"
 
-#: SetupDialog.py:343 SetupDialog.py:344 SetupDialog.py:346
+#: unbrick-swx4.pyw:292 unbrick-swx4.pyw:293 unbrick-swx4.pyw:295
 msgid "Legacy Version"
-msgstr "Ältere Version"
+msgstr "Legacy-Version"
 
-#: SetupDialog.py:343 SetupDialog.py:344 SetupDialog.py:346
+#: unbrick-swx4.pyw:292 unbrick-swx4.pyw:293 unbrick-swx4.pyw:295
 msgid "New Version"
 msgstr "Neue Version"
 
-#: SetupDialog.py:344
-msgid "Purge Line"
-msgstr "Reinigungsleitung"
-
-#: SetupDialog.py:345
-msgid "M600: Filament Change Support"
-msgstr "M600: Unterstützung für den Filamentwechsel"
-
-#: SetupDialog.py:346
-msgid "Pause Macro"
-msgstr "Pause Makro"
-
-#: SetupDialog.py:346
+#: unbrick-swx4.pyw:293 unbrick-swx4.pyw:294 unbrick-swx4.pyw:295
 msgid "Grumat Version"
-msgstr "Grumat Ausführung"
+msgstr "Grumat-Version"
 
-#: SetupDialog.py:560
-msgid "Ok"
-msgstr "Ok"
+#: unbrick-swx4.pyw:294
+msgid "Artillery Version"
+msgstr "Artillery-Version"
 
-#: SetupDialog.py:561
-msgid "Cancel"
-msgstr "Abbrechen"
+#: unbrick-swx4.pyw:304
+msgid "Artillery SideWinder X4 Unbrick Tool v0.2"
+msgstr "Artillery SideWinder X4 Unbrick Tool v0.2"

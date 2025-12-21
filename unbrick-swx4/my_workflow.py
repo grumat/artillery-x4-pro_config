@@ -107,7 +107,7 @@ class Workflow(ArtillerySideWinder):
 		self.exception = False
 		self.cancel_flag = False
 		self.resizing_issue = False
-		if (TEST_MODE is None) and not TYPE_CHECKING:
+		if (TEST_MODE is None):
 			self.queue : queue.Queue
 			self.thread : threading.Thread
 			self.dlg : tk.Misc
@@ -139,11 +139,11 @@ class Workflow(ArtillerySideWinder):
 		if TYPE_CHECKING:
 			from .task_config import BackupConfig, ConfigReset, ConfigValidate, FixModelSettings, StepperZCurrent, ExtruderAccel, ExtruderCurrent, \
 						ProbeOffset, ProbeSampling, ProbeValidation, ScrewsTiltAdjust, FanRename, MbFanFix, MbFanSpeed, HbFanSpeed, TempMCU, \
-						NozzleWipe, PurgeLine, M600Support, PauseMacro
+						NozzleWipe, PurgeLine, M600Support, PauseMacro, ExcludeObject
 		else:
 			from task_config import BackupConfig, ConfigReset, ConfigValidate, FixModelSettings, StepperZCurrent, ExtruderAccel, ExtruderCurrent, \
 						ProbeOffset, ProbeSampling, ProbeValidation, ScrewsTiltAdjust, FanRename, MbFanFix, MbFanSpeed, HbFanSpeed, TempMCU, \
-						NozzleWipe, PurgeLine, M600Support, PauseMacro
+						NozzleWipe, PurgeLine, M600Support, PauseMacro, ExcludeObject
 
 		if (TEST_MODE is None):
 			self.tasks.append(Connect(self))
@@ -166,6 +166,7 @@ class Workflow(ArtillerySideWinder):
 		self.tasks.append(ConfigReset(self))
 		self.tasks.append(ConfigValidate(self))
 		self.tasks.append(FixModelSettings(self))
+		self.tasks.append(ExcludeObject(self))
 		self.tasks.append(StepperZCurrent(self))
 		self.tasks.append(ExtruderAccel(self))
 		self.tasks.append(ExtruderCurrent(self))
@@ -234,7 +235,7 @@ class Workflow(ArtillerySideWinder):
 		task.state = state
 		self.UpdateUI(task)
 
-	if (TEST_MODE is None) and not TYPE_CHECKING:
+	if (TEST_MODE is None):
 		def _worker_thread(self):
 			cnt = 0
 			for i, task in enumerate(self.tasks):
@@ -261,7 +262,7 @@ class Workflow(ArtillerySideWinder):
 						Error(f'{error_message}\n')
 						self.UpdateUI(Message(MessageType.ERROR, _('ERROR!') + '\n\t' + _(error_message) + '\n'))
 			self.UpdateUI(100)
-			if persistence_upd:
+			if self.persistence_upd:
 				msg = N_("Printer configuration has been reset, printer needs recalibration.")
 				Warning(msg)
 				self.UpdateUI(Message(MessageType.BOLD, _(msg)))
@@ -272,7 +273,7 @@ class Workflow(ArtillerySideWinder):
 	def Do(self, dlg : tk.Misc, queue : queue.Queue):
 		self.dlg = dlg
 		self.queue = queue
-		if (TEST_MODE is None) and not TYPE_CHECKING:
+		if (TEST_MODE is None):
 			self.thread = threading.Thread(target=self._worker_thread)
 			self.thread.start()
 

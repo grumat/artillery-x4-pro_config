@@ -5,8 +5,14 @@
 
 import time
 
-from i18n import _, N_
-from my_workflow import Workflow, Task, TaskState, ExecCommand
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+	from .i18n import _, N_
+	from .my_workflow import Workflow, Task, TaskState
+else:
+	from i18n import _, N_
+	from my_workflow import Workflow, Task, TaskState
 
 
 class StopUserInterface(Task):

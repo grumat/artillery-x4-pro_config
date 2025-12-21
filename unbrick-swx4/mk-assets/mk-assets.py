@@ -273,8 +273,7 @@ def main():
 		fh.write("# def:\t\tupg\n")
 		fh.write("# upg:\t\tY\n")
 		fh.write("# grumat:\tupg\n")
-		GetCRC(fh, 'POINT4_PLUS_CRC', "gcode_macro move_to_point_4", "gcode", fn_x4plus_upg )
-		#GetKey(fh, 'POINT4_PLUS', "gcode_macro move_to_point_4", "gcode", fn_x4plus_upg)
+		GetSecCRC(fh, 'POINT4_PLUS_CRC', "gcode_macro move_to_point_4", fn_x4plus_upg )
 		GetSecML(fh, 'POINT4_SEC_PLUS', "gcode_macro move_to_point_4", fn_x4plus_upg)
 
 		## gcode_macro move_to_point_5 / gcode
@@ -282,8 +281,7 @@ def main():
 		fh.write("# def:\t\tupg\n")
 		fh.write("# upg:\t\tY\n")
 		fh.write("# grumat:\tupg\n")
-		GetCRC(fh, 'POINT5_PLUS_CRC', "gcode_macro move_to_point_5", "gcode", fn_x4plus_upg )
-		#GetKey(fh, 'POINT5_PLUS', "gcode_macro move_to_point_5", "gcode", fn_x4plus_upg)
+		GetSecCRC(fh, 'POINT5_PLUS_CRC', "gcode_macro move_to_point_5", fn_x4plus_upg )
 		GetSecML(fh, 'POINT5_SEC_PLUS', "gcode_macro move_to_point_5", fn_x4plus_upg)
 
 		## gcode_macro move_to_point_6 / gcode
@@ -291,9 +289,16 @@ def main():
 		fh.write("# def:\t\tupg\n")
 		fh.write("# upg:\t\tY\n")
 		fh.write("# grumat:\tupg\n")
-		GetCRC(fh, 'POINT6_PLUS_CRC', "gcode_macro move_to_point_6", "gcode", fn_x4plus_upg )
-		#GetKey(fh, 'POINT6_PLUS', "gcode_macro move_to_point_6", "gcode", fn_x4plus_upg)
+		GetSecCRC(fh, 'POINT6_PLUS_CRC', "gcode_macro move_to_point_6", fn_x4plus_upg )
 		GetSecML(fh, 'POINT6_SEC_PLUS', "gcode_macro move_to_point_6", fn_x4plus_upg)
+
+		## exclude_object
+		fh.write("\n")
+		fh.write("# def:\t\tN\n")
+		fh.write("# upg:\t\tN\n")
+		fh.write("# grumat:\tN\n")
+		GetSecCRC(fh, 'EXCLUDE_OBJECT_CRC', "exclude_object", fn_x4pro_extra )
+		GetSecML(fh, 'EXCLUDE_OBJECT', "exclude_object", fn_x4pro_extra )
 
 		## tmc2209 stepper_z / hold_current
 		fh.write("\n")
@@ -383,6 +388,8 @@ def main():
 		GetSecML(fh, 'M600_UPG', "gcode_macro M600", fn_x4pro_upg )
 		GetSecCRC(fh, 'M600_CRC_GRU', "gcode_macro M600", fn_x4pro_grumat )
 		GetSecML(fh, 'M600_GRU', "gcode_macro M600", fn_x4pro_grumat )
+		GetSecCRC(fh, 'T600_CRC_UPG', "gcode_macro T600", fn_x4pro_upg )
+		GetSecML(fh, 'T600_UPG', "gcode_macro T600", fn_x4pro_upg )
 
 		##  PAUSE Macro
 		fh.write("\n")

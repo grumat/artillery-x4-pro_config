@@ -63,6 +63,7 @@ SECTIONS = [
 	("mcu rpi",										False ),
 	("adxl345",										False ),
 	("resonance_tester",							False ),
+	("exclude_object",								False ),
 	("force_move",									False ),
 	("virtual_sdcard",								False ),
 	("gcode_macro nozzle_wipe",						False ),
@@ -146,6 +147,7 @@ _bed_mesh_max_ = K("bed_mesh", "mesh_max")
 _gcode_G29_ = K("gcode_macro G29", "gcode")
 _gcode_M300_ = K("gcode_macro M300", "gcode")
 _gcode_M600_ = K("gcode_macro M600", "gcode")
+_gcode_T600_ = K("gcode_macro T600", "gcode")
 _gcode_wipe = K("gcode_macro nozzle_wipe", "gcode")
 _gcode_line = K("gcode_macro draw_line", "gcode")
 _gcode_line_only = K("gcode_macro draw_line_only", "gcode")
@@ -170,6 +172,7 @@ _probe_tolerance_ = K("probe", "samples_tolerance")
 _probe_retries_ = K("probe", "samples_tolerance_retries")
 _tilt_adjust_ = K("screws_tilt_adjust", "")
 _beeper_pin_ = K("output_pin BEEPER_pin", "")
+_exclude_obj_ = K("exclude_object", "")
 
 
 
@@ -388,7 +391,7 @@ class EditConfig_(Task):
 			self.Warning('\t' + _(msg).format(f"[{k.section}]", k.key) + '\n')
 			return True
 		return False
-	def _upt_val_(self, k : K, val_pro : str|None, val_plus : str|None) -> None:
+	def _upd_val_(self, k : K, val_pro : str|None, val_plus : str|None) -> None:
 		" Update value for pro/plus. A `None` value indicates key delete "
 		assert val_pro is None or isinstance(val_pro, str), "Invalid function argument"
 		assert val_plus is None or isinstance(val_plus, str), "Invalid function argument"
@@ -400,7 +403,7 @@ class EditConfig_(Task):
 			self._del_key_(k)
 		else:
 			self._set_key_(k, v)
-	def _upt_ml_(self, k : K, crc_pro : CrcKey|None, b64_pro : LinesB64|None, crc_plus : CrcKey|None, b64_plus : LinesB64|None) -> None:
+	def _upd_ml_(self, k : K, crc_pro : CrcKey|None, b64_pro : LinesB64|None, crc_plus : CrcKey|None, b64_plus : LinesB64|None) -> None:
 		" Update multiline value for pro/plus.  A `None` value indicates key delete "
 		assert crc_pro is None or isinstance(crc_pro, CrcKey), "Invalid function argument"
 		assert crc_plus is None or isinstance(crc_plus, CrcKey), "Invalid function argument"
@@ -546,8 +549,8 @@ _is_combo_1_ = "_is_combo_1_"			# Item 1 of associated combobox is selected
 _is_combo_2_ = "_is_combo_2_"			# Item 2 of associated combobox is selected
 _is_combo_3_ = "_is_combo_3_"			# Item 2 of associated combobox is selected
 
-_upt_val_ = "_upt_val_"					# (_upt_val_, K, val_pro, val_plus)	 					## Use None values to delete key
-_upt_ml_ = "_upt_ml_"					# (_upt_ml_, K, crc_pro, b64_pro, crc_plus, b64_plus)	## Use None values to delete key
+_upd_val_ = "_upd_val_"					# (_upd_val_, K, val_pro, val_plus)	 					## Use None values to delete key
+_upd_ml_ = "_upd_ml_"					# (_upd_ml_, K, crc_pro, b64_pro, crc_plus, b64_plus)	## Use None values to delete key
 _upd_sec_ = "_upd_sec_"					# (_upd_sec_, K, crc_pro, b64_pro, crc_plus, b64_plus)	## Use None values to delete section
 _persist_ = "_persist_"					# (_persist_, b64_pro, b64_plus)
 
@@ -597,29 +600,29 @@ class StmtList_(EditConfig_):
 class FixModelSettings(StmtList_):
 	PLAN = (
 		# <cond>			<command>		<section/key>		<value pro>		<value plus>
-		( _always_,			_upt_val_,		_stepper_x_max,		X_MAX_PRO,		X_MAX_PLUS ),
-		( _always_,			_upt_val_,		_stepper_y_dir,		Y_DIR_PRO,		Y_DIR_PLUS ),
-		( _always_,			_upt_val_,		_stepper_y_min,		Y_MIN_PRO,		Y_MIN_PLUS ),
-		( _always_,			_upt_val_,		_stepper_y_stop,	Y_STOP_PRO,		Y_STOP_PLUS ),
-		( _always_,			_upt_val_,		_stepper_y_max,		Y_MAX_PRO,		Y_MAX_PLUS ),
-		( _always_,			_upt_val_,		_stepper_z_max,		Z_MAX_PRO,		Z_MAX_PLUS ),
+		( _always_,			_upd_val_,		_stepper_x_max,		X_MAX_PRO,		X_MAX_PLUS ),
+		( _always_,			_upd_val_,		_stepper_y_dir,		Y_DIR_PRO,		Y_DIR_PLUS ),
+		( _always_,			_upd_val_,		_stepper_y_min,		Y_MIN_PRO,		Y_MIN_PLUS ),
+		( _always_,			_upd_val_,		_stepper_y_stop,	Y_STOP_PRO,		Y_STOP_PLUS ),
+		( _always_,			_upd_val_,		_stepper_y_max,		Y_MAX_PRO,		Y_MAX_PLUS ),
+		( _always_,			_upd_val_,		_stepper_z_max,		Z_MAX_PRO,		Z_MAX_PLUS ),
 		# <cond>			<command>		<section/key>		<crc pro>			<b64 pro>		<crc plus>			<b64 plus>
-		( _always_,			_upt_ml_,		_gcode_homing_,		HOME_OVR_PRO_CRC,	HOME_OVR_PRO,	HOME_OVR_PLUS_CRC,	HOME_OVR_PLUS ),
+		( _always_,			_upd_ml_,		_gcode_homing_,		HOME_OVR_PRO_CRC,	HOME_OVR_PRO,	HOME_OVR_PLUS_CRC,	HOME_OVR_PLUS ),
 		# <cond>			<command>		<section/key>		<value pro>		<value plus>
-		( _always_,			_upt_val_,		_bed_mesh_max_,		MESH_MAX_PRO,	MESH_MAX_PLUS ),
+		( _always_,			_upd_val_,		_bed_mesh_max_,		MESH_MAX_PRO,	MESH_MAX_PLUS ),
 		# <cond>			<command>		<section/key>		<crc pro>			<b64 pro>		<crc plus>			<b64 plus>
-		( _always_,			_upt_ml_,		_gcode_G29_,		G29_PRO_CRC,		G29_PRO,		G29_PLUS_CRC,		G29_PLUS),
-		( _is_def_,			_upt_ml_,		_gcode_wipe,		WIPE_PRO_CRC_DEF,	WIPE_PRO_DEF,	WIPE_PLUS_CRC_DEF,	WIPE_PLUS_DEF ),
-		( _is_upg_,			_upt_ml_,		_gcode_wipe,		WIPE_PRO_CRC_UPG,	WIPE_PRO_UPG,	WIPE_PLUS_CRC_UPG,	WIPE_PLUS_UPG ),
-		( _is_def_,			_upt_ml_,		_gcode_line,		LINE_PRO_CRC_DEF,	LINE_PRO_DEF,	LINE_PLUS_CRC_DEF,	LINE_PLUS_DEF ),
-		( _is_upg_,			_upt_ml_,		_gcode_line,		LINE_PRO_CRC_UPG,	LINE_PRO_UPG,	LINE_PLUS_CRC_UPG,	LINE_PLUS_UPG ),
+		( _always_,			_upd_ml_,		_gcode_G29_,		G29_PRO_CRC,		G29_PRO,		G29_PLUS_CRC,		G29_PLUS),
+		( _is_def_,			_upd_ml_,		_gcode_wipe,		WIPE_PRO_CRC_DEF,	WIPE_PRO_DEF,	WIPE_PLUS_CRC_DEF,	WIPE_PLUS_DEF ),
+		( _is_upg_,			_upd_ml_,		_gcode_wipe,		WIPE_PRO_CRC_UPG,	WIPE_PRO_UPG,	WIPE_PLUS_CRC_UPG,	WIPE_PLUS_UPG ),
+		( _is_def_,			_upd_ml_,		_gcode_line,		LINE_PRO_CRC_DEF,	LINE_PRO_DEF,	LINE_PLUS_CRC_DEF,	LINE_PLUS_DEF ),
+		( _is_upg_,			_upd_ml_,		_gcode_line,		LINE_PRO_CRC_UPG,	LINE_PRO_UPG,	LINE_PLUS_CRC_UPG,	LINE_PLUS_UPG ),
 		# <cond>			<command>		<section/key>		<crc pro>				<b64 pro>			<crc plus>				<b64 plus>
 		( _is_upg_,			_upd_sec_,		_gcode_line_only,	LINE_ONLY_PRO_CRC_UPG,	LINE_ONLY_PRO_UPG,	LINE_ONLY_PLUS_CRC_UPG,	LINE_ONLY_PLUS_UPG ),	
 		# <cond>			<command>		<section/key>		<crc pro>			<b64 pro>		<crc plus>			<b64 plus>
-		( _always_,			_upt_ml_,		_gcode_point_0_,	POINT0_PRO_CRC,		POINT0_PRO,		POINT0_PLUS_CRC,	POINT0_PLUS ),
-		( _always_,			_upt_ml_,		_gcode_point_1_,	POINT1_PRO_CRC,		POINT1_PRO,		POINT1_PLUS_CRC,	POINT1_PLUS ),
-		( _always_,			_upt_ml_,		_gcode_point_2_,	POINT2_PRO_CRC,		POINT2_PRO,		POINT2_PLUS_CRC,	POINT2_PLUS ),
-		( _always_,			_upt_ml_,		_gcode_point_3_,	POINT3_PRO_CRC,		POINT3_PRO,		POINT3_PLUS_CRC,	POINT3_PLUS ),
+		( _always_,			_upd_ml_,		_gcode_point_0_,	POINT0_PRO_CRC,		POINT0_PRO,		POINT0_PLUS_CRC,	POINT0_PLUS ),
+		( _always_,			_upd_ml_,		_gcode_point_1_,	POINT1_PRO_CRC,		POINT1_PRO,		POINT1_PLUS_CRC,	POINT1_PLUS ),
+		( _always_,			_upd_ml_,		_gcode_point_2_,	POINT2_PRO_CRC,		POINT2_PRO,		POINT2_PLUS_CRC,	POINT2_PLUS ),
+		( _always_,			_upd_ml_,		_gcode_point_3_,	POINT3_PRO_CRC,		POINT3_PRO,		POINT3_PLUS_CRC,	POINT3_PLUS ),
 		( _always_,			_upd_sec_,		_gcode_point_4_,	None,				None,			POINT4_PLUS_CRC,	POINT4_SEC_PLUS ),
 		( _always_,			_upd_sec_,		_gcode_point_5_,	None,				None,			POINT5_PLUS_CRC,	POINT5_SEC_PLUS ),
 		( _always_,			_upd_sec_,		_gcode_point_6_,	None,				None,			POINT6_PLUS_CRC,	POINT6_SEC_PLUS ),
@@ -637,14 +640,29 @@ class FixModelSettings(StmtList_):
 		self.RunPlan(self.PLAN, 0)
 
 
+class ExcludeObject(StmtList_):
+	PLAN =(
+		# <cond>			<command>	<section/key>		<crc pro>			<b64 pro>			<crc plus>			<b64 plus>
+		( _always_,			_upd_sec_,	_exclude_obj_,		EXCLUDE_OBJECT_CRC,	EXCLUDE_OBJECT,		EXCLUDE_OBJECT_CRC,	EXCLUDE_OBJECT ),
+	)
+	def __init__(self, workflow: Workflow) -> None:
+		super().__init__(workflow, N_("Enable Exclude Object"), workflow.opts.exclude_object and TaskState.READY or TaskState.DISABLED)
+	def Do(self):
+		workflow = self.workflow
+		assert workflow.opts.exclude_object != 0, "This item is disabled, why got called?"
+		# Validate state
+		super().Do()
+		self.RunPlan(self.PLAN, 0)
+
+
 class StepperZCurrent(StmtList_):
 	PLAN =(
 		# <cond>			<command>		<section/key>		<value pro>				<value plus>
-		( _is_combo_1_,		_upt_val_,		_hold_current_z_,	HOLD_CURRENT_Z_LOW,		HOLD_CURRENT_Z_LOW ),
-		( _is_combo_2_,		_upt_val_,		_hold_current_z_,	HOLD_CURRENT_Z_HI,		HOLD_CURRENT_Z_HI ),
+		( _is_combo_1_,		_upd_val_,		_hold_current_z_,	HOLD_CURRENT_Z_LOW,		HOLD_CURRENT_Z_LOW ),
+		( _is_combo_2_,		_upd_val_,		_hold_current_z_,	HOLD_CURRENT_Z_HI,		HOLD_CURRENT_Z_HI ),
 	)
 	def __init__(self, workflow: Workflow) -> None:
-		super().__init__(workflow, N_("Stepper Z Hold Current"), workflow.opts.stepper_z_current and TaskState.READY or TaskState.DISABLED)
+		super().__init__(workflow, N_("Z-Axis Stepper Motor Hold Current"), workflow.opts.stepper_z_current and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		workflow = self.workflow
 		assert workflow.opts.stepper_z_current != 0, "This item is disabled, why got called?"
@@ -656,9 +674,9 @@ class StepperZCurrent(StmtList_):
 class ExtruderAccel(StmtList_):
 	PLAN =(
 		# <cond>			<command>		<section/key>		<value pro>				<value plus>
-		( _is_combo_1_,		_upt_val_,		_extruder_accel_,	EXTRUDER_ACCEL_LOW,		EXTRUDER_ACCEL_LOW ),
-		( _is_combo_2_,		_upt_val_,		_extruder_accel_,	EXTRUDER_ACCEL_MID,		EXTRUDER_ACCEL_MID ),
-		( _is_combo_3_,		_upt_val_,		_extruder_accel_,	EXTRUDER_ACCEL_HI,		EXTRUDER_ACCEL_HI ),
+		( _is_combo_1_,		_upd_val_,		_extruder_accel_,	EXTRUDER_ACCEL_LOW,		EXTRUDER_ACCEL_LOW ),
+		( _is_combo_2_,		_upd_val_,		_extruder_accel_,	EXTRUDER_ACCEL_MID,		EXTRUDER_ACCEL_MID ),
+		( _is_combo_3_,		_upd_val_,		_extruder_accel_,	EXTRUDER_ACCEL_HI,		EXTRUDER_ACCEL_HI ),
 	)
 	def __init__(self, workflow: Workflow) -> None:
 		super().__init__(workflow, N_("Extruder Acceleration Limit"), workflow.opts.extruder_accel and TaskState.READY or TaskState.DISABLED)
@@ -673,12 +691,12 @@ class ExtruderAccel(StmtList_):
 class ExtruderCurrent(StmtList_):
 	PLAN =(
 		# <cond>			<command>		<section/key>		<value pro>				<value plus>
-		( _is_combo_1_,		_upt_val_,		_extruder_current_,	EXTRUDER_CURRENT_LOW,	EXTRUDER_CURRENT_LOW ),
-		( _is_combo_2_,		_upt_val_,		_extruder_current_,	EXTRUDER_CURRENT_MID,	EXTRUDER_CURRENT_MID ),
-		( _is_combo_3_,		_upt_val_,		_extruder_current_,	EXTRUDER_CURRENT_HI,	EXTRUDER_CURRENT_HI ),
+		( _is_combo_1_,		_upd_val_,		_extruder_current_,	EXTRUDER_CURRENT_LOW,	EXTRUDER_CURRENT_LOW ),
+		( _is_combo_2_,		_upd_val_,		_extruder_current_,	EXTRUDER_CURRENT_MID,	EXTRUDER_CURRENT_MID ),
+		( _is_combo_3_,		_upd_val_,		_extruder_current_,	EXTRUDER_CURRENT_HI,	EXTRUDER_CURRENT_HI ),
 	)
 	def __init__(self, workflow: Workflow) -> None:
-		super().__init__(workflow, N_("Extruder Run Current"), workflow.opts.extruder_current and TaskState.READY or TaskState.DISABLED)
+		super().__init__(workflow, N_("Extruder Motor Current Settings"), workflow.opts.extruder_current and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		workflow = self.workflow
 		assert workflow.opts.extruder_current != 0, "This item is disabled, why got called?"
@@ -690,13 +708,13 @@ class ExtruderCurrent(StmtList_):
 class ProbeOffset(StmtList_):
 	PLAN =(
 		# <cond>			<command>		<section/key>		<value pro>			<value plus>
-		( _is_combo_1_,		_upt_val_,		_probe_x_offset_,	PROBE_X_OFFSET,		PROBE_X_OFFSET ),
-		( _is_combo_1_,		_upt_val_,		_probe_y_offset_,	PROBE_Y_OFFSET,		PROBE_Y_OFFSET ),
-		( _is_combo_2_,		_upt_val_,		_probe_x_offset_,	PROBE180_X_OFFSET,	PROBE180_X_OFFSET ),
-		( _is_combo_2_,		_upt_val_,		_probe_y_offset_,	PROBE180_Y_OFFSET,	PROBE180_Y_OFFSET ),
+		( _is_combo_1_,		_upd_val_,		_probe_x_offset_,	PROBE_X_OFFSET,		PROBE_X_OFFSET ),
+		( _is_combo_1_,		_upd_val_,		_probe_y_offset_,	PROBE_Y_OFFSET,		PROBE_Y_OFFSET ),
+		( _is_combo_2_,		_upd_val_,		_probe_x_offset_,	PROBE180_X_OFFSET,	PROBE180_X_OFFSET ),
+		( _is_combo_2_,		_upd_val_,		_probe_y_offset_,	PROBE180_Y_OFFSET,	PROBE180_Y_OFFSET ),
 	)
 	def __init__(self, workflow: Workflow) -> None:
-		super().__init__(workflow, N_("Probe Offset"), workflow.opts.probe_offset and TaskState.READY or TaskState.DISABLED)
+		super().__init__(workflow, N_("Distance Sensor Offset"), workflow.opts.probe_offset and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		workflow = self.workflow
 		assert workflow.opts.probe_offset != 0, "This item is disabled, why got called?"
@@ -708,14 +726,14 @@ class ProbeOffset(StmtList_):
 class ProbeSampling(StmtList_):
 	PLAN =(
 		# <cond>			<command>		<section/key>		<value pro>			<value plus>
-		( _is_combo_1_,		_upt_val_,		_probe_speed_,		PROBE_SPEED,		PROBE_SPEED ),
-		( _is_combo_2_,		_upt_val_,		_probe_speed_,		PROBE180_SPEED,		PROBE180_SPEED ),
-		( _is_combo_1_,		_upt_val_,		_probe_lift_,		None,				None ),
-		( _is_combo_2_,		_upt_val_,		_probe_lift_,		PROBE180_LIFT,		PROBE180_LIFT ),
-		( _is_combo_1_,		_upt_val_,		_probe_samples_,	PROBE_SAMPLE,		PROBE_SAMPLE ),
-		( _is_combo_2_,		_upt_val_,		_probe_samples_,	PROBE180_SAMPLE,	PROBE180_SAMPLE ),
-		( _is_combo_1_,		_upt_val_,		_probe_result_,		PROBE_RESULT,		PROBE_RESULT ),
-		( _is_combo_2_,		_upt_val_,		_probe_result_,		PROBE180_RESULT,	PROBE180_RESULT ),
+		( _is_combo_1_,		_upd_val_,		_probe_speed_,		PROBE_SPEED,		PROBE_SPEED ),
+		( _is_combo_2_,		_upd_val_,		_probe_speed_,		PROBE180_SPEED,		PROBE180_SPEED ),
+		( _is_combo_1_,		_upd_val_,		_probe_lift_,		None,				None ),
+		( _is_combo_2_,		_upd_val_,		_probe_lift_,		PROBE180_LIFT,		PROBE180_LIFT ),
+		( _is_combo_1_,		_upd_val_,		_probe_samples_,	PROBE_SAMPLE,		PROBE_SAMPLE ),
+		( _is_combo_2_,		_upd_val_,		_probe_samples_,	PROBE180_SAMPLE,	PROBE180_SAMPLE ),
+		( _is_combo_1_,		_upd_val_,		_probe_result_,		PROBE_RESULT,		PROBE_RESULT ),
+		( _is_combo_2_,		_upd_val_,		_probe_result_,		PROBE180_RESULT,	PROBE180_RESULT ),
 	)
 	def __init__(self, workflow: Workflow) -> None:
 		super().__init__(workflow, N_("Z-Offset Sampling"), workflow.opts.probe_sampling and TaskState.READY or TaskState.DISABLED)
@@ -730,10 +748,10 @@ class ProbeSampling(StmtList_):
 class ProbeValidation(StmtList_):
 	PLAN =(
 		# <cond>			<command>		<section/key>		<value pro>			<value plus>
-		( _is_combo_1_,		_upt_val_,		_probe_tolerance_,	PROBE_TOLERANCE,	PROBE_TOLERANCE ),
-		( _is_combo_2_,		_upt_val_,		_probe_tolerance_,	PROBE180_TOLERANCE,	PROBE180_TOLERANCE ),
-		( _is_combo_1_,		_upt_val_,		_probe_retries_,	PROBE_RETRIES,		PROBE_RETRIES ),
-		( _is_combo_2_,		_upt_val_,		_probe_retries_,	PROBE180_RETRIES,	PROBE180_RETRIES ),
+		( _is_combo_1_,		_upd_val_,		_probe_tolerance_,	PROBE_TOLERANCE,	PROBE_TOLERANCE ),
+		( _is_combo_2_,		_upd_val_,		_probe_tolerance_,	PROBE180_TOLERANCE,	PROBE180_TOLERANCE ),
+		( _is_combo_1_,		_upd_val_,		_probe_retries_,	PROBE_RETRIES,		PROBE_RETRIES ),
+		( _is_combo_2_,		_upd_val_,		_probe_retries_,	PROBE180_RETRIES,	PROBE180_RETRIES ),
 	)
 	def __init__(self, workflow: Workflow) -> None:
 		super().__init__(workflow, N_("Z-Offset Error Margin"), workflow.opts.probe_validation and TaskState.READY or TaskState.DISABLED)
@@ -753,7 +771,7 @@ class ScrewsTiltAdjust(StmtList_):
 	)
 
 	def __init__(self, workflow: Workflow) -> None:
-		super().__init__(workflow, N_("Manual Leveling Feature"), workflow.opts.screws_tilt_adjust and TaskState.READY or TaskState.DISABLED)
+		super().__init__(workflow, N_("Enable Manual Bed Leveling"), workflow.opts.screws_tilt_adjust and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		workflow = self.workflow
 		assert workflow.opts.screws_tilt_adjust != 0, "This item is disabled, why got called?"
@@ -764,7 +782,7 @@ class ScrewsTiltAdjust(StmtList_):
 
 class FanRename(EditConfig_):
 	def __init__(self, workflow: Workflow) -> None:
-		super().__init__(workflow, N_("Rename Fans"), workflow.opts.fan_rename and TaskState.READY or TaskState.DISABLED)
+		super().__init__(workflow, N_("Rename Fans for Clarity"), workflow.opts.fan_rename and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		editor = self.workflow.editor
 		assert isinstance(editor, Commands), "Invalid object state"
@@ -786,7 +804,7 @@ class FanRename(EditConfig_):
 
 class MbFanFix(EditConfig_):
 	def __init__(self, workflow: Workflow) -> None:
-		super().__init__(workflow, N_("Improved Main-board Fan control"), workflow.opts.mb_fan_fix and TaskState.READY or TaskState.DISABLED)
+		super().__init__(workflow, N_("Enhanced Mainboard Fan Control"), workflow.opts.mb_fan_fix and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		editor = self.workflow.editor
 		assert isinstance(editor, Commands), "Invalid object state"
@@ -808,7 +826,7 @@ class MbFanFix(EditConfig_):
 
 class MbFanSpeed(EditConfig_):
 	def __init__(self, workflow: Workflow) -> None:
-		super().__init__(workflow, N_("Main-board Fan Speed"), TaskState.READY)
+		super().__init__(workflow, N_("Adjust Mainboard Fan Speed"), TaskState.READY)
 	def Do(self):
 		editor = self.workflow.editor
 		assert isinstance(editor, Commands), "Invalid object state"
@@ -827,7 +845,7 @@ class MbFanSpeed(EditConfig_):
 
 class HbFanSpeed(EditConfig_):
 	def __init__(self, workflow: Workflow) -> None:
-		super().__init__(workflow, N_("Heat-break Fan Speed"), TaskState.READY)
+		super().__init__(workflow, N_("Adjust Heat-Break Fan Speed"), TaskState.READY)
 	def Do(self):
 		editor = self.workflow.editor
 		assert isinstance(editor, Commands), "Invalid object state"
@@ -846,7 +864,7 @@ class HbFanSpeed(EditConfig_):
 
 class TempMCU(EditConfig_):
 	def __init__(self, workflow: Workflow) -> None:
-		super().__init__(workflow, N_("Temperature Reading for Host and MCU"), workflow.opts.temp_mcu and TaskState.READY or TaskState.DISABLED)
+		super().__init__(workflow, N_("Enable Host & MCU Temperature Monitoring"), workflow.opts.temp_mcu and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		editor = self.workflow.editor
 		assert isinstance(editor, Commands), "Invalid object state"
@@ -878,11 +896,11 @@ class TempMCU(EditConfig_):
 class NozzleWipe(StmtList_):
 	PLAN =(
 		# <cond>			<command>	<section/key>		<crc pro>			<b64 pro>			<crc plus>			<b64 plus>
-		( _is_combo_1_,		_upt_ml_,	_gcode_wipe,		WIPE_PRO_CRC_DEF,	WIPE_PRO_DEF,		WIPE_PLUS_CRC_DEF,	WIPE_PLUS_DEF ),
-		( _is_combo_2_,		_upt_ml_,	_gcode_wipe,		WIPE_PRO_CRC_UPG,	WIPE_PRO_UPG,		WIPE_PLUS_CRC_UPG,	WIPE_PLUS_UPG),
+		( _is_combo_1_,		_upd_ml_,	_gcode_wipe,		WIPE_PRO_CRC_DEF,	WIPE_PRO_DEF,		WIPE_PLUS_CRC_DEF,	WIPE_PLUS_DEF ),
+		( _is_combo_2_,		_upd_ml_,	_gcode_wipe,		WIPE_PRO_CRC_UPG,	WIPE_PRO_UPG,		WIPE_PLUS_CRC_UPG,	WIPE_PLUS_UPG),
 	)
 	def __init__(self, workflow: Workflow) -> None:
-		super().__init__(workflow, N_("Nozzle Wipe"), workflow.opts.nozzle_wipe and TaskState.READY or TaskState.DISABLED)
+		super().__init__(workflow, N_("Nozzle Wipe Settings"), workflow.opts.nozzle_wipe and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		workflow = self.workflow
 		assert workflow.opts.nozzle_wipe != 0, "This item is disabled, why got called?"
@@ -894,16 +912,16 @@ class NozzleWipe(StmtList_):
 class PurgeLine(StmtList_):
 	PLAN =(
 		# <cond>			<command>	<section/key>		<crc pro>				<b64 pro>			<crc plus>				<b64 plus>
-		( _is_combo_1_,		_upt_ml_,	_gcode_line,		LINE_PRO_CRC_DEF,		LINE_PRO_DEF,		LINE_PLUS_CRC_DEF,		LINE_PLUS_DEF ),
-		( _is_combo_2_,		_upt_ml_,	_gcode_line,		LINE_PRO_CRC_UPG,		LINE_PRO_UPG,		LINE_PLUS_CRC_UPG,		LINE_PLUS_UPG ),
-		( _is_combo_3_,		_upt_ml_,	_gcode_line,		LINE_PRO_CRC_UPG,		LINE_PRO_UPG,		LINE_PLUS_CRC_UPG,		LINE_PLUS_UPG ),
+		( _is_combo_1_,		_upd_ml_,	_gcode_line,		LINE_PRO_CRC_DEF,		LINE_PRO_DEF,		LINE_PLUS_CRC_DEF,		LINE_PLUS_DEF ),
+		( _is_combo_2_,		_upd_ml_,	_gcode_line,		LINE_PRO_CRC_UPG,		LINE_PRO_UPG,		LINE_PLUS_CRC_UPG,		LINE_PLUS_UPG ),
+		( _is_combo_3_,		_upd_ml_,	_gcode_line,		LINE_PRO_CRC_UPG,		LINE_PRO_UPG,		LINE_PLUS_CRC_UPG,		LINE_PLUS_UPG ),
 		# <cond>			<command>	<section>			<crc pro>				<b64 pro>			<crc plus>				<b64 plus>
 		( _is_combo_1_,		_upd_sec_,	_gcode_line_only,	None,					None,				None,					None ),
 		( _is_combo_2_,		_upd_sec_,	_gcode_line_only,	LINE_ONLY_PRO_CRC_UPG,	LINE_ONLY_PRO_UPG,	LINE_ONLY_PLUS_CRC_UPG,	LINE_ONLY_PLUS_UPG ),
 		( _is_combo_3_,		_upd_sec_,	_gcode_line_only,	LINE_ONLY_PRO_CRC_GRU,	LINE_ONLY_PRO_GRU,	LINE_ONLY_PLUS_CRC_GRU,	LINE_ONLY_PLUS_GRU ),
 	)
 	def __init__(self, workflow: Workflow) -> None:
-		super().__init__(workflow, N_("Purge Line"), workflow.opts.purge_line and TaskState.READY or TaskState.DISABLED)
+		super().__init__(workflow, N_("Purge Line Settings"), workflow.opts.purge_line and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		workflow = self.workflow
 		assert workflow.opts.purge_line != 0, "This item is disabled, why got called?"
@@ -919,9 +937,10 @@ class M600Support(StmtList_):
 		( _always_,			_upd_sec_,	_gcode_M300_,		M300_CRC_UPG,			M300_UPG,			M300_CRC_UPG,			M300_UPG ),
 		( _is_combo_1_,		_upd_sec_,	_gcode_M600_,		M600_CRC_UPG,			M600_UPG,			M600_CRC_UPG,			M600_UPG ),
 		( _is_combo_2_,		_upd_sec_,	_gcode_M600_,		M600_CRC_GRU,			M600_GRU,			M600_CRC_GRU,			M600_GRU ),
+		( _always_,			_upd_sec_,	_gcode_T600_,		T600_CRC_UPG,			T600_UPG,			T600_CRC_UPG,			T600_UPG ),
 	)
 	def __init__(self, workflow: Workflow) -> None:
-		super().__init__(workflow, N_("M600: Filament Change Support"), workflow.opts.enable_m600 and TaskState.READY or TaskState.DISABLED)
+		super().__init__(workflow, N_("Enable Filament Change (M600 Support)"), workflow.opts.enable_m600 and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		workflow = self.workflow
 		assert workflow.opts.enable_m600 != 0, "This item is disabled, why got called?"
@@ -933,12 +952,12 @@ class M600Support(StmtList_):
 class PauseMacro(StmtList_):
 	PLAN =(
 		# <cond>			<command>	<section>			<crc pro>				<b64 pro>			<crc plus>				<b64 plus>
-		( _is_combo_1_,		_upt_ml_,	_gcode_pause_,		PAUSE_CRC_DEF,			PAUSE_DEF,			PAUSE_CRC_DEF,			PAUSE_DEF ),
-		( _is_combo_2_,		_upt_ml_,	_gcode_pause_,		PAUSE_CRC_UPG,			PAUSE_UPG,			PAUSE_CRC_UPG,			PAUSE_UPG ),
-		( _is_combo_3_,		_upt_ml_,	_gcode_pause_,		PAUSE_CRC_GRU,			PAUSE_GRU,			PAUSE_CRC_GRU,			PAUSE_GRU ),
+		( _is_combo_1_,		_upd_ml_,	_gcode_pause_,		PAUSE_CRC_DEF,			PAUSE_DEF,			PAUSE_CRC_DEF,			PAUSE_DEF ),
+		( _is_combo_2_,		_upd_ml_,	_gcode_pause_,		PAUSE_CRC_UPG,			PAUSE_UPG,			PAUSE_CRC_UPG,			PAUSE_UPG ),
+		( _is_combo_3_,		_upd_ml_,	_gcode_pause_,		PAUSE_CRC_GRU,			PAUSE_GRU,			PAUSE_CRC_GRU,			PAUSE_GRU ),
 	)
 	def __init__(self, workflow: Workflow) -> None:
-		super().__init__(workflow, N_("Pause Macro"), workflow.opts.pause and TaskState.READY or TaskState.DISABLED)
+		super().__init__(workflow, N_("Pause Macro Settings"), workflow.opts.pause and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		workflow = self.workflow
 		assert workflow.opts.pause != 0, "This item is disabled, why got called?"

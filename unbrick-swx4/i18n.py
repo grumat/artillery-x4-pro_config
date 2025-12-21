@@ -2,7 +2,7 @@ import gettext
 import locale
 from my_env import GetLocalePath
 
-if 0:
+if 1:
 	SUPPORTED_LANGUAGES = ["en_US", "de_DE", "es", "fr", "it", "pt_BR"]
 	DEFAULT_LANGUAGE = "en_US"
 elif 0:
@@ -87,7 +87,7 @@ def SetupI18nAuto():
 	except FileNotFoundError as e:
 		# Fallback if setting locale fails (e.g., system doesn't have it installed)
 		gettext.NullTranslations().install()
-	_ = gettext.gettext
+		_ = gettext.gettext
 
 
 def SetupI18nManual(lang_code):

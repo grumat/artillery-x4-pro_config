@@ -101,23 +101,23 @@ class ProgressDialog:
 		bootstyle0 = ""
 		bootstyle1 = ""
 		if task.state == TaskState.DISABLED:
-			ctrl.checkmark.set("disabled")
+			ctrl.checkmark.set(_("disabled"))
 			bootstyle0 = "light"
 			bootstyle1 = "inverse-light"
 		elif task.state == TaskState.RUNNING:
-			ctrl.checkmark.set("running")
+			ctrl.checkmark.set(_("running"))
 			bootstyle1 = "inverse-primary"
 		elif task.state == TaskState.DONE:
-			ctrl.checkmark.set("success")
+			ctrl.checkmark.set(_("success"))
 			bootstyle1 = "inverse-success"
 		elif task.state == TaskState.FAIL:
-			ctrl.checkmark.set("error")
+			ctrl.checkmark.set(_("error"))
 			bootstyle1 = "inverse-danger"
 		elif task.state == TaskState.CANCELLED:
-			ctrl.checkmark.set("cancelled")
+			ctrl.checkmark.set(_("cancelled"))
 			bootstyle1 = "inverse-warning"
 		else:
-			ctrl.checkmark.set("ready")
+			ctrl.checkmark.set(_("ready"))
 			bootstyle1 = "inverse-secondary"
 		if bootstyle0 and (ctrl.bootstyle0 != bootstyle0):
 			ctrl.bootstyle0 = bootstyle0
@@ -144,13 +144,14 @@ class ProgressDialog:
 			pady=5
 		)
 		self.log.pack(fill=BOTH, expand=True)
+		style = tb.Style()
 
 		# Define tags for styling
 		self.log.tag_config("bold", font=("Helvetica", 10, "bold"))
 		self.log.tag_config("warning", foreground="orange")
-		self.log.tag_config("action", font=("Helvetica", 10, "bold"), foreground="blue")
-		self.log.tag_config("success", font=("Helvetica", 10, "bold"), foreground="green")
-		self.log.tag_config("error", foreground="red")
+		self.log.tag_config("action", font=("Helvetica", 10, "bold"), foreground=style.colors.info)
+		self.log.tag_config("success", font=("Helvetica", 10, "bold"), foreground=style.colors.success)
+		self.log.tag_config("error", foreground=style.colors.danger)
 
 	def _log_insert(self, text, tag=None):
 		"""Insert text into the log with optional styling."""

@@ -5,10 +5,15 @@
 This scripts automates the un-bricking of Artillery Sidewinder X4 printers.
 """
 
-# spellchecker: words themename padx pady bootstyle columnspan Grumat uopts unbrick klipper
+# spellchecker: words themename padx pady bootstyle columnspan Grumat uopts unbrick klipper mainboard myappid
 
-from i18n import SetupI18nAuto, _, N_
+from i18n import SetupI18nAuto
+SetupI18nAuto()
+from i18n import _, N_
+
 import os
+import webbrowser
+import ctypes
 
 # spellchecker:disable
 import ttkbootstrap as tb
@@ -22,6 +27,9 @@ from progress_dialog import ProgressDialog
 from my_workflow import Workflow
 from my_env import GetAssetsFolder, GetIniFileName, Info
 
+
+myappid = 'net.sf.grumat.unbrick-swx4'
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
 
 class SetupDialog:
@@ -139,7 +147,6 @@ class SetupDialog:
 							combo.current(index)
 						except ValueError:
 							pass
-
 			row += 1
 
 		# Button frame (spanning both columns)
@@ -150,6 +157,8 @@ class SetupDialog:
 		tb.Button(button_frame, text=_("Exit"), bootstyle="danger", command=self._on_exit).pack(side=RIGHT, padx=5)
 		# Run button (translated)
 		tb.Button(button_frame, text=_("Run"), bootstyle="success", command=self._on_run).pack(side=RIGHT, padx=5)
+		# Run button (translated)
+		tb.Button(button_frame, text=_("Help"), bootstyle="info", command=self._on_help).pack(side=RIGHT, padx=5)
 
 		self.app.protocol("WM_DELETE_WINDOW", self._on_exit)
 
@@ -207,6 +216,9 @@ class SetupDialog:
 
 		workflow.Do(progress_dialog.dialog, progress_dialog.queue)
 
+	def _on_help(self):
+		webbrowser.open("https://sourceforge.net/p/artillery-sw-x4-klipper-images/wiki/Automatic%20Unbrick%20Tool/")
+
 	def _on_exit(self):
 		self.values = None
 		self.app.destroy()
@@ -235,28 +247,29 @@ class SetupDialog:
 fields = [
 	{"type": "entry", 		"name": "ip_addr", 				"label": N_("Printer IP Address"), },
 	{"column_break": True},		# Switch to the right column
-	{"type": "combobox", 	"name": "printer", 				"label": N_("Select Printer Model"), "options": [N_("Artillery SideWinder X4 Pro"), N_("Artillery SideWinder X4 Plus")], },
+	{"type": "combobox", 	"name": "printer", 				"label": N_("Select Your Printer Model"), "options": [N_("Artillery SideWinder X4 Pro"), N_("Artillery SideWinder X4 Plus")], },
 	{"section_break": True},	# New section
 
 	{"type": "title", 										"text": N_("Linux Operating System Cleanup")},
 	{"type": "checkbox", 	"name": "optimize_disk_space", 	"text": N_("Optimize Disk Space"), "label": ""},
 	{"type": "checkbox", 	"name": "file_permissions", 	"text": N_("Fix File Permission"), "label": ""},
-	{"type": "checkbox", 	"name": "resize_bug", 			"text": N_("Fix Resize Bug"), "label": ""},
+	{"type": "checkbox", 	"name": "resize_bug", 			"text": N_("Fix Disk Resize Bug"), "label": ""},
 	{"type": "checkbox", 	"name": "trim", 				"text": N_("Trim eMMC"), "label": ""},
 
-	{"type": "title", 										"text": N_("Klipper Hardware Configuration")},
+	{"type": "title", 										"text": N_("Klipper Configuration")},
 	{"type": "combobox", 	"name": "reset", 				"label": N_("Configuration Reset"), "options": [N_("Update only (default)"), N_("Reset calibration"), N_("Factory Reset (keep calibration)"), N_("Complete Factory Reset")], },
 	{"type": "checkbox", 	"name": "model_attr", 			"text": N_("Fix Printer Model Settings"), "label": ""},
+	{"type": "checkbox", 	"name": "exclude_object",		"text": N_("Enable Exclude Object"), "label": ""},
 
 	{"type": "title", 										"text": N_("Gantry")},
-	{"type": "combobox", 	"name": "stepper_z_current", 	"label": N_("Stepper Z Hold Current"), "options": [N_("Do not change"), N_("800mA"), N_("900mA")], },
+	{"type": "combobox", 	"name": "stepper_z_current", 	"label": N_("Z-Axis Stepper Motor Hold Current"), "options": [N_("Do not change"), N_("800mA"), N_("900mA")], },
 
 	{"type": "title", 										"text": N_("Extruder")},
 	{"type": "combobox", 	"name": "extruder_accel", 		"label": N_("Extruder Acceleration Limit"), "options": [N_("Do not change"), N_("6000mm/s² (SW X4-Pro)"), N_("7000mm/s²"), N_("8000mm/s² (SW X4-Plus)")], },
-	{"type": "combobox", 	"name": "extruder_current", 	"label": N_("Extruder Run Current"), "options": [N_("Do not change"), N_("800mA (SW X4-Plus)"), N_("900mA (recommendation)"), N_("1000mA (SW X4-Pro)")], },
+	{"type": "combobox", 	"name": "extruder_current", 	"label": N_("Extruder Motor Current Settings"), "options": [N_("Do not change"), N_("800mA (SW X4-Plus)"), N_("900mA (recommendation)"), N_("1000mA (SW X4-Pro)")], },
 	
 	{"type": "title", 										"text": N_("Z-Axis Distance Sensor")},
-	{"type": "combobox",  	"name": "probe_offset", 		"label": N_("Offset"), "options": [N_("Do not change"), N_("Factory Mount (default)"), N_("180° Mount")], },
+	{"type": "combobox",  	"name": "probe_offset", 		"label": N_("Distance Sensor Offset"), "options": [N_("Do not change"), N_("Factory Mount (default)"), N_("180° Mount")], },
 	{"type": "combobox", 	"name": "probe_sampling", 		"label": N_("Z-Offset Sampling"), "options": [N_("Do not change"), N_("Factory default"), N_("Improved")], },
 	{"type": "combobox", 	"name": "probe_validation", 	"label": N_("Z-Offset Error Margin"), "options": [N_("Do not change"), N_("Factory default"), N_("Higher precision")], },
 
@@ -264,29 +277,28 @@ fields = [
 	{"column_break": True},  # Switch to the right column
 
 	{"type": "title", 										"text": N_("Print Bed")},
-	{"type": "combobox", 	"name": "screws_tilt_adjust", 	"label": N_("Manual Leveling Feature"), "options": [N_("Do not change"), N_("Factory Mount (default)"), N_("180° Mount")], },
+	{"type": "combobox", 	"name": "screws_tilt_adjust", 	"label": N_("Enable Manual Bed Leveling"), "options": [N_("Do not change"), N_("Factory Mount (default)"), N_("180° Mount")], },
 
 	{"type": "title", 										"text": N_("Printer Fans")},
-	{"type": "checkbox", 	"name": "fan_rename", 			"text": N_("Rename Fans"), "label": ""},
-	{"type": "checkbox", 	"name": "mb_fan_fix", 			"text": N_("Improved Main-board Fan control"), "label": ""},
-	{"type": "combobox",  	"name": "mb_fan_speed", 		"label": N_("Main-board Fan Speed"), "options": [N_("Max (default)"), N_("95%"), N_("90%"), N_("85%"), N_("80%"), N_("75%"), N_("70%")], },
-	{"type": "combobox",  	"name": "hb_fan_speed", 		"label": N_("Heat-break Fan Speed"), "options": [N_("Max (default)"), N_("95%"), N_("90%"), N_("85%"), N_("80%"), N_("75%"), N_("70%")], },
+	{"type": "checkbox", 	"name": "fan_rename", 			"text": N_("Rename Fans for Clarity"), "label": ""},
+	{"type": "checkbox", 	"name": "mb_fan_fix", 			"text": N_("Enhanced Mainboard Fan Control"), "label": ""},
+	{"type": "combobox",  	"name": "mb_fan_speed", 		"label": N_("Adjust Mainboard Fan Speed"), "options": [N_("Max (default)"), N_("95%"), N_("90%"), N_("85%"), N_("80%"), N_("75%"), N_("70%")], },
+	{"type": "combobox",  	"name": "hb_fan_speed", 		"label": N_("Adjust Heat-Break Fan Speed"), "options": [N_("Max (default)"), N_("95%"), N_("90%"), N_("85%"), N_("80%"), N_("75%"), N_("70%")], },
 
 	{"type": "title", 										"text": N_("Temperatures")},
-	{"type": "checkbox", 	"name": "temp_mcu", 			"text": N_("Temperature Reading for Host and MCU"), "label": ""},
+	{"type": "checkbox", 	"name": "temp_mcu", 			"text": N_("Enable Host & MCU Temperature Monitoring"), "label": ""},
 
 	{"type": "title", 										"text": N_("G-Code")},
-	{"type": "combobox",  	"name": "nozzle_wipe", 			"label": N_("Nozzle Wipe"), "options": [N_("Do not Change"), N_("Legacy Version"), N_("New Version")], },
-	{"type": "combobox",  	"name": "purge_line", 			"label": N_("Purge Line"), "options": [N_("Do not Change"), N_("Legacy Version"), N_("New Version"), N_("Grumat Version")], },
-	{"type": "combobox", 	"name": "enable_m600",			"label": N_("M600: Filament Change Support"), "options": [N_("Do not Change"), N_("Artillery Version"), N_("Grumat Version")], },
-	{"type": "combobox",  	"name": "pause", 				"label": N_("Pause Macro"), "options": [N_("Do not Change"), N_("Legacy Version"), N_("New Version"), N_("Grumat Version")], },
+	{"type": "combobox",  	"name": "nozzle_wipe", 			"label": N_("Nozzle Wipe Settings"), "options": [N_("Do not Change"), N_("Legacy Version"), N_("New Version")], },
+	{"type": "combobox",  	"name": "purge_line", 			"label": N_("Purge Line Settings"), "options": [N_("Do not Change"), N_("Legacy Version"), N_("New Version"), N_("Grumat Version")], },
+	{"type": "combobox", 	"name": "enable_m600",			"label": N_("Enable Filament Change (M600 Support)"), "options": [N_("Do not Change"), N_("Artillery Version"), N_("Grumat Version")], },
+	{"type": "combobox",  	"name": "pause", 				"label": N_("Pause Macro Settings"), "options": [N_("Do not Change"), N_("Legacy Version"), N_("New Version"), N_("Grumat Version")], },
 ]
 
 
 
 if __name__ == "__main__":
 	Info('Starting Application')
-	SetupI18nAuto()
 	uopts = UserOptions()
 	uopts.LoadIni(GetIniFileName())
 	dialog = SetupDialog(fields, title=N_("Artillery SideWinder X4 Unbrick Tool v0.2"), initial_values=uopts)

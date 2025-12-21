@@ -50,6 +50,7 @@ def step_001(opts : UserOptions):
 def step_002(opts : UserOptions):
 	opts.printer = SWX4PRO + START_WITH_PLUS_UPG	# Artillery pro target with Artillery plus config
 	opts.model_attr = True
+	opts.exclude_object = True
 	opts.mb_fan_speed = 1
 	opts.hb_fan_speed = 1
 	opts.nozzle_wipe = 0
@@ -60,6 +61,7 @@ def step_002(opts : UserOptions):
 def step_003(opts : UserOptions):
 	opts.printer = SWX4PRO + START_WITH_PRO_UPG
 	opts.model_attr = False
+	opts.exclude_object = False
 	opts.stepper_z_current = 1
 	opts.extruder_accel = 1
 	opts.extruder_current = 1
@@ -80,6 +82,7 @@ def step_003(opts : UserOptions):
 def step_004(opts : UserOptions):
 	opts.printer = SWX4PRO + START_WITH_PRO_UPG
 	opts.model_attr = False
+	opts.exclude_object = False
 	opts.stepper_z_current = 2
 	opts.extruder_accel = 2
 	opts.extruder_current = 2
@@ -101,6 +104,7 @@ def step_004(opts : UserOptions):
 def step_005(opts : UserOptions):
 	opts.printer = SWX4PRO + START_WITH_PRO_GRUMAT
 	opts.model_attr = True
+	opts.exclude_object = False
 	opts.stepper_z_current = 0
 	opts.extruder_accel = 3
 	opts.extruder_current = 3
@@ -120,10 +124,34 @@ def step_005(opts : UserOptions):
 	wf = Workflow(opts)
 	wf.Test('step_005')
 
+def step_006(opts : UserOptions):
+	opts.printer = SWX4PLUS + START_WITH_PLUS_DEF
+	opts.model_attr = True
+	opts.exclude_object = True
+	opts.stepper_z_current = 1
+	opts.extruder_accel = 1
+	opts.extruder_current = 2
+	opts.probe_offset = 2
+	opts.probe_sampling = 2
+	opts.probe_validation = 2
+	opts.screws_tilt_adjust = 2
+	opts.fan_rename = True
+	opts.mb_fan_fix = True
+	opts.mb_fan_speed = 6
+	opts.hb_fan_speed = 4
+	opts.temp_mcu = True
+	opts.nozzle_wipe = 2
+	opts.purge_line = 3
+	opts.enable_m600 = 2
+	opts.pause = 3
+	wf = Workflow(opts)
+	wf.Test('step_006')
+
 def main():
 	opts = UserOptions()
 	opts.reset = 0
 	opts.model_attr = True
+	opts.exclude_object = False
 	opts.stepper_z_current = 0
 	opts.extruder_accel = 0
 	opts.extruder_current = 0
