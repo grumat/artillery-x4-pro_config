@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: UTF-8 -*-
 #
-# Spellchecker: words gcode grumat endstop gcode tupg klipper
+# Spellchecker: words gcode grumat endstop gcode tupg klipper tabified
 
 import sys
 import os
@@ -369,6 +369,32 @@ def main():
 		fh.write("# grumat:\tY\n")
 		GetSecML(fh, 'HOST_TEMP', "temperature_sensor rpi_cpu", fn_x4pro_grumat)
 		GetSecML(fh, 'MCU_TEMP', "temperature_sensor mcu_temp", fn_x4pro_grumat)
+
+		##  M600 Support
+		fh.write("\n")
+		fh.write("# def:\t\tV1\n")
+		fh.write("# upg:\t\tV1\n")
+		fh.write("# grumat:\tV2\n")
+		GetSecCRC(fh, 'BEEPER_CRC_UPG', "output_pin BEEPER_pin", fn_x4pro_upg )
+		GetSecML(fh, 'BEEPER_UPG', "output_pin BEEPER_pin", fn_x4pro_upg )
+		GetSecCRC(fh, 'M300_CRC_UPG', "gcode_macro M300", fn_x4pro_upg )
+		GetSecML(fh, 'M300_UPG', "gcode_macro M300", fn_x4pro_upg )
+		GetSecCRC(fh, 'M600_CRC_UPG', "gcode_macro M600", fn_x4pro_upg )
+		GetSecML(fh, 'M600_UPG', "gcode_macro M600", fn_x4pro_upg )
+		GetSecCRC(fh, 'M600_CRC_GRU', "gcode_macro M600", fn_x4pro_grumat )
+		GetSecML(fh, 'M600_GRU', "gcode_macro M600", fn_x4pro_grumat )
+
+		##  PAUSE Macro
+		fh.write("\n")
+		fh.write("# def:\t\tV1\n")
+		fh.write("# upg:\t\tV2\n")
+		fh.write("# grumat:\tV3\n")
+		GetCRC(fh, 'PAUSE_CRC_DEF', "gcode_macro PAUSE", "gcode", fn_x4pro_def )
+		GetKey(fh, 'PAUSE_DEF', "gcode_macro PAUSE", "gcode", fn_x4pro_def )
+		GetCRC(fh, 'PAUSE_CRC_UPG', "gcode_macro PAUSE", "gcode", fn_x4pro_upg )
+		GetKey(fh, 'PAUSE_UPG', "gcode_macro PAUSE", "gcode", fn_x4pro_upg )
+		GetCRC(fh, 'PAUSE_CRC_GRU', "gcode_macro PAUSE", "gcode", fn_x4pro_grumat )
+		GetKey(fh, 'PAUSE_GRU', "gcode_macro PAUSE", "gcode", fn_x4pro_grumat )
 
 if __name__ == "__main__":
 	main()

@@ -40,7 +40,7 @@ class UserOptions(object):
 		# gcode
 		self.nozzle_wipe = 2
 		self.purge_line = 2
-		self.enable_m600 = True
+		self.enable_m600 = 2
 		self.pause = 3
 
 	def IsArtillerySWX4Pro(self):

@@ -139,11 +139,11 @@ class Workflow(ArtillerySideWinder):
 		if TYPE_CHECKING:
 			from .task_config import BackupConfig, ConfigReset, ConfigValidate, FixModelSettings, StepperZCurrent, ExtruderAccel, ExtruderCurrent, \
 						ProbeOffset, ProbeSampling, ProbeValidation, ScrewsTiltAdjust, FanRename, MbFanFix, MbFanSpeed, HbFanSpeed, TempMCU, \
-						NozzleWipe, PurgeLine
+						NozzleWipe, PurgeLine, M600Support, PauseMacro
 		else:
 			from task_config import BackupConfig, ConfigReset, ConfigValidate, FixModelSettings, StepperZCurrent, ExtruderAccel, ExtruderCurrent, \
-						ProbeOffset, ProbeSampling, ProbeValidation, ScrewsTiltAdjust, FanRename, MbFanFix, MbFanSpeed, HbFanSpeed, TempMCU, NozzleWipe, \
-						PurgeLine
+						ProbeOffset, ProbeSampling, ProbeValidation, ScrewsTiltAdjust, FanRename, MbFanFix, MbFanSpeed, HbFanSpeed, TempMCU, \
+						NozzleWipe, PurgeLine, M600Support, PauseMacro
 
 		if (TEST_MODE is None):
 			self.tasks.append(Connect(self))
@@ -180,6 +180,8 @@ class Workflow(ArtillerySideWinder):
 		self.tasks.append(TempMCU(self))
 		self.tasks.append(NozzleWipe(self))
 		self.tasks.append(PurgeLine(self))
+		self.tasks.append(M600Support(self))
+		self.tasks.append(PauseMacro(self))
 
 		if (TEST_MODE is None):
 			self.tasks.append(TrimDisk(self))

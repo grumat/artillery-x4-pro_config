@@ -73,6 +73,7 @@ def step_003(opts : UserOptions):
 	opts.hb_fan_speed = 2
 	opts.nozzle_wipe = 0
 	opts.purge_line = 0
+	opts.pause = 1
 	wf = Workflow(opts)
 	wf.Test('step_003')
 
@@ -92,6 +93,8 @@ def step_004(opts : UserOptions):
 	opts.hb_fan_speed = 3
 	opts.nozzle_wipe = 1
 	opts.purge_line = 1
+	opts.enable_m600 = 2
+	opts.pause = 3
 	wf = Workflow(opts)
 	wf.Test('step_004')
 
@@ -112,6 +115,8 @@ def step_005(opts : UserOptions):
 	opts.temp_mcu = True
 	opts.nozzle_wipe = 2
 	opts.purge_line = 2
+	opts.enable_m600 = 1
+	opts.pause = 2
 	wf = Workflow(opts)
 	wf.Test('step_005')
 
@@ -133,7 +138,7 @@ def main():
 	opts.temp_mcu = False
 	opts.nozzle_wipe = 0
 	opts.purge_line = 0
-	opts.enable_m600 = False
+	opts.enable_m600 = 0
 	opts.pause = 0
 	test = 0
 	success = 0

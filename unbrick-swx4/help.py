@@ -205,7 +205,7 @@ The following changes will be done:
 	- M600 g-code macro (Filament Change)
 	- T600 g-code macro (Artillery custom: Resume Print)
 
-Note that if these settings are already installed this tool will not modify, neither remove them.""")
+The "Grumat" version, writes the same code but following usual software developer guidelines.""")
 
 
 tt_pause = N_(

@@ -156,6 +156,7 @@ _gcode_point_3_ = K("gcode_macro move_to_point_3", "gcode")
 _gcode_point_4_ = K("gcode_macro move_to_point_4", "gcode")
 _gcode_point_5_ = K("gcode_macro move_to_point_5", "gcode")
 _gcode_point_6_ = K("gcode_macro move_to_point_6", "gcode")
+_gcode_pause_ = K("gcode_macro PAUSE", "gcode")
 _hold_current_z_ = K("tmc2209 stepper_z", "hold_current")
 _extruder_accel_ = K("extruder", "max_extrude_only_accel")
 _extruder_current_ = K("tmc2209 extruder", "run_current")
@@ -168,6 +169,7 @@ _probe_result_ = K("probe", "samples_result")
 _probe_tolerance_ = K("probe", "samples_tolerance")
 _probe_retries_ = K("probe", "samples_tolerance_retries")
 _tilt_adjust_ = K("screws_tilt_adjust", "")
+_beeper_pin_ = K("output_pin BEEPER_pin", "")
 
 
 
@@ -629,8 +631,7 @@ class FixModelSettings(StmtList_):
 	def Do(self):
 		workflow = self.workflow
 		# Validate state
-		if workflow.opts.model_attr == False:
-			raise Exception("This item is disabled, why got called?")
+		assert workflow.opts.model_attr == True, "This item is disabled, why got called?"
 		super().Do()
 		# Select by printer
 		self.RunPlan(self.PLAN, 0)
@@ -646,6 +647,7 @@ class StepperZCurrent(StmtList_):
 		super().__init__(workflow, N_("Stepper Z Hold Current"), workflow.opts.stepper_z_current and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		workflow = self.workflow
+		assert workflow.opts.stepper_z_current != 0, "This item is disabled, why got called?"
 		# Validate state
 		super().Do()
 		self.RunPlan(self.PLAN, workflow.opts.stepper_z_current)
@@ -662,6 +664,7 @@ class ExtruderAccel(StmtList_):
 		super().__init__(workflow, N_("Extruder Acceleration Limit"), workflow.opts.extruder_accel and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		workflow = self.workflow
+		assert workflow.opts.extruder_accel != 0, "This item is disabled, why got called?"
 		# Validate state
 		super().Do()
 		self.RunPlan(self.PLAN, workflow.opts.extruder_accel)
@@ -678,6 +681,7 @@ class ExtruderCurrent(StmtList_):
 		super().__init__(workflow, N_("Extruder Run Current"), workflow.opts.extruder_current and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		workflow = self.workflow
+		assert workflow.opts.extruder_current != 0, "This item is disabled, why got called?"
 		# Validate state
 		super().Do()
 		self.RunPlan(self.PLAN, workflow.opts.extruder_current)
@@ -695,6 +699,7 @@ class ProbeOffset(StmtList_):
 		super().__init__(workflow, N_("Probe Offset"), workflow.opts.probe_offset and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		workflow = self.workflow
+		assert workflow.opts.probe_offset != 0, "This item is disabled, why got called?"
 		# Validate state
 		super().Do()
 		self.RunPlan(self.PLAN, workflow.opts.probe_offset)
@@ -716,6 +721,7 @@ class ProbeSampling(StmtList_):
 		super().__init__(workflow, N_("Z-Offset Sampling"), workflow.opts.probe_sampling and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		workflow = self.workflow
+		assert workflow.opts.probe_sampling != 0, "This item is disabled, why got called?"
 		# Validate state
 		super().Do()
 		self.RunPlan(self.PLAN, workflow.opts.probe_sampling)
@@ -733,6 +739,7 @@ class ProbeValidation(StmtList_):
 		super().__init__(workflow, N_("Z-Offset Error Margin"), workflow.opts.probe_validation and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		workflow = self.workflow
+		assert workflow.opts.probe_validation != 0, "This item is disabled, why got called?"
 		# Validate state
 		super().Do()
 		self.RunPlan(self.PLAN, workflow.opts.probe_validation)
@@ -749,6 +756,7 @@ class ScrewsTiltAdjust(StmtList_):
 		super().__init__(workflow, N_("Manual Leveling Feature"), workflow.opts.screws_tilt_adjust and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		workflow = self.workflow
+		assert workflow.opts.screws_tilt_adjust != 0, "This item is disabled, why got called?"
 		# Validate state
 		super().Do()
 		self.RunPlan(self.PLAN, workflow.opts.screws_tilt_adjust)
@@ -877,6 +885,7 @@ class NozzleWipe(StmtList_):
 		super().__init__(workflow, N_("Nozzle Wipe"), workflow.opts.nozzle_wipe and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		workflow = self.workflow
+		assert workflow.opts.nozzle_wipe != 0, "This item is disabled, why got called?"
 		# Validate state
 		super().Do()
 		self.RunPlan(self.PLAN, workflow.opts.nozzle_wipe)
@@ -888,6 +897,7 @@ class PurgeLine(StmtList_):
 		( _is_combo_1_,		_upt_ml_,	_gcode_line,		LINE_PRO_CRC_DEF,		LINE_PRO_DEF,		LINE_PLUS_CRC_DEF,		LINE_PLUS_DEF ),
 		( _is_combo_2_,		_upt_ml_,	_gcode_line,		LINE_PRO_CRC_UPG,		LINE_PRO_UPG,		LINE_PLUS_CRC_UPG,		LINE_PLUS_UPG ),
 		( _is_combo_3_,		_upt_ml_,	_gcode_line,		LINE_PRO_CRC_UPG,		LINE_PRO_UPG,		LINE_PLUS_CRC_UPG,		LINE_PLUS_UPG ),
+		# <cond>			<command>	<section>			<crc pro>				<b64 pro>			<crc plus>				<b64 plus>
 		( _is_combo_1_,		_upd_sec_,	_gcode_line_only,	None,					None,				None,					None ),
 		( _is_combo_2_,		_upd_sec_,	_gcode_line_only,	LINE_ONLY_PRO_CRC_UPG,	LINE_ONLY_PRO_UPG,	LINE_ONLY_PLUS_CRC_UPG,	LINE_ONLY_PLUS_UPG ),
 		( _is_combo_3_,		_upd_sec_,	_gcode_line_only,	LINE_ONLY_PRO_CRC_GRU,	LINE_ONLY_PRO_GRU,	LINE_ONLY_PLUS_CRC_GRU,	LINE_ONLY_PLUS_GRU ),
@@ -896,9 +906,43 @@ class PurgeLine(StmtList_):
 		super().__init__(workflow, N_("Purge Line"), workflow.opts.purge_line and TaskState.READY or TaskState.DISABLED)
 	def Do(self):
 		workflow = self.workflow
+		assert workflow.opts.purge_line != 0, "This item is disabled, why got called?"
 		# Validate state
 		super().Do()
 		self.RunPlan(self.PLAN, workflow.opts.purge_line)
 
 
+class M600Support(StmtList_):
+	PLAN =(
+		# <cond>			<command>	<section>			<crc pro>				<b64 pro>			<crc plus>				<b64 plus>
+		( _always_,			_upd_sec_,	_beeper_pin_,		BEEPER_CRC_UPG,			BEEPER_UPG,			BEEPER_CRC_UPG,			BEEPER_UPG ),
+		( _always_,			_upd_sec_,	_gcode_M300_,		M300_CRC_UPG,			M300_UPG,			M300_CRC_UPG,			M300_UPG ),
+		( _is_combo_1_,		_upd_sec_,	_gcode_M600_,		M600_CRC_UPG,			M600_UPG,			M600_CRC_UPG,			M600_UPG ),
+		( _is_combo_2_,		_upd_sec_,	_gcode_M600_,		M600_CRC_GRU,			M600_GRU,			M600_CRC_GRU,			M600_GRU ),
+	)
+	def __init__(self, workflow: Workflow) -> None:
+		super().__init__(workflow, N_("M600: Filament Change Support"), workflow.opts.enable_m600 and TaskState.READY or TaskState.DISABLED)
+	def Do(self):
+		workflow = self.workflow
+		assert workflow.opts.enable_m600 != 0, "This item is disabled, why got called?"
+		# Validate state
+		super().Do()
+		self.RunPlan(self.PLAN, workflow.opts.enable_m600)
+
+
+class PauseMacro(StmtList_):
+	PLAN =(
+		# <cond>			<command>	<section>			<crc pro>				<b64 pro>			<crc plus>				<b64 plus>
+		( _is_combo_1_,		_upt_ml_,	_gcode_pause_,		PAUSE_CRC_DEF,			PAUSE_DEF,			PAUSE_CRC_DEF,			PAUSE_DEF ),
+		( _is_combo_2_,		_upt_ml_,	_gcode_pause_,		PAUSE_CRC_UPG,			PAUSE_UPG,			PAUSE_CRC_UPG,			PAUSE_UPG ),
+		( _is_combo_3_,		_upt_ml_,	_gcode_pause_,		PAUSE_CRC_GRU,			PAUSE_GRU,			PAUSE_CRC_GRU,			PAUSE_GRU ),
+	)
+	def __init__(self, workflow: Workflow) -> None:
+		super().__init__(workflow, N_("Pause Macro"), workflow.opts.pause and TaskState.READY or TaskState.DISABLED)
+	def Do(self):
+		workflow = self.workflow
+		assert workflow.opts.pause != 0, "This item is disabled, why got called?"
+		# Validate state
+		super().Do()
+		self.RunPlan(self.PLAN, workflow.opts.pause)
 
