@@ -29,7 +29,7 @@ class GetFinalDiskSpace(Task):
 		self.Info(_("\n\tBoot partition total size: {0}").format(FmtByteSize(workflow.end_space.boot_size)))
 		self.Info(_("\n\tBoot partition free size: {0}").format(FmtByteSize(workflow.end_space.boot_free)))
 		self.Info(_("\n\tRoot partition total size: {0}").format(FmtByteSize(workflow.end_space.root_size)))
-		self.Info(_("\n\tRoot partition free size: {0}").format(FmtByteSize(workflow.end_space.root_free)))
+		self.Info(_("\n\tRoot partition free size: {0}").format(FmtByteSize(workflow.end_space.root_free)) + '\n')
 
 
 class TrimDisk(Task):

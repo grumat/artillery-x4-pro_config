@@ -9,7 +9,9 @@ import shutil
 import re
 import shlex
 from datetime import datetime
+from pathlib import Path
 from typing import TYPE_CHECKING, Callable, Any
+import random
 
 TEST_MODE = os.getenv("USWX4_TEST")
 
@@ -451,14 +453,17 @@ class BackupConfig(EditConfig_):
 				raise Exception(N_("Connection is invalid to complete the command!"))
 		super().Do()
 		if TEST_MODE is None:
-			backup = os.path.join(self.work_folder, datetime.now().strftime('printer_%Y%m%d-%H%M%S.cfg'))
-			Debug(f"SFTP /home/mks/klipper_config/printer.cfg '{self.work_folder}'")
-			workflow.SftpGet('/home/mks/klipper_config/printer.cfg', self.work_folder)
+			workflow.backup_file = datetime.now().strftime('printer-%Y%m%d_%H%M%S.cfg')
+			backup = os.path.join(self.work_folder, workflow.backup_file)
+			workflow.SftpGet(CONFIG_FILE, self.target)
 			self.Info(_("\n\tSuccessfully copy file '{}'").format(CONFIG_FILE))
 			if os.path.isfile(backup):
 				os.unlink(backup)
-			Debug(f"copy '{self.work_folder}' '{backup}'")
-			shutil.copyfile(self.work_folder, backup)
+			Debug(f"copy '{self.target}' '{backup}'")
+			if os.path.exists(backup):
+				Debug(f"Remove preexisting '{backup}' file.")
+				os.unlink(backup)
+			shutil.copyfile(self.target, backup)
 			self.Info(_("\n\tCreated a backup in '{}'\n").format(backup))
 		else:
 			# In test mode, upper word contains the initial printer configuration file
@@ -964,4 +969,27 @@ class PauseMacro(StmtList_):
 		# Validate state
 		super().Do()
 		self.RunPlan(self.PLAN, workflow.opts.pause)
+
+
+class SaveConfig(EditConfig_):
+	def __init__(self, workflow : Workflow) -> None:
+		super().__init__(workflow, N_("Save Configuration"), TaskState.READY)
+	def Do(self):
+		workflow = self.workflow
+		if TEST_MODE is None:
+			if workflow.sftp is None:
+				raise Exception(N_("Connection is invalid to complete the command!"))
+		super().Do()
+		if (workflow.editor is not None) and workflow.modify_cfg:
+			workflow.editor.Save()
+			if TEST_MODE is None:
+				dirname = Path(CONFIG_FILE).parent
+				fname = dirname / workflow.backup_file
+				workflow.ExecCommand(f"cp -f {CONFIG_FILE} {fname.as_posix()}")
+				fname = dirname / f"printer.{str(random.randint(0, 9999999))}"
+				workflow.SftpPut(self.target, fname.as_posix())
+				workflow.ExecCommand(f"cp -f {fname.as_posix()} {CONFIG_FILE}")
+				workflow.ExecCommand(f"rm {fname.as_posix()}")
+				workflow.ExecCommand(f"chown mks:mks {CONFIG_FILE}")
+				self.Info(_("\n\tSuccessfully saved file '{}'").format(CONFIG_FILE))
 

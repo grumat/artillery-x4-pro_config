@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: unbrick-swx4\n"
-"POT-Creation-Date: 2025-12-21 20:27+0100\n"
-"PO-Revision-Date: 2025-12-21 20:28+0100\n"
+"POT-Creation-Date: 2025-12-27 13:54+0100\n"
+"PO-Revision-Date: 2025-12-27 13:54+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: it\n"
@@ -252,10 +252,16 @@ msgid ""
 msgstr ""
 "Abilita 'Exclude Object'\n"
 "\n"
-"Cosa fa: attiva la funzione di Klipper che permette di cancellare un singolo "
-"oggetto durante una stampa multipla senza interrompere gli altri.\n"
+"Cosa fa: attiva la funzione \"Exclude Object\" di Klipper, che consente di "
+"annullare singoli oggetti durante una stampa multipla.\n"
 "\n"
-"Nota: lo slicer deve essere configurato per supportare questa opzione."
+"Come funziona:\n"
+"- Metti in pausa la stampa, seleziona gli oggetti da escludere e riprendi: "
+"Klipper li salterà.\n"
+"\n"
+"Importante: questa funzione funziona solo se lo slicer è configurato per "
+"supportarla. Controlla le impostazioni dello slicer per le opzioni \"Exclude "
+"Object\" o \"Cancel Objects\"."
 
 #: help.py:126
 msgid ""
@@ -305,9 +311,18 @@ msgid ""
 msgstr ""
 "Limite accelerazione estrusore\n"
 "\n"
-"Controlla la velocità di accelerazione del motore dell'estrusore. Valori "
-"troppo alti possono surriscaldare il motore e ammorbidire il filamento "
-"prematuramente, causando ingorghi (clog)."
+"Perché è importante: questa impostazione controlla la rapidità con cui il "
+"motore dell'estrusore accelera o rallenta. Le versioni precedenti del "
+"firmware usavano un'accelerazione maggiore, ridotta poi nelle versioni più "
+"recenti.\n"
+"\n"
+"Cosa c'è da sapere:\n"
+"- Un'accelerazione elevata può causare il surriscaldamento del motore.\n"
+"- Il calore eccessivo può ammorbidire il filamento all'interno "
+"dell'estrusore, aumentando il rischio di intasamenti (clog).\n"
+"\n"
+"Consiglio: a meno che non si riscontrino problemi, è preferibile mantenere "
+"l'impostazione predefinita o un'accelerazione inferiore."
 
 #: help.py:156
 msgid ""
@@ -363,17 +378,18 @@ msgstr ""
 "Cosa fa: regola l'offset della sonda per correggere le incongruenze nelle "
 "impostazioni di fabbrica.\n"
 "\n"
-"Nota importante: l'artiglieria monta il sensore al contrario rispetto alle "
+"Nota importante: Artillery monta il sensore al contrario rispetto alle "
 "raccomandazioni del produttore. Per ottenere i migliori risultati, "
 "consigliamo di modificare l'orientamento del sensore per adattarlo alla "
 "scheda tecnica ufficiale.\n"
 "\n"
-"Se hai già fatto questa modifica: seleziona l'opzione \"Montaggio a 180°\".\n"
+"Se hai già effettuato questa modifica: seleziona l'opzione \"Montaggio 180°"
+"\".\n"
 "\n"
-"Hai bisogno di aiuto? Il mio repository include:\n"
-"- Procedure di prova\n"
-"- Guide passo dopo passo\n"
-"- Collegamenti alla scheda dati ufficiale"
+"Hai bisogno di aiuto? Il repository include:\n"
+"- Procedure di test\n"
+"- Guide passo-passo\n"
+"- Link alla scheda tecnica ufficiale"
 
 #: help.py:190
 msgid ""
@@ -583,8 +599,15 @@ msgid ""
 msgstr ""
 "Impostazioni linea di purga\n"
 "\n"
-"L'opzione \"Grumat\" corregge la ritrazione per evitare buchi all'inizio "
-"della stampa reale."
+"Cosa fa: controlla come viene stampata la linea di purga prima dell'inizio "
+"del modello. Artillery offre due versioni, oltre a un'opzione migliorata:\n"
+"- Versione Legacy: stampa linee sovrapposte (può aderire troppo al piatto).\n"
+"- Nuova versione: stampa una linea singola, facile da rimuovere.\n"
+"- Versione \"Grumat\": corregge la ritrazione per prevenire la sotto-"
+"estrusione all'inizio della stampa.\n"
+"\n"
+"Nota: questa impostazione si applica solo se lo slicer è configurato per "
+"usare una linea di purga."
 
 #: help.py:320
 msgid ""
@@ -604,8 +627,18 @@ msgid ""
 msgstr ""
 "Abilita cambio filamento (Supporto M600)\n"
 "\n"
-"Aggiunge il supporto per mettere in pausa e cambiare filamento durante la "
-"stampa (utile per stampe multicolore)."
+"Cosa fa: aggiunge il supporto per la funzione di cambio filamento M600, "
+"inclusi:\n"
+"- Configurazione segnale acustico (beeper)\n"
+"- Macro M300 (riproduci tono)\n"
+"- Macro M600 (cambio filamento)\n"
+"- Macro T600 (comando personalizzato Artillery \"Riprendi stampa\")\n"
+"\n"
+"Perché usarlo? Consente di mettere in pausa, cambiare filamento e riprendere "
+"senza problemi: ideale per stampe multicolore o multimateriale.\n"
+"\n"
+"Nota: la versione \"Grumat\" include le stesse funzionalità ma segue "
+"standard di programmazione più puliti e mantenibili."
 
 #: help.py:335
 msgid ""
@@ -630,8 +663,22 @@ msgid ""
 msgstr ""
 "Impostazioni Macro di Pausa\n"
 "\n"
-"L'opzione \"Grumat\" è consigliata perché sposta la testa di stampa lontano "
-"dal pezzo in caso di fine filamento, evitando di rovinarlo."
+"Cosa fa: controlla il comportamento della stampante quando un lavoro viene "
+"messo in pausa, manualmente o per un problema (es. fine filamento).\n"
+"\n"
+"Opzioni disponibili:\n"
+"- Non modificare: mantiene la macro attuale.\n"
+"- Legacy: usa la macro di pausa originale di Artillery.\n"
+"- New: usa la macro aggiornata di Artillery, con supporto per i parametri "
+"M600.\n"
+"- Grumat (Personalizzata): basata sulla nuova macro Artillery, aggiunge il "
+"supporto al sensore filamento. Se il filamento finisce:\n"
+"   - Esegue l'homing della testina.\n"
+"   - Allontana la testina dal pezzo per evitare colature di materiale "
+"sull'oggetto.\n"
+"\n"
+"Consiglio: scegli \"Grumat\" per un comportamento più affidabile, specie se "
+"usi il sensore filamento."
 
 #: my_lib.py:16
 msgid "GBi"
@@ -645,7 +692,8 @@ msgstr "MiB"
 msgid "KBi"
 msgstr "KiB"
 
-#: my_shell.py:76 my_shell.py:163 my_shell.py:165 task_config.py:451
+#: my_shell.py:76 my_shell.py:163 my_shell.py:165 task_config.py:453
+#: task_config.py:981
 msgid "Connection is invalid to complete the command!"
 msgstr "Connessione non valida per completare il comando!"
 
@@ -653,19 +701,19 @@ msgstr "Connessione non valida per completare il comando!"
 msgid "No response seen during the specified timeout!"
 msgstr "Nessuna risposta ricevuta entro il timeout!"
 
-#: my_workflow.py:227 my_workflow.py:263 my_workflow.py:311
+#: my_workflow.py:230 my_workflow.py:266 my_workflow.py:314
 msgid "ERROR!"
 msgstr "ERRORE!"
 
-#: my_workflow.py:252 my_workflow.py:294
+#: my_workflow.py:255 my_workflow.py:297
 msgid "Begin Step: "
 msgstr "Inizio fase: "
 
-#: my_workflow.py:255 my_workflow.py:297
+#: my_workflow.py:258 my_workflow.py:300
 msgid "OK!"
 msgstr "OK!"
 
-#: my_workflow.py:266 my_workflow.py:315
+#: my_workflow.py:269 my_workflow.py:318
 msgid "Printer configuration has been reset, printer needs recalibration."
 msgstr "Configurazione ripristinata. La stampante richiede calibrazione."
 
@@ -709,61 +757,61 @@ msgstr "Chiudi"
 msgid "Process completed successfully.\n"
 msgstr "Processo completato con successo.\n"
 
-#: task_config.py:196
+#: task_config.py:198
 msgid "Cannot find the copy of the configuration file!"
 msgstr "Copia del file di configurazione non trovata!"
 
-#: task_config.py:198
+#: task_config.py:200
 msgid "Configuration file editor is missing!"
 msgstr "Editor del file di configurazione mancante!"
 
-#: task_config.py:227
+#: task_config.py:229
 msgid "An updated config file was found."
 msgstr "Trovato un file di configurazione aggiornato."
 
-#: task_config.py:229
+#: task_config.py:231
 msgid "A legacy config file was found."
 msgstr "Trovato un file di configurazione legacy."
 
-#: task_config.py:282
+#: task_config.py:284
 #, python-brace-format
 msgid "The section {0} was removed."
 msgstr "La sezione {0} è stata rimossa."
 
-#: task_config.py:300
+#: task_config.py:302
 #, python-brace-format
 msgid "The section {0} was added."
 msgstr "La sezione {0} è stata aggiunta."
 
-#: task_config.py:312
+#: task_config.py:314
 #, python-brace-format
 msgid "The section {0} was replaced."
 msgstr "La sezione {0} è stata sostituita."
 
-#: task_config.py:367
+#: task_config.py:369
 #, python-brace-format
 msgid "The value {0}/{1} was added/updated to {2}."
 msgstr "Il valore {0}/{1} è stato aggiunto/aggiornato a {2}."
 
-#: task_config.py:377
+#: task_config.py:379
 #, python-brace-format
 msgid "The value {0}/{1} was added/updated."
 msgstr "Il valore {0}/{1} è stato aggiunto/aggiornato."
 
-#: task_config.py:388
+#: task_config.py:390
 #, python-brace-format
 msgid "The value {0}/{1} was removed."
 msgstr "Il valore {0}/{1} è stato rimosso."
 
-#: task_config.py:430
+#: task_config.py:432
 msgid "The persistence block was reset."
 msgstr "Il blocco di persistenza è stato resettato."
 
-#: task_config.py:446
+#: task_config.py:448
 msgid "Backup Current Configuration"
 msgstr "Backup configurazione attuale"
 
-#: task_config.py:457
+#: task_config.py:459
 msgid ""
 "\n"
 "\tSuccessfully copy file '{}'"
@@ -771,7 +819,7 @@ msgstr ""
 "\n"
 "\tCopia del file '{}' riuscita"
 
-#: task_config.py:462
+#: task_config.py:467
 msgid ""
 "\n"
 "\tCreated a backup in '{}'\n"
@@ -779,85 +827,97 @@ msgstr ""
 "\n"
 "\tCreato backup in '{}'\n"
 
-#: task_config.py:493
+#: task_config.py:498
 msgid "Reset Printer Configuration"
 msgstr "Reset configurazione stampante"
 
-#: task_config.py:533
+#: task_config.py:538
 msgid "Validate Printer Configuration"
 msgstr "Valida configurazione stampante"
 
-#: task_config.py:633 unbrick-swx4.pyw:261
+#: task_config.py:638 unbrick-swx4.pyw:261
 msgid "Fix Printer Model Settings"
 msgstr "Correggi parametri modello"
 
-#: task_config.py:649 unbrick-swx4.pyw:262
+#: task_config.py:654 unbrick-swx4.pyw:262
 msgid "Enable Exclude Object"
 msgstr "Abilita Exclude Object"
 
-#: task_config.py:665 unbrick-swx4.pyw:265
+#: task_config.py:670 unbrick-swx4.pyw:265
 msgid "Z-Axis Stepper Motor Hold Current"
 msgstr "Corrente mantenimento motori Z"
 
-#: task_config.py:682 unbrick-swx4.pyw:268
+#: task_config.py:687 unbrick-swx4.pyw:268
 msgid "Extruder Acceleration Limit"
 msgstr "Limite accelerazione estrusore"
 
-#: task_config.py:699 unbrick-swx4.pyw:269
+#: task_config.py:704 unbrick-swx4.pyw:269
 msgid "Extruder Motor Current Settings"
 msgstr "Corrente motore estrusore"
 
-#: task_config.py:717 unbrick-swx4.pyw:272
+#: task_config.py:722 unbrick-swx4.pyw:272
 msgid "Distance Sensor Offset"
 msgstr "Offset sensore distanza"
 
-#: task_config.py:739 unbrick-swx4.pyw:273
+#: task_config.py:744 unbrick-swx4.pyw:273
 msgid "Z-Offset Sampling"
 msgstr "Campionamento Z-Offset"
 
-#: task_config.py:757 unbrick-swx4.pyw:274
+#: task_config.py:762 unbrick-swx4.pyw:274
 msgid "Z-Offset Error Margin"
 msgstr "Margine errore Z-Offset"
 
-#: task_config.py:774 unbrick-swx4.pyw:280
+#: task_config.py:779 unbrick-swx4.pyw:280
 msgid "Enable Manual Bed Leveling"
 msgstr "Abilita livellamento manuale"
 
-#: task_config.py:785 unbrick-swx4.pyw:283
+#: task_config.py:790 unbrick-swx4.pyw:283
 msgid "Rename Fans for Clarity"
 msgstr "Rinomina ventole"
 
-#: task_config.py:807 unbrick-swx4.pyw:284
+#: task_config.py:812 unbrick-swx4.pyw:284
 msgid "Enhanced Mainboard Fan Control"
 msgstr "Controllo migliorato ventola MB"
 
-#: task_config.py:829 unbrick-swx4.pyw:285
+#: task_config.py:834 unbrick-swx4.pyw:285
 msgid "Adjust Mainboard Fan Speed"
 msgstr "Velocità ventola MB"
 
-#: task_config.py:848 unbrick-swx4.pyw:286
+#: task_config.py:853 unbrick-swx4.pyw:286
 msgid "Adjust Heat-Break Fan Speed"
 msgstr "Velocità ventola Heat-break"
 
-#: task_config.py:867 unbrick-swx4.pyw:289
+#: task_config.py:872 unbrick-swx4.pyw:289
 msgid "Enable Host & MCU Temperature Monitoring"
 msgstr "Monitoraggio Temp. Host/MCU"
 
-#: task_config.py:903 unbrick-swx4.pyw:292
+#: task_config.py:908 unbrick-swx4.pyw:292
 msgid "Nozzle Wipe Settings"
 msgstr "Impostazioni Nozzle Wipe"
 
-#: task_config.py:924 unbrick-swx4.pyw:293
+#: task_config.py:929 unbrick-swx4.pyw:293
 msgid "Purge Line Settings"
 msgstr "Impostazioni linea di purga"
 
-#: task_config.py:943 unbrick-swx4.pyw:294
+#: task_config.py:948 unbrick-swx4.pyw:294
 msgid "Enable Filament Change (M600 Support)"
 msgstr "Abilita cambio filamento (M600)"
 
-#: task_config.py:960 unbrick-swx4.pyw:295
+#: task_config.py:965 unbrick-swx4.pyw:295
 msgid "Pause Macro Settings"
 msgstr "Impostazioni Macro Pausa"
+
+#: task_config.py:976
+msgid "Save Configuration"
+msgstr "Salva la Configurazione"
+
+#: task_config.py:994
+msgid ""
+"\n"
+"\tSuccessfully saved file '{}'"
+msgstr ""
+"\n"
+"Salvata con successo il file '{}'"
 
 #: task_connect.py:18
 msgid "Connecting to printer using SSH"

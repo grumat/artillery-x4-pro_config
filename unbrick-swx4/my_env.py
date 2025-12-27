@@ -66,7 +66,7 @@ def GetLocalePath():
 logger = logging.getLogger('unbrick-swx4')
 logger.setLevel(logging.DEBUG)
 # Create a file handler
-_handler = logging.FileHandler(GetLogFileName())
+_handler = logging.FileHandler(GetLogFileName(), encoding="utf-8")
 _handler.setLevel(logging.DEBUG)
 # Create a formatter with timestamp
 _formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')

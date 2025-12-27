@@ -40,7 +40,7 @@ class UserOptions(object):
 		self.temp_mcu = True
 		# gcode
 		self.nozzle_wipe = 2
-		self.purge_line = 2
+		self.purge_line = 3
 		self.enable_m600 = 2
 		self.pause = 3
 

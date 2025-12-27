@@ -117,6 +117,7 @@ class Workflow(ArtillerySideWinder):
 
 		self.tasks : list[Task] = []
 		# Variables used during Gcode edit
+		self.backup_file = "" 
 		self.upgraded_cfg = False		# The cfg file has already upgraded Artillery gcode
 		self.modify_cfg = 0				# A counter having the number of edits on the configuration file
 		self.persistence_upd = False	# Indicates that persistence area has been updated
@@ -139,11 +140,11 @@ class Workflow(ArtillerySideWinder):
 		if TYPE_CHECKING:
 			from .task_config import BackupConfig, ConfigReset, ConfigValidate, FixModelSettings, StepperZCurrent, ExtruderAccel, ExtruderCurrent, \
 						ProbeOffset, ProbeSampling, ProbeValidation, ScrewsTiltAdjust, FanRename, MbFanFix, MbFanSpeed, HbFanSpeed, TempMCU, \
-						NozzleWipe, PurgeLine, M600Support, PauseMacro, ExcludeObject
+						NozzleWipe, PurgeLine, M600Support, PauseMacro, ExcludeObject, SaveConfig
 		else:
 			from task_config import BackupConfig, ConfigReset, ConfigValidate, FixModelSettings, StepperZCurrent, ExtruderAccel, ExtruderCurrent, \
 						ProbeOffset, ProbeSampling, ProbeValidation, ScrewsTiltAdjust, FanRename, MbFanFix, MbFanSpeed, HbFanSpeed, TempMCU, \
-						NozzleWipe, PurgeLine, M600Support, PauseMacro, ExcludeObject
+						NozzleWipe, PurgeLine, M600Support, PauseMacro, ExcludeObject, SaveConfig
 
 		if (TEST_MODE is None):
 			self.tasks.append(Connect(self))
@@ -183,6 +184,8 @@ class Workflow(ArtillerySideWinder):
 		self.tasks.append(PurgeLine(self))
 		self.tasks.append(M600Support(self))
 		self.tasks.append(PauseMacro(self))
+		# Always the last of this block
+		self.tasks.append(SaveConfig(self))
 
 		if (TEST_MODE is None):
 			self.tasks.append(TrimDisk(self))

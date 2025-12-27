@@ -135,7 +135,7 @@ class ArtillerySideWinder(object):
 			# Disable echo
 			self.ExecCommand('stty -echo')
 			# Make sure messages are in English/US for correct parsing
-			self.ExecCommand('export LC_ALL=C')
+			self.ExecCommand('export LC_ALL=en_US.UTF-8')
 			# Open sftp channel for file transfer
 			self.sftp = self.client.open_sftp()
 
@@ -193,7 +193,15 @@ class ArtillerySideWinder(object):
 		if (TEST_MODE is None):
 			if self.sftp is None:
 				raise RuntimeError("Called method without connection")
+			Debug(f"SFTP '{src}' {dest}")
 			self.sftp.get(src, dest)
+	
+	def SftpPut(self, src : str, dest : str) -> None:
+		if (TEST_MODE is None):
+			if self.sftp is None:
+				raise RuntimeError("Called method without connection")
+			Debug(f"SFTP {src} '{dest}'")
+			self.sftp.put(src, dest, None, True)
 
 	def GetFreeScape(self) -> DiskUsage:
 		u = DiskUsage()
