@@ -30,7 +30,7 @@ class UserOptions(object):
 		self.probe_sampling = 2
 		self.probe_validation = 1
 		# bed
-		self.screws_tilt_adjust = 0
+		self.screws_tilt_adjust = 1
 		# fans
 		self.fan_rename = True
 		self.mb_fan_fix = True

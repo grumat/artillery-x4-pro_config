@@ -989,7 +989,7 @@ class SaveConfig(EditConfig_):
 				fname = dirname / f"printer.{str(random.randint(0, 9999999))}"
 				workflow.SftpPut(self.target, fname.as_posix())
 				workflow.ExecCommand(f"cp -f {fname.as_posix()} {CONFIG_FILE}")
-				workflow.ExecCommand(f"rm {fname.as_posix()}")
 				workflow.ExecCommand(f"chown mks:mks {CONFIG_FILE}")
+				workflow.ExecCommand(f"rm {fname.as_posix()}")
 				self.Info(_("\n\tSuccessfully saved file '{}'").format(CONFIG_FILE))
 
