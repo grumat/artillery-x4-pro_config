@@ -8,6 +8,7 @@ a = Analysis(
 	binaries=[],
 	datas=[
 		('assets/unbrick-swx4.ico', 'assets/'),
+		('locale/', 'locale/'),
 		],
 	hiddenimports=[],
 	hookspath=[],
@@ -15,7 +16,7 @@ a = Analysis(
 	runtime_hooks=[],
 	excludes=[],
 	noarchive=False,
-	optimize=0,
+	optimize=1,
 )
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 

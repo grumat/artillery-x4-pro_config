@@ -1,1 +1,1 @@
-c:\Python314\Scripts\pyinstaller.exe -OO unbrick-swx4.spec --noconfirm
+c:\Python314\Scripts\pyinstaller.exe unbrick-swx4.spec --noconfirm
