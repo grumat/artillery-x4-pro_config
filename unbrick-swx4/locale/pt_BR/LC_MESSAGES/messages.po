@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: unbrick-swx4\n"
-"POT-Creation-Date: 2025-12-27 13:54+0100\n"
-"PO-Revision-Date: 2025-12-27 13:54+0100\n"
+"POT-Creation-Date: 2025-12-28 12:08+0100\n"
+"PO-Revision-Date: 2025-12-28 12:08+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: pt_BR\n"
@@ -18,6 +18,11 @@ msgstr ""
 "X-Poedit-SearchPathExcluded-0: assets\n"
 "X-Poedit-SearchPathExcluded-1: mk-assets\n"
 "X-Poedit-SearchPathExcluded-2: tests\n"
+"X-Poedit-SearchPathExcluded-3: locale\n"
+"X-Poedit-SearchPathExcluded-4: dist\n"
+"X-Poedit-SearchPathExcluded-5: build\n"
+"X-Poedit-SearchPathExcluded-6: backup\n"
+"X-Poedit-SearchPathExcluded-7: .vscode\n"
 
 #: help.py:10
 msgid ""
@@ -701,8 +706,8 @@ msgstr "MiB"
 msgid "KBi"
 msgstr "KiB"
 
-#: my_shell.py:76 my_shell.py:163 my_shell.py:165 task_config.py:453
-#: task_config.py:981
+#: my_shell.py:76 my_shell.py:163 my_shell.py:165 task_config.py:451
+#: task_config.py:992
 msgid "Connection is invalid to complete the command!"
 msgstr "Conexão inválida para completar o comando!"
 
@@ -766,61 +771,61 @@ msgstr "Fechar"
 msgid "Process completed successfully.\n"
 msgstr "Processo concluído com sucesso.\n"
 
-#: task_config.py:198
+#: task_config.py:196
 msgid "Cannot find the copy of the configuration file!"
 msgstr "Cópia do arquivo de configuração não encontrada!"
 
-#: task_config.py:200
+#: task_config.py:198
 msgid "Configuration file editor is missing!"
 msgstr "Editor de arquivo de configuração ausente!"
 
-#: task_config.py:229
+#: task_config.py:227
 msgid "An updated config file was found."
 msgstr "Um arquivo de configuração atualizado foi encontrado."
 
-#: task_config.py:231
+#: task_config.py:229
 msgid "A legacy config file was found."
 msgstr "Um arquivo de configuração antigo (legacy) foi encontrado."
 
-#: task_config.py:284
+#: task_config.py:282
 #, python-brace-format
 msgid "The section {0} was removed."
 msgstr "A seção {0} foi removida."
 
-#: task_config.py:302
+#: task_config.py:300
 #, python-brace-format
 msgid "The section {0} was added."
 msgstr "A seção {0} foi adicionada."
 
-#: task_config.py:314
+#: task_config.py:312
 #, python-brace-format
 msgid "The section {0} was replaced."
 msgstr "A seção {0} foi substituída."
 
-#: task_config.py:369
+#: task_config.py:367
 #, python-brace-format
 msgid "The value {0}/{1} was added/updated to {2}."
 msgstr "O valor {0}/{1} foi adicionado/atualizado para {2}."
 
-#: task_config.py:379
+#: task_config.py:377
 #, python-brace-format
 msgid "The value {0}/{1} was added/updated."
 msgstr "O valor {0}/{1} foi adicionado/atualizado."
 
-#: task_config.py:390
+#: task_config.py:388
 #, python-brace-format
 msgid "The value {0}/{1} was removed."
 msgstr "O valor {0}/{1} foi removido."
 
-#: task_config.py:432
+#: task_config.py:430
 msgid "The persistence block was reset."
 msgstr "O bloco de persistência foi redefinido."
 
-#: task_config.py:448
+#: task_config.py:446
 msgid "Backup Current Configuration"
 msgstr "Backup da Configuração Atual"
 
-#: task_config.py:459
+#: task_config.py:457
 msgid ""
 "\n"
 "\tSuccessfully copy file '{}'"
@@ -828,7 +833,7 @@ msgstr ""
 "\n"
 "\tArquivo '{}' copiado com sucesso"
 
-#: task_config.py:467
+#: task_config.py:465
 msgid ""
 "\n"
 "\tCreated a backup in '{}'\n"
@@ -836,91 +841,99 @@ msgstr ""
 "\n"
 "\tBackup criado em '{}'\n"
 
-#: task_config.py:498
+#: task_config.py:496
 msgid "Reset Printer Configuration"
 msgstr "Redefinir Configuração"
 
-#: task_config.py:538
+#: task_config.py:536
 msgid "Validate Printer Configuration"
 msgstr "Validar Configuração"
 
-#: task_config.py:638 unbrick-swx4.pyw:261
+#: task_config.py:553
+msgid ""
+"Configuration file is incomplete. Please reset printer configuration to "
+"factory default!"
+msgstr ""
+"O arquivo de configuração está incompleto. Por favor, reajuste a "
+"configuração da impressora para o padrão de fábrica!"
+
+#: task_config.py:649 unbrick-swx4.pyw:261
 msgid "Fix Printer Model Settings"
 msgstr "Corrigir Ajustes do Modelo"
 
-#: task_config.py:654 unbrick-swx4.pyw:262
+#: task_config.py:665 unbrick-swx4.pyw:262
 msgid "Enable Exclude Object"
 msgstr "Ativar Exclude Object"
 
-#: task_config.py:670 unbrick-swx4.pyw:265
+#: task_config.py:681 unbrick-swx4.pyw:265
 msgid "Z-Axis Stepper Motor Hold Current"
 msgstr "Corrente Motor Z"
 
-#: task_config.py:687 unbrick-swx4.pyw:268
+#: task_config.py:698 unbrick-swx4.pyw:268
 msgid "Extruder Acceleration Limit"
 msgstr "Limite Aceleração Extrusora"
 
-#: task_config.py:704 unbrick-swx4.pyw:269
+#: task_config.py:715 unbrick-swx4.pyw:269
 msgid "Extruder Motor Current Settings"
 msgstr "Corrente Motor Extrusora"
 
-#: task_config.py:722 unbrick-swx4.pyw:272
+#: task_config.py:733 unbrick-swx4.pyw:272
 msgid "Distance Sensor Offset"
 msgstr "Offset do Sensor"
 
-#: task_config.py:744 unbrick-swx4.pyw:273
+#: task_config.py:755 unbrick-swx4.pyw:273
 msgid "Z-Offset Sampling"
 msgstr "Amostragem Z-Offset"
 
-#: task_config.py:762 unbrick-swx4.pyw:274
+#: task_config.py:773 unbrick-swx4.pyw:274
 msgid "Z-Offset Error Margin"
 msgstr "Margem de Erro Z-Offset"
 
-#: task_config.py:779 unbrick-swx4.pyw:280
+#: task_config.py:790 unbrick-swx4.pyw:280
 msgid "Enable Manual Bed Leveling"
 msgstr "Ativar Nivelamento Manual"
 
-#: task_config.py:790 unbrick-swx4.pyw:283
+#: task_config.py:801 unbrick-swx4.pyw:283
 msgid "Rename Fans for Clarity"
 msgstr "Renomear Ventoinhas"
 
-#: task_config.py:812 unbrick-swx4.pyw:284
+#: task_config.py:823 unbrick-swx4.pyw:284
 msgid "Enhanced Mainboard Fan Control"
 msgstr "Controle Ventoinha Placa"
 
-#: task_config.py:834 unbrick-swx4.pyw:285
+#: task_config.py:845 unbrick-swx4.pyw:285
 msgid "Adjust Mainboard Fan Speed"
 msgstr "Velocidade Ventoinha Placa"
 
-#: task_config.py:853 unbrick-swx4.pyw:286
+#: task_config.py:864 unbrick-swx4.pyw:286
 msgid "Adjust Heat-Break Fan Speed"
 msgstr "Velocidade Ventoinha Bico"
 
-#: task_config.py:872 unbrick-swx4.pyw:289
+#: task_config.py:883 unbrick-swx4.pyw:289
 msgid "Enable Host & MCU Temperature Monitoring"
 msgstr "Monitorar Temp. Host/MCU"
 
-#: task_config.py:908 unbrick-swx4.pyw:292
+#: task_config.py:919 unbrick-swx4.pyw:292
 msgid "Nozzle Wipe Settings"
 msgstr "Ajustes de Limpeza (Wipe)"
 
-#: task_config.py:929 unbrick-swx4.pyw:293
+#: task_config.py:940 unbrick-swx4.pyw:293
 msgid "Purge Line Settings"
 msgstr "Linha de Purga"
 
-#: task_config.py:948 unbrick-swx4.pyw:294
+#: task_config.py:959 unbrick-swx4.pyw:294
 msgid "Enable Filament Change (M600 Support)"
 msgstr "Troca de Filamento (M600)"
 
-#: task_config.py:965 unbrick-swx4.pyw:295
+#: task_config.py:976 unbrick-swx4.pyw:295
 msgid "Pause Macro Settings"
 msgstr "Macro de Pausa"
 
-#: task_config.py:976
+#: task_config.py:987
 msgid "Save Configuration"
 msgstr "Salvar Configuração"
 
-#: task_config.py:994
+#: task_config.py:1005
 msgid ""
 "\n"
 "\tSuccessfully saved file '{}'"
@@ -1493,5 +1506,5 @@ msgid "Artillery Version"
 msgstr "Versão Artillery"
 
 #: unbrick-swx4.pyw:304
-msgid "Artillery SideWinder X4 Unbrick Tool v0.2"
-msgstr "Ferramenta de Unbrick Artillery SW X4 v0.2"
+msgid "Artillery SideWinder X4 Unbrick Tool v1.0"
+msgstr "Ferramenta de Unbrick Artillery SW X4 v1.0"

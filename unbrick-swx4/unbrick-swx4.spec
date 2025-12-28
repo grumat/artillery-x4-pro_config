@@ -8,6 +8,7 @@ a = Analysis(
 	binaries=[],
 	datas=[
 		('assets/unbrick-swx4.ico', 'assets/'),
+		('assets/artillery_X4_*.cfg', 'assets/'),
 		('locale/', 'locale/'),
 		],
 	hiddenimports=[],
@@ -26,7 +27,7 @@ exe = EXE(
 	a.binaries,
 	a.datas,
 	[],
-	name='unbrick-swx4',
+	name='unbrick-swx4-v1.0',
 	debug=False,
 	bootloader_ignore_signals=False,
 	strip=False,

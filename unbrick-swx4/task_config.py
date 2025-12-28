@@ -29,16 +29,16 @@ else:
 	from edit_cfg import *
 
 SECTIONS = [
-	("stepper_x", 									False ),
-	("stepper_y", 									False ),
-	("stepper_z", 									False ),
-	("extruder", 									False ),
-	("homing_override", 							False ),
+	("stepper_x", 									True ),
+	("stepper_y", 									True ),
+	("stepper_z", 									True ),
+	("extruder", 									True ),
+	("homing_override", 							True ),
 	("safe_z_home",									False ),
-	("probe", 										False ),
+	("probe", 										True ),
 	("bed_mesh", 									False ),
 	("verify_heater extruder", 						False ),
-	("heater_bed", 									False ),
+	("heater_bed", 									True ),
 	("verify_heater heater_bed",					False ),
 	("temperature_sensor mcu_temp", 				False ),
 	("temperature_sensor rpi_cpu", 					False ),
@@ -47,22 +47,20 @@ SECTIONS = [
 	("heater_fan heatbreak_cooling_fan",			False ),
 	("heater_fan fan2", 							False ),
 	("controller_fan mainboard_fan", 				False ),
-	("printer", 									False ),
+	("printer", 									True ),
 	("input_shaper", 								False ),
 	("idle_timeout", 								False ),
-	("safe_z_home", 								False ),
 	("gcode_macro G29", 							False ),
-	("bed_mesh", 									False ),
 	("gcode_macro FLASHLIGHT_ON", 					False ),
 	("gcode_macro FLASHLIGHT_OFF",					False ),
 	("gcode_macro MODLELIGHT_ON",					False ),
 	("gcode_macro MODLELIGHT_OFF",					False ),
 	("filament_switch_sensor fila",					False ),
-	("tmc2209 stepper_x",							False ),
-	("tmc2209 stepper_y",							False ),
-	("tmc2209 stepper_z",							False ),
-	("tmc2209 extruder",							False ),
-	("mcu rpi",										False ),
+	("tmc2209 stepper_x",							True ),
+	("tmc2209 stepper_y",							True ),
+	("tmc2209 stepper_z",							True ),
+	("tmc2209 extruder",							True ),
+	("mcu rpi",										True ),
 	("adxl345",										False ),
 	("resonance_tester",							False ),
 	("exclude_object",								False ),
@@ -74,7 +72,7 @@ SECTIONS = [
 	("gcode_macro draw_line",						False ),
 	("gcode_macro PRINT_START",						False ),
 	("gcode_macro PRINT_END",						False ),
-	("pause_resume",								False ),
+	("pause_resume",								True ),
 	("gcode_macro CANCEL_PRINT",					False ),
 	("output_pin BEEPER_pin",						False ),
 	("gcode_macro M300",							False ),
@@ -92,10 +90,10 @@ SECTIONS = [
 	("display_template led_print_percent_progress",	False ),
 	("gcode_macro M109",							False ),
 	("gcode_macro M190",							False ),
-	("gcode_macro move_to_point_0",					False ),
-	("gcode_macro move_to_point_1",					False ),
-	("gcode_macro move_to_point_2",					False ),
-	("gcode_macro move_to_point_3",					False ),
+	("gcode_macro move_to_point_0",					True ),
+	("gcode_macro move_to_point_1",					True ),
+	("gcode_macro move_to_point_2",					True ),
+	("gcode_macro move_to_point_3",					True ),
 	("gcode_macro move_to_point_4",					False ),
 	("gcode_macro move_to_point_5",					False ),
 	("screws_tilt_adjust",							False ),
@@ -540,8 +538,21 @@ class ConfigValidate(EditConfig_):
 		workflow = self.workflow
 		if not workflow.editor:
 			workflow.editor = Commands(self.target)
-		self._set_upgraded_cfg_(self._has_key_(_gcode_M300_) and self._has_key_(_gcode_M600_))
-		# TODO
+		upg = 0
+		# Build a list with required sections
+		watch = [s for s, f in SECTIONS if f]
+		for info in workflow.editor.ListSections():
+			if info.label in watch:
+				watch.remove(info.label)
+			# These sections indicates a firmware upgrade
+			if info.label == _gcode_M300_.section or \
+				info.label == _gcode_M600_.section:
+				upg += 1
+		# Required section is missing
+		if len(watch):
+			raise Exception(N_("Configuration file is incomplete. Please reset printer configuration to factory default!"))
+		# Indicates an upgraded firmware was found
+		self._set_upgraded_cfg_(upg >= 2)
 
 
 _always_ = "_always_"					# Always true
@@ -980,7 +991,7 @@ class SaveConfig(EditConfig_):
 			if workflow.sftp is None:
 				raise Exception(N_("Connection is invalid to complete the command!"))
 		super().Do()
-		if (workflow.editor is not None) and workflow.modify_cfg:
+		if (workflow.editor is not None) and (workflow.modify_cfg or workflow.persistence_upd):
 			workflow.editor.Save()
 			if TEST_MODE is None:
 				dirname = Path(CONFIG_FILE).parent

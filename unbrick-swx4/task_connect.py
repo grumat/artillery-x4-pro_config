@@ -79,6 +79,7 @@ class CheckConnect(Task):
 				self.Warning(_('One of the configuration file is missing!\n'))
 		if found != 6:
 			raise Exception(N_("The connection does not report an Artillery SW X4 printer"))
+		self.workflow.connection_valid = True
 
 class Disconnect(Task):
 	def __init__(self, workflow : "Workflow") -> None:

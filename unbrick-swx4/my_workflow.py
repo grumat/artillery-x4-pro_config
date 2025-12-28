@@ -118,6 +118,7 @@ class Workflow(ArtillerySideWinder):
 		self.tasks : list[Task] = []
 		# Variables used during Gcode edit
 		self.backup_file = "" 
+		self.connection_valid = False	# Indicates that CheckConnect succeeded
 		self.upgraded_cfg = False		# The cfg file has already upgraded Artillery gcode
 		self.modify_cfg = 0				# A counter having the number of edits on the configuration file
 		self.persistence_upd = False	# Indicates that persistence area has been updated

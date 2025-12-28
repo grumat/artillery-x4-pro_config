@@ -117,7 +117,10 @@ class FixCardResizeBug(Task):
 		super().__init__(workflow, N_("Fix for card resize bug"), workflow.opts.resize_bug and TaskState.READY or TaskState.DISABLED)
 	def UpdateState(self):
 		super().UpdateState()
-		if self.CanFail() and self.workflow.resizing_issue == False:
+		if self.workflow.resizing_issue and self.workflow.opts.resize_bug:
+			if self.state == TaskState.DISABLED:
+				self.SetState(TaskState.READY)
+		elif self.workflow.connection_valid and self.state == TaskState.READY:
 			self.SetState(TaskState.DISABLED)
 	def Do(self):
 		super().Do()

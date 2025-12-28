@@ -301,7 +301,7 @@ if __name__ == "__main__":
 	Info('Starting Application')
 	uopts = UserOptions()
 	uopts.LoadIni(GetIniFileName())
-	dialog = SetupDialog(fields, title=N_("Artillery SideWinder X4 Unbrick Tool v0.2"), initial_values=uopts)
+	dialog = SetupDialog(fields, title=N_("Artillery SideWinder X4 Unbrick Tool v1.0"), initial_values=uopts)
 	dialog.Show()
 
 
