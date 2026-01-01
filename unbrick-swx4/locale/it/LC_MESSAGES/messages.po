@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: unbrick-swx4\n"
-"POT-Creation-Date: 2025-12-28 12:08+0100\n"
-"PO-Revision-Date: 2025-12-28 12:08+0100\n"
+"POT-Creation-Date: 2025-12-31 16:06+0100\n"
+"PO-Revision-Date: 2025-12-31 16:26+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: it\n"
@@ -362,6 +362,33 @@ msgstr ""
 
 #: help.py:174
 msgid ""
+"Input Pin Polarity\n"
+"\n"
+"What it does: Adjusts the probe's input pin logic level.\n"
+"\n"
+"Important Note: This feature is only intended to use if you replaced your "
+"inductive sensor to the professional grade \"Panasonic GX-H12A\".\n"
+"\n"
+"Need help? My repository includes:\n"
+"- Test procedures\n"
+"- Step-by-step guides\n"
+"- Links to the official data sheet"
+msgstr ""
+"Polarità del pin di ingresso\n"
+"\n"
+"Cosa fa: Regola il livello logico del pin di ingresso della sonda.\n"
+"\n"
+"Nota importante: Questa funzione è destinata all'uso solo se è stato "
+"sostituito il sensore induttivo con quello di grado professionale \\"
+"\"Panasonic GX-H12A\\\".\n"
+"\n"
+"Serve aiuto? Il mio repository include:\n"
+"- Procedure di test\n"
+"- Guide passo-passo\n"
+"- Link alla scheda tecnica ufficiale"
+
+#: help.py:188
+msgid ""
 "Distance Sensor Offset\n"
 "\n"
 "What it does: Adjusts the probe offset to correct inconsistencies in the "
@@ -396,7 +423,7 @@ msgstr ""
 "- Guide passo-passo\n"
 "- Link alla scheda tecnica ufficiale"
 
-#: help.py:190
+#: help.py:204
 msgid ""
 "Improve Z-Offset Sampling\n"
 "\n"
@@ -413,7 +440,7 @@ msgstr ""
 "Aumenta la precisione dello Z-offset usando velocità di sondaggio ridotte e "
 "un numero maggiore di campioni."
 
-#: help.py:201
+#: help.py:215
 msgid ""
 "Improve Z-Offset Validation\n"
 "\n"
@@ -433,7 +460,7 @@ msgstr ""
 "Rende il controllo dei campioni più severo. Da usare solo se la stampante è "
 "ben regolata meccanicamente per evitare errori di calibrazione."
 
-#: help.py:212
+#: help.py:226
 msgid ""
 "Enable Manual Bed Leveling\n"
 "\n"
@@ -453,7 +480,7 @@ msgstr ""
 "Attiva l'assistente per regolare le viti del piatto. Apparirà un pulsante "
 "\"BED_SCREWS_ADJUST\" nell'interfaccia Fluidd."
 
-#: help.py:225
+#: help.py:239
 msgid ""
 "Rename Fans for Clarity\n"
 "\n"
@@ -470,7 +497,7 @@ msgstr ""
 "Cambia i nomi generici delle ventole in Fluidd con nomi descrittivi (es. "
 "Ventola Scheda Madre)."
 
-#: help.py:236
+#: help.py:250
 msgid ""
 "Enhanced Mainboard Fan Control\n"
 "\n"
@@ -500,7 +527,7 @@ msgstr ""
 "attiva ogni volta che i motori o il piatto sono in funzione, evitando il "
 "surriscaldamento dei driver durante l'homing o i movimenti manuali."
 
-#: help.py:254
+#: help.py:268
 msgid ""
 "Adjust Mainboard Fan Speed\n"
 "\n"
@@ -523,7 +550,7 @@ msgstr ""
 "Permette di ridurre il rumore, ma attenzione: una velocità troppo bassa può "
 "far bloccare i driver per eccessivo calore."
 
-#: help.py:267
+#: help.py:281
 msgid ""
 "Adjust Heat-Break Fan Speed\n"
 "\n"
@@ -551,7 +578,7 @@ msgstr ""
 "Riduce il rumore della testa di stampa. Il 90% è solitamente sicuro se non "
 "si stampa oltre i 250°C."
 
-#: help.py:284
+#: help.py:298
 msgid ""
 "Enable Host & MCU Temperature Monitoring\n"
 "\n"
@@ -569,7 +596,7 @@ msgstr ""
 "\n"
 "Mostra in Fluidd la temperatura del processore (Host) e dei driver (MCU)."
 
-#: help.py:297
+#: help.py:311
 msgid ""
 "Nozzle Wipe Settings\n"
 "\n"
@@ -588,7 +615,7 @@ msgstr ""
 "Scegli tra la versione lenta (Legacy) o veloce (New) per la macro di pulizia "
 "sulla spazzola."
 
-#: help.py:308
+#: help.py:322
 msgid ""
 "Purge Line Settings\n"
 "\n"
@@ -614,7 +641,7 @@ msgstr ""
 "Nota: questa impostazione si applica solo se lo slicer è configurato per "
 "usare una linea di purga."
 
-#: help.py:320
+#: help.py:334
 msgid ""
 "Enable Filament Change (M600 Support)\n"
 "\n"
@@ -645,7 +672,7 @@ msgstr ""
 "Nota: la versione \"Grumat\" include le stesse funzionalità ma segue "
 "standard di programmazione più puliti e mantenibili."
 
-#: help.py:335
+#: help.py:349
 msgid ""
 "Pause Macro Settings\n"
 "\n"
@@ -697,8 +724,8 @@ msgstr "MiB"
 msgid "KBi"
 msgstr "KiB"
 
-#: my_shell.py:76 my_shell.py:163 my_shell.py:165 task_config.py:451
-#: task_config.py:992
+#: my_shell.py:76 my_shell.py:163 my_shell.py:165 task_config.py:452
+#: task_config.py:1009
 msgid "Connection is invalid to complete the command!"
 msgstr "Connessione non valida per completare il comando!"
 
@@ -706,19 +733,19 @@ msgstr "Connessione non valida per completare il comando!"
 msgid "No response seen during the specified timeout!"
 msgstr "Nessuna risposta ricevuta entro il timeout!"
 
-#: my_workflow.py:230 my_workflow.py:266 my_workflow.py:314
+#: my_workflow.py:232 my_workflow.py:268 my_workflow.py:316
 msgid "ERROR!"
 msgstr "ERRORE!"
 
-#: my_workflow.py:255 my_workflow.py:297
+#: my_workflow.py:257 my_workflow.py:299
 msgid "Begin Step: "
 msgstr "Inizio fase: "
 
-#: my_workflow.py:258 my_workflow.py:300
+#: my_workflow.py:260 my_workflow.py:302
 msgid "OK!"
 msgstr "OK!"
 
-#: my_workflow.py:269 my_workflow.py:318
+#: my_workflow.py:271 my_workflow.py:320
 msgid "Printer configuration has been reset, printer needs recalibration."
 msgstr "Configurazione ripristinata. La stampante richiede calibrazione."
 
@@ -762,61 +789,61 @@ msgstr "Chiudi"
 msgid "Process completed successfully.\n"
 msgstr "Processo completato con successo.\n"
 
-#: task_config.py:196
+#: task_config.py:197
 msgid "Cannot find the copy of the configuration file!"
 msgstr "Copia del file di configurazione non trovata!"
 
-#: task_config.py:198
+#: task_config.py:199
 msgid "Configuration file editor is missing!"
 msgstr "Editor del file di configurazione mancante!"
 
-#: task_config.py:227
+#: task_config.py:228
 msgid "An updated config file was found."
 msgstr "Trovato un file di configurazione aggiornato."
 
-#: task_config.py:229
+#: task_config.py:230
 msgid "A legacy config file was found."
 msgstr "Trovato un file di configurazione legacy."
 
-#: task_config.py:282
+#: task_config.py:283
 #, python-brace-format
 msgid "The section {0} was removed."
 msgstr "La sezione {0} è stata rimossa."
 
-#: task_config.py:300
+#: task_config.py:301
 #, python-brace-format
 msgid "The section {0} was added."
 msgstr "La sezione {0} è stata aggiunta."
 
-#: task_config.py:312
+#: task_config.py:313
 #, python-brace-format
 msgid "The section {0} was replaced."
 msgstr "La sezione {0} è stata sostituita."
 
-#: task_config.py:367
+#: task_config.py:368
 #, python-brace-format
 msgid "The value {0}/{1} was added/updated to {2}."
 msgstr "Il valore {0}/{1} è stato aggiunto/aggiornato a {2}."
 
-#: task_config.py:377
+#: task_config.py:378
 #, python-brace-format
 msgid "The value {0}/{1} was added/updated."
 msgstr "Il valore {0}/{1} è stato aggiunto/aggiornato."
 
-#: task_config.py:388
+#: task_config.py:389
 #, python-brace-format
 msgid "The value {0}/{1} was removed."
 msgstr "Il valore {0}/{1} è stato rimosso."
 
-#: task_config.py:430
+#: task_config.py:431
 msgid "The persistence block was reset."
 msgstr "Il blocco di persistenza è stato resettato."
 
-#: task_config.py:446
+#: task_config.py:447
 msgid "Backup Current Configuration"
 msgstr "Backup configurazione attuale"
 
-#: task_config.py:457
+#: task_config.py:458
 msgid ""
 "\n"
 "\tSuccessfully copy file '{}'"
@@ -824,7 +851,7 @@ msgstr ""
 "\n"
 "\tCopia del file '{}' riuscita"
 
-#: task_config.py:465
+#: task_config.py:466
 msgid ""
 "\n"
 "\tCreated a backup in '{}'\n"
@@ -832,15 +859,15 @@ msgstr ""
 "\n"
 "\tCreato backup in '{}'\n"
 
-#: task_config.py:496
+#: task_config.py:497
 msgid "Reset Printer Configuration"
 msgstr "Reset configurazione stampante"
 
-#: task_config.py:536
+#: task_config.py:537
 msgid "Validate Printer Configuration"
 msgstr "Valida configurazione stampante"
 
-#: task_config.py:553
+#: task_config.py:554
 msgid ""
 "Configuration file is incomplete. Please reset printer configuration to "
 "factory default!"
@@ -848,83 +875,83 @@ msgstr ""
 "Il file di configurazione è incompleto. Per favore, ripristina la "
 "configurazione della stampante ai valori di fabbrica!"
 
-#: task_config.py:649 unbrick-swx4.pyw:261
+#: task_config.py:650 unbrick-swx4.pyw:261
 msgid "Fix Printer Model Settings"
 msgstr "Correggi parametri modello"
 
-#: task_config.py:665 unbrick-swx4.pyw:262
+#: task_config.py:666 unbrick-swx4.pyw:262
 msgid "Enable Exclude Object"
 msgstr "Abilita Exclude Object"
 
-#: task_config.py:681 unbrick-swx4.pyw:265
+#: task_config.py:682 unbrick-swx4.pyw:278
 msgid "Z-Axis Stepper Motor Hold Current"
 msgstr "Corrente mantenimento motori Z"
 
-#: task_config.py:698 unbrick-swx4.pyw:268
+#: task_config.py:699 unbrick-swx4.pyw:265
 msgid "Extruder Acceleration Limit"
 msgstr "Limite accelerazione estrusore"
 
-#: task_config.py:715 unbrick-swx4.pyw:269
+#: task_config.py:716 unbrick-swx4.pyw:266
 msgid "Extruder Motor Current Settings"
 msgstr "Corrente motore estrusore"
 
-#: task_config.py:733 unbrick-swx4.pyw:272
+#: task_config.py:732 task_config.py:750 unbrick-swx4.pyw:270
 msgid "Distance Sensor Offset"
 msgstr "Offset sensore distanza"
 
-#: task_config.py:755 unbrick-swx4.pyw:273
+#: task_config.py:772 unbrick-swx4.pyw:271
 msgid "Z-Offset Sampling"
 msgstr "Campionamento Z-Offset"
 
-#: task_config.py:773 unbrick-swx4.pyw:274
+#: task_config.py:790 unbrick-swx4.pyw:272
 msgid "Z-Offset Error Margin"
 msgstr "Margine errore Z-Offset"
 
-#: task_config.py:790 unbrick-swx4.pyw:280
+#: task_config.py:807 unbrick-swx4.pyw:281
 msgid "Enable Manual Bed Leveling"
 msgstr "Abilita livellamento manuale"
 
-#: task_config.py:801 unbrick-swx4.pyw:283
+#: task_config.py:818 unbrick-swx4.pyw:284
 msgid "Rename Fans for Clarity"
 msgstr "Rinomina ventole"
 
-#: task_config.py:823 unbrick-swx4.pyw:284
+#: task_config.py:840 unbrick-swx4.pyw:285
 msgid "Enhanced Mainboard Fan Control"
 msgstr "Controllo migliorato ventola MB"
 
-#: task_config.py:845 unbrick-swx4.pyw:285
+#: task_config.py:862 unbrick-swx4.pyw:286
 msgid "Adjust Mainboard Fan Speed"
 msgstr "Velocità ventola MB"
 
-#: task_config.py:864 unbrick-swx4.pyw:286
+#: task_config.py:881 unbrick-swx4.pyw:287
 msgid "Adjust Heat-Break Fan Speed"
 msgstr "Velocità ventola Heat-break"
 
-#: task_config.py:883 unbrick-swx4.pyw:289
+#: task_config.py:900 unbrick-swx4.pyw:290
 msgid "Enable Host & MCU Temperature Monitoring"
 msgstr "Monitoraggio Temp. Host/MCU"
 
-#: task_config.py:919 unbrick-swx4.pyw:292
+#: task_config.py:936 unbrick-swx4.pyw:293
 msgid "Nozzle Wipe Settings"
 msgstr "Impostazioni Nozzle Wipe"
 
-#: task_config.py:940 unbrick-swx4.pyw:293
+#: task_config.py:957 unbrick-swx4.pyw:294
 msgid "Purge Line Settings"
 msgstr "Impostazioni linea di purga"
 
-#: task_config.py:959 unbrick-swx4.pyw:294
+#: task_config.py:976 unbrick-swx4.pyw:295
 msgid "Enable Filament Change (M600 Support)"
 msgstr "Abilita cambio filamento (M600)"
 
-#: task_config.py:976 unbrick-swx4.pyw:295
+#: task_config.py:993 unbrick-swx4.pyw:296
 msgid "Pause Macro Settings"
 msgstr "Impostazioni Macro Pausa"
 
-#: task_config.py:987
+#: task_config.py:1004
 msgid "Save Configuration"
 msgstr "Salva la Configurazione"
 
-#: task_config.py:1005
+#: task_config.py:1022
 msgid ""
 "\n"
 "\tSuccessfully saved file '{}'"
@@ -983,11 +1010,11 @@ msgstr "Manca uno dei file di configurazione!\n"
 msgid "The connection does not report an Artillery SW X4 printer"
 msgstr "La connessione non indica una stampante Artillery SW X4"
 
-#: task_connect.py:85
+#: task_connect.py:86
 msgid "Disconnecting SSH Client"
 msgstr "Disconnessione client SSH"
 
-#: task_connect.py:90
+#: task_connect.py:91
 msgid ""
 "\n"
 "\n"
@@ -997,7 +1024,7 @@ msgstr ""
 "\n"
 "\tSpazio recuperato: {}\n"
 
-#: task_connect.py:96
+#: task_connect.py:97
 msgid ""
 "\n"
 "\tRebooting printer\n"
@@ -1362,140 +1389,155 @@ msgid "Complete Factory Reset"
 msgstr "Reset fabbrica completo"
 
 #: unbrick-swx4.pyw:264
-msgid "Gantry"
-msgstr "Gantry (Ponte)"
+msgid "Extruder"
+msgstr "Estrusore"
 
-#: unbrick-swx4.pyw:265 unbrick-swx4.pyw:268 unbrick-swx4.pyw:269
-#: unbrick-swx4.pyw:272 unbrick-swx4.pyw:273 unbrick-swx4.pyw:274
-#: unbrick-swx4.pyw:280
+#: unbrick-swx4.pyw:265 unbrick-swx4.pyw:266 unbrick-swx4.pyw:269
+#: unbrick-swx4.pyw:270 unbrick-swx4.pyw:271 unbrick-swx4.pyw:272
+#: unbrick-swx4.pyw:278 unbrick-swx4.pyw:281
 msgid "Do not change"
 msgstr "Non modificare"
 
 #: unbrick-swx4.pyw:265
-msgid "800mA"
-msgstr "800mA"
-
-#: unbrick-swx4.pyw:265
-msgid "900mA"
-msgstr "900mA"
-
-#: unbrick-swx4.pyw:267
-msgid "Extruder"
-msgstr "Estrusore"
-
-#: unbrick-swx4.pyw:268
 msgid "6000mm/s² (SW X4-Pro)"
 msgstr "6000mm/s² (SW X4-Pro)"
 
-#: unbrick-swx4.pyw:268
+#: unbrick-swx4.pyw:265
 msgid "7000mm/s²"
 msgstr "7000mm/s²"
 
-#: unbrick-swx4.pyw:268
+#: unbrick-swx4.pyw:265
 msgid "8000mm/s² (SW X4-Plus)"
 msgstr "8000mm/s² (SW X4-Plus)"
 
-#: unbrick-swx4.pyw:269
+#: unbrick-swx4.pyw:266
 msgid "800mA (SW X4-Plus)"
 msgstr "800mA (SW X4-Plus)"
 
-#: unbrick-swx4.pyw:269
+#: unbrick-swx4.pyw:266
 msgid "900mA (recommendation)"
 msgstr "900mA (consigliato)"
 
-#: unbrick-swx4.pyw:269
+#: unbrick-swx4.pyw:266
 msgid "1000mA (SW X4-Pro)"
 msgstr "1000mA (SW X4-Pro)"
 
-#: unbrick-swx4.pyw:271
-msgid "Z-Axis Distance Sensor"
-msgstr "Sensore distanza Z"
+#: unbrick-swx4.pyw:268
+msgid "Z-Probe"
+msgstr "Sonda Z"
 
-#: unbrick-swx4.pyw:272 unbrick-swx4.pyw:280
+#: unbrick-swx4.pyw:269
+msgid "Input Pin Polarity"
+msgstr "Polarità del pin di ingresso"
+
+#: unbrick-swx4.pyw:269
+msgid "NC (default)"
+msgstr "NC (valori di fabbrica)"
+
+#: unbrick-swx4.pyw:269
+msgid "NO (Panasonic GX-H12A)"
+msgstr "NA (Panasonic GX-H12A)"
+
+#: unbrick-swx4.pyw:270 unbrick-swx4.pyw:281
 msgid "Factory Mount (default)"
 msgstr "Montaggio fabbrica (default)"
 
-#: unbrick-swx4.pyw:272 unbrick-swx4.pyw:280
+#: unbrick-swx4.pyw:270 unbrick-swx4.pyw:281
 msgid "180° Mount"
 msgstr "Montaggio 180°"
 
-#: unbrick-swx4.pyw:273 unbrick-swx4.pyw:274
+#: unbrick-swx4.pyw:271 unbrick-swx4.pyw:272
 msgid "Factory default"
 msgstr "Default fabbrica"
 
-#: unbrick-swx4.pyw:273
+#: unbrick-swx4.pyw:271
 msgid "Improved"
 msgstr "Migliorato"
 
-#: unbrick-swx4.pyw:274
+#: unbrick-swx4.pyw:272
 msgid "Higher precision"
 msgstr "Alta precisione"
 
-#: unbrick-swx4.pyw:279
+#: unbrick-swx4.pyw:277
+msgid "Gantry"
+msgstr "Gantry (Ponte)"
+
+#: unbrick-swx4.pyw:278
+msgid "800mA"
+msgstr "800mA"
+
+#: unbrick-swx4.pyw:278
+msgid "900mA"
+msgstr "900mA"
+
+#: unbrick-swx4.pyw:280
 msgid "Print Bed"
 msgstr "Piatto di stampa"
 
-#: unbrick-swx4.pyw:282
+#: unbrick-swx4.pyw:283
 msgid "Printer Fans"
 msgstr "Ventole stampante"
 
-#: unbrick-swx4.pyw:285 unbrick-swx4.pyw:286
+#: unbrick-swx4.pyw:286 unbrick-swx4.pyw:287
 msgid "Max (default)"
 msgstr "Max (default)"
 
-#: unbrick-swx4.pyw:285 unbrick-swx4.pyw:286
+#: unbrick-swx4.pyw:286 unbrick-swx4.pyw:287
 msgid "95%"
 msgstr "95%"
 
-#: unbrick-swx4.pyw:285 unbrick-swx4.pyw:286
+#: unbrick-swx4.pyw:286 unbrick-swx4.pyw:287
 msgid "90%"
 msgstr "90%"
 
-#: unbrick-swx4.pyw:285 unbrick-swx4.pyw:286
+#: unbrick-swx4.pyw:286 unbrick-swx4.pyw:287
 msgid "85%"
 msgstr "85%"
 
-#: unbrick-swx4.pyw:285 unbrick-swx4.pyw:286
+#: unbrick-swx4.pyw:286 unbrick-swx4.pyw:287
 msgid "80%"
 msgstr "80%"
 
-#: unbrick-swx4.pyw:285 unbrick-swx4.pyw:286
+#: unbrick-swx4.pyw:286 unbrick-swx4.pyw:287
 msgid "75%"
 msgstr "75%"
 
-#: unbrick-swx4.pyw:285 unbrick-swx4.pyw:286
+#: unbrick-swx4.pyw:286 unbrick-swx4.pyw:287
 msgid "70%"
 msgstr "70%"
 
-#: unbrick-swx4.pyw:288
+#: unbrick-swx4.pyw:289
 msgid "Temperatures"
 msgstr "Temperature"
 
-#: unbrick-swx4.pyw:291
+#: unbrick-swx4.pyw:292
 msgid "G-Code"
 msgstr "G-Code"
 
-#: unbrick-swx4.pyw:292 unbrick-swx4.pyw:293 unbrick-swx4.pyw:294
-#: unbrick-swx4.pyw:295
+#: unbrick-swx4.pyw:293 unbrick-swx4.pyw:294 unbrick-swx4.pyw:295
+#: unbrick-swx4.pyw:296
 msgid "Do not Change"
 msgstr "Non modificare"
 
-#: unbrick-swx4.pyw:292 unbrick-swx4.pyw:293 unbrick-swx4.pyw:295
+#: unbrick-swx4.pyw:293 unbrick-swx4.pyw:294 unbrick-swx4.pyw:296
 msgid "Legacy Version"
 msgstr "Versione Legacy"
 
-#: unbrick-swx4.pyw:292 unbrick-swx4.pyw:293 unbrick-swx4.pyw:295
+#: unbrick-swx4.pyw:293 unbrick-swx4.pyw:294 unbrick-swx4.pyw:296
 msgid "New Version"
 msgstr "Nuova Versione"
 
-#: unbrick-swx4.pyw:293 unbrick-swx4.pyw:294 unbrick-swx4.pyw:295
+#: unbrick-swx4.pyw:294 unbrick-swx4.pyw:295 unbrick-swx4.pyw:296
 msgid "Grumat Version"
 msgstr "Versione Grumat"
 
-#: unbrick-swx4.pyw:294
+#: unbrick-swx4.pyw:295
 msgid "Artillery Version"
 msgstr "Versione Artillery"
 
-#: unbrick-swx4.pyw:304
+#: unbrick-swx4.pyw:305
 msgid "Artillery SideWinder X4 Unbrick Tool v1.0"
 msgstr "Strumento Unbrick Artillery SideWinder X4 v1.0"
+
+#~ msgid "Z-Axis Distance Sensor"
+#~ msgstr "Sensore distanza Z"

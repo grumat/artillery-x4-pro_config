@@ -331,6 +331,8 @@ def main():
 		fh.write("# def:\t\tupg\n")
 		fh.write("# upg:\t\tY\n")
 		fh.write("# grumat:\tupg\n")
+		fh.write("PROBE_NC = 'PA8'\t\t\t\t\t\t\t\t# Plain value\n")
+		fh.write("PROBE_NO = '!PA8'\t\t\t\t\t\t\t\t# Plain value\n")
 		fh.write("PROBE_X_OFFSET = '-17'\t\t\t\t\t\t\t# Plain value\n")
 		fh.write("PROBE_Y_OFFSET = '17'\t\t\t\t\t\t\t# Plain value\n")
 		fh.write("PROBE_SPEED = '10.0'\t\t\t\t\t\t\t# Plain value\n")

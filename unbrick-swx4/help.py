@@ -170,6 +170,20 @@ Recommendation: If you're unsure, start with 900mA — a balanced setting for mo
 )
 
 
+tt_probe_logic = N_(
+	"""Input Pin Polarity
+
+What it does: Adjusts the probe's input pin logic level.
+
+Important Note: This feature is only intended to use if you replaced your inductive sensor to the professional grade "Panasonic GX-H12A".
+
+Need help? My repository includes:
+- Test procedures
+- Step-by-step guides
+- Links to the official data sheet"""
+)
+
+
 tt_probe_offset = N_(
 	"""Distance Sensor Offset
 

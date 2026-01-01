@@ -141,11 +141,11 @@ class Workflow(ArtillerySideWinder):
 		if TYPE_CHECKING:
 			from .task_config import BackupConfig, ConfigReset, ConfigValidate, FixModelSettings, StepperZCurrent, ExtruderAccel, ExtruderCurrent, \
 						ProbeOffset, ProbeSampling, ProbeValidation, ScrewsTiltAdjust, FanRename, MbFanFix, MbFanSpeed, HbFanSpeed, TempMCU, \
-						NozzleWipe, PurgeLine, M600Support, PauseMacro, ExcludeObject, SaveConfig
+						NozzleWipe, PurgeLine, M600Support, PauseMacro, ExcludeObject, SaveConfig, InputPinPolarity
 		else:
 			from task_config import BackupConfig, ConfigReset, ConfigValidate, FixModelSettings, StepperZCurrent, ExtruderAccel, ExtruderCurrent, \
 						ProbeOffset, ProbeSampling, ProbeValidation, ScrewsTiltAdjust, FanRename, MbFanFix, MbFanSpeed, HbFanSpeed, TempMCU, \
-						NozzleWipe, PurgeLine, M600Support, PauseMacro, ExcludeObject, SaveConfig
+						NozzleWipe, PurgeLine, M600Support, PauseMacro, ExcludeObject, SaveConfig, InputPinPolarity
 
 		if (TEST_MODE is None):
 			self.tasks.append(Connect(self))
@@ -172,6 +172,7 @@ class Workflow(ArtillerySideWinder):
 		self.tasks.append(StepperZCurrent(self))
 		self.tasks.append(ExtruderAccel(self))
 		self.tasks.append(ExtruderCurrent(self))
+		self.tasks.append(InputPinPolarity(self))
 		self.tasks.append(ProbeOffset(self))
 		self.tasks.append(ProbeSampling(self))
 		self.tasks.append(ProbeValidation(self))

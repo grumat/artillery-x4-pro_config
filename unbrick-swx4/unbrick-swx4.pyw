@@ -261,20 +261,21 @@ fields = [
 	{"type": "checkbox", 	"name": "model_attr", 			"text": N_("Fix Printer Model Settings"), "label": ""},
 	{"type": "checkbox", 	"name": "exclude_object",		"text": N_("Enable Exclude Object"), "label": ""},
 
-	{"type": "title", 										"text": N_("Gantry")},
-	{"type": "combobox", 	"name": "stepper_z_current", 	"label": N_("Z-Axis Stepper Motor Hold Current"), "options": [N_("Do not change"), N_("800mA"), N_("900mA")], },
-
 	{"type": "title", 										"text": N_("Extruder")},
 	{"type": "combobox", 	"name": "extruder_accel", 		"label": N_("Extruder Acceleration Limit"), "options": [N_("Do not change"), N_("6000mm/s² (SW X4-Pro)"), N_("7000mm/s²"), N_("8000mm/s² (SW X4-Plus)")], },
 	{"type": "combobox", 	"name": "extruder_current", 	"label": N_("Extruder Motor Current Settings"), "options": [N_("Do not change"), N_("800mA (SW X4-Plus)"), N_("900mA (recommendation)"), N_("1000mA (SW X4-Pro)")], },
 	
-	{"type": "title", 										"text": N_("Z-Axis Distance Sensor")},
+	{"type": "title", 										"text": N_("Z-Probe")},
+	{"type": "combobox",  	"name": "probe_logic",	 		"label": N_("Input Pin Polarity"), "options": [N_("Do not change"), N_("NC (default)"), N_("NO (Panasonic GX-H12A)")], },
 	{"type": "combobox",  	"name": "probe_offset", 		"label": N_("Distance Sensor Offset"), "options": [N_("Do not change"), N_("Factory Mount (default)"), N_("180° Mount")], },
 	{"type": "combobox", 	"name": "probe_sampling", 		"label": N_("Z-Offset Sampling"), "options": [N_("Do not change"), N_("Factory default"), N_("Improved")], },
 	{"type": "combobox", 	"name": "probe_validation", 	"label": N_("Z-Offset Error Margin"), "options": [N_("Do not change"), N_("Factory default"), N_("Higher precision")], },
 
 
 	{"column_break": True},  # Switch to the right column
+
+	{"type": "title", 										"text": N_("Gantry")},
+	{"type": "combobox", 	"name": "stepper_z_current", 	"label": N_("Z-Axis Stepper Motor Hold Current"), "options": [N_("Do not change"), N_("800mA"), N_("900mA")], },
 
 	{"type": "title", 										"text": N_("Print Bed")},
 	{"type": "combobox", 	"name": "screws_tilt_adjust", 	"label": N_("Enable Manual Bed Leveling"), "options": [N_("Do not change"), N_("Factory Mount (default)"), N_("180° Mount")], },

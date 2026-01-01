@@ -26,6 +26,7 @@ class UserOptions(object):
 		self.extruder_accel = 1
 		self.extruder_current = 1
 		# probe
+		self.probe_logic = 0
 		self.probe_offset = 1
 		self.probe_sampling = 2
 		self.probe_validation = 1
@@ -75,6 +76,7 @@ class UserOptions(object):
 			'extruder_current': str(self.extruder_current),
 		}
 		config['probe'] = {
+			'probe_logic': str(self.probe_logic),
 			'probe_offset': str(self.probe_offset),
 			'probe_sampling': str(self.probe_sampling),
 			'probe_validation': str(self.probe_validation),
@@ -131,6 +133,7 @@ class UserOptions(object):
 		update_attr('extruder', 'extruder_accel', 		self.extruder_accel, int)
 		update_attr('extruder', 'extruder_current', 	self.extruder_current, int)
 
+		update_attr('probe', 'probe_logic', 		self.probe_logic, int)
 		update_attr('probe', 'probe_offset', 		self.probe_offset, int)
 		update_attr('probe', 'probe_sampling', 		self.probe_sampling, int)
 		update_attr('probe', 'probe_validation', 	self.probe_validation, int)

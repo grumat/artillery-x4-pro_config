@@ -195,6 +195,8 @@ EXTRUDER_CURRENT_HI = '1.0'						# Plain value
 # def:		upg
 # upg:		Y
 # grumat:	upg
+PROBE_NC = 'PA8'								# Plain value
+PROBE_NO = '!PA8'								# Plain value
 PROBE_X_OFFSET = '-17'							# Plain value
 PROBE_Y_OFFSET = '17'							# Plain value
 PROBE_SPEED = '10.0'							# Plain value

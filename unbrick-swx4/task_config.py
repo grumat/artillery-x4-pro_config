@@ -162,6 +162,7 @@ _gcode_pause_ = K("gcode_macro PAUSE", "gcode")
 _hold_current_z_ = K("tmc2209 stepper_z", "hold_current")
 _extruder_accel_ = K("extruder", "max_extrude_only_accel")
 _extruder_current_ = K("tmc2209 extruder", "run_current")
+_probe_pin_ = K("probe", "pin")
 _probe_x_offset_ = K("probe", "x_offset")
 _probe_y_offset_ = K("probe", "y_offset")
 _probe_speed_ = K("probe", "speed")
@@ -719,6 +720,22 @@ class ExtruderCurrent(StmtList_):
 		# Validate state
 		super().Do()
 		self.RunPlan(self.PLAN, workflow.opts.extruder_current)
+
+
+class InputPinPolarity(StmtList_):
+	PLAN =(
+		# <cond>			<command>		<section/key>	<value pro>		<value plus>
+		( _is_combo_1_,		_upd_val_,		_probe_pin_,	PROBE_NC,		PROBE_NC ),
+		( _is_combo_2_,		_upd_val_,		_probe_pin_,	PROBE_NO,		PROBE_NO ),
+	)
+	def __init__(self, workflow: Workflow) -> None:
+		super().__init__(workflow, N_("Distance Sensor Offset"), workflow.opts.probe_logic and TaskState.READY or TaskState.DISABLED)
+	def Do(self):
+		workflow = self.workflow
+		assert workflow.opts.probe_logic != 0, "This item is disabled, why got called?"
+		# Validate state
+		super().Do()
+		self.RunPlan(self.PLAN, workflow.opts.probe_logic)
 
 
 class ProbeOffset(StmtList_):
