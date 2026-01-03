@@ -19,8 +19,8 @@ Offset Shift By Test Duration:
 - Reference (2 min): 0.33 µm
 - dZ @12 min: -43.25 µm
 - dZ @35 min: 19.00 µm
-- dZ @41 min: 2.83 µm
-- dZ @54 min: -11.17 µm
+- dZ @41 min: 8.50 µm
+- dZ @54 min: -14.25 µm
 
 
 For tab:
@@ -41,8 +41,8 @@ For tab:
 0.33
 -43.25
 19.00
-2.83
--11.17
+8.50
+-14.25
 
 
 Probe Accuracy: Rotation
@@ -66,8 +66,8 @@ Offset Shift By Test Duration:
 - Reference (2 min): 0.83 µm
 - dZ @12 min: -19.58 µm
 - dZ @35 min: -4.17 µm
-- dZ @41 min: 14.25 µm
-- dZ @54 min: -24.92 µm
+- dZ @41 min: 9.58 µm
+- dZ @54 min: -18.25 µm
 
 
 For tab:
@@ -88,8 +88,8 @@ For tab:
 0.83
 -19.58
 -4.17
-14.25
--24.92
+9.58
+-18.25
 
 
 Probe Accuracy: Rotation + Slow Motion
@@ -113,8 +113,8 @@ Offset Shift By Test Duration:
 - Reference (2 min): 2.58 µm
 - dZ @12 min: -17.33 µm
 - dZ @35 min: -0.67 µm
-- dZ @41 min: 9.50 µm
-- dZ @54 min: -12.92 µm
+- dZ @41 min: 13.75 µm
+- dZ @54 min: -17.00 µm
 
 
 For tab:
@@ -135,8 +135,8 @@ For tab:
 2.58
 -17.33
 -0.67
-9.50
--12.92
+13.75
+-17.00
 
 
 Probe Accuracy: Rotation + Slow Motion + Filter
@@ -160,8 +160,8 @@ Offset Shift By Test Duration:
 - Reference (2 min): -16.33 µm
 - dZ @12 min: -46.08 µm
 - dZ @35 min: 20.17 µm
-- dZ @41 min: 12.08 µm
-- dZ @54 min: -8.33 µm
+- dZ @41 min: 12.75 µm
+- dZ @54 min: -12.67 µm
 
 
 For tab:
@@ -182,8 +182,8 @@ For tab:
 -16.33
 -46.08
 20.17
-12.08
--8.33
+12.75
+-12.67
 
 
 Probe Accuracy: Rotation + Slow Motion + Filter + Filament
@@ -207,8 +207,8 @@ Offset Shift By Test Duration:
 - Reference (2 min): 54.25 µm
 - dZ @12 min: -10.17 µm
 - dZ @35 min: -7.50 µm
-- dZ @41 min: 7.67 µm
-- dZ @54 min: -11.50 µm
+- dZ @41 min: 11.00 µm
+- dZ @54 min: -14.33 µm
 
 
 For tab:
@@ -229,8 +229,8 @@ For tab:
 54.25
 -10.17
 -7.50
-7.67
--11.50
+11.00
+-14.33
 
 
 Probe Accuracy: Rotation + Slow Motion + Filter (2026)
@@ -255,7 +255,7 @@ Offset Shift By Test Duration:
 - dZ @12 min: 44.33 µm
 - dZ @35 min: -9.92 µm
 - dZ @41 min: -11.42 µm
-- dZ @54 min: 17.75 µm
+- dZ @54 min: 16.50 µm
 
 
 For tab:
@@ -277,7 +277,7 @@ For tab:
 44.33
 -9.92
 -11.42
-17.75
+16.50
 
 
 Probe Accuracy: Rotation + Slow Motion + Filter + Panasonic (2026)
@@ -301,8 +301,8 @@ Offset Shift By Test Duration:
 - Reference (2 min): 1265.00 µm
 - dZ @12 min: -45.67 µm
 - dZ @35 min: 13.75 µm
-- dZ @41 min: 1.50 µm
-- dZ @54 min: 0.33 µm
+- dZ @41 min: 1.08 µm
+- dZ @54 min: 0.67 µm
 
 
 For tab:
@@ -323,7 +323,7 @@ For tab:
 1265.00
 -45.67
 13.75
-1.50
-0.33
+1.08
+0.67
 
 

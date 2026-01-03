@@ -5,6 +5,7 @@
 import argparse
 import json
 import os
+import math
 from statistics import pstdev, fmean
 
 import plotly.graph_objects as pgo
@@ -46,6 +47,13 @@ def write_chart(data: list, output_file: str, chart_title: str, alt : bool):
 		line={'color': 'black'},
 		yaxis='y2'
 	)
+
+	z_low = min([x['z'] for x in data if 'z' in x])
+	z_low = (int(z_low * 10) - 1) / 10
+	z_max = max([x['z'] for x in data if 'z' in x])
+	z_hi = z_low + 0.3
+	while z_hi < z_max:
+		z_hi += 0.2
 	
 	sdy = [pstdev(ztrace.y[i-9:i+1]) * 1000 for i, ts in enumerate(ztrace.y) if i >= 9]
 	final = fmean(sdy)
@@ -134,9 +142,9 @@ def write_chart(data: list, output_file: str, chart_title: str, alt : bool):
 		fig.add_trace(trace)
 
 	if alt:
-		zrange = [0.0,0.1]
+		zrange = None
 	else:
-		zrange = [-0.07,0.03]
+		zrange = [z_low,z_hi]
 
 	fig.update_layout(
 		title=dict(
@@ -208,9 +216,9 @@ def print_stats(data : list, title : str):
 	before_nozzle = []
 	phase3 = []
 	hot_nozzle_level = []
-	hot_nozzle_watch = 41 * 60.0
+	hot_nozzle_watch = 39 * 60.0
 	hot_nozzle_final_level = []
-	hot_nozzle_final_watch = 54 * 60.0
+	hot_nozzle_final_watch = 51 * 60.0
 	after_nozzle = []
 	phase4 = []
 	all_z = []
