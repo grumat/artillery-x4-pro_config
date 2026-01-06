@@ -1,6 +1,8 @@
 #!py -3
 # This work is derived from `probe_accuracy.py` and customizes the 
 # results for my Wiki page.
+#
+# spellchecker:words ztrace zstddevtrace btrace btemp bset bstrace etemp eset etrace atherms estrace rangemode showlegend tozero tozeroy zrange
 
 import argparse
 import json
@@ -25,6 +27,62 @@ parser.add_argument('--title', default='Probe Accuracy: Standard')
 parser.add_argument('--alt', action='store_true')
 
 
+class HeatSoak(object):
+	"""Computes heat soak values for phase having heat bead and hot end active"""
+	def __init__(self, soak_time : int) -> None:
+		self.soak_time = soak_time
+		self.sd = 0.0
+		self.diff = 0.0
+		self.avg = 0.0
+	def ComputeSoak(self, data : list[tuple[float, float]], cold : float, z_min : float):
+		offset = data[0][0]
+		start = self.soak_time * 60.0 + offset
+		samples = [z for ts, z in data if ts >= start]
+		self.sd = pstdev(samples)
+		self.diff = max(samples) - min(samples)
+		self.avg = fmean(samples)
+		self.displace = self.avg - cold
+		self.displace0 = self.avg - z_min
+	def Print(self):
+		if self.soak_time == 0:
+			print("Total")
+		else:
+			print(f"After {self.soak_time} min")
+		print(f"    Z avg = {self.avg:6.4f} mm")
+		print(f"    Z disp = {self.displace:6.4f} mm")
+		print(f"    Z stdev = {1000.0 * self.sd:6.4f} µm")
+		print(f"    Z diff = {1000.0 * self.diff:6.4f} µm")
+
+
+class SoakStats(object):
+	def __init__(self, z_min : float, cold :list[float], data : list[tuple[float, float]]) -> None:
+		self.z_min = z_min
+		self.cold = cold
+		self.cold_avg = fmean(cold)
+		self.data = data
+		self.total = HeatSoak(0)
+		self.m1 = HeatSoak(1)
+		self.m2 = HeatSoak(2)
+		self.m3 = HeatSoak(3)
+		self.m5 = HeatSoak(5)
+		self.m10 = HeatSoak(10)
+		self.total.ComputeSoak(data, self.cold_avg, z_min)
+		self.m1.ComputeSoak(data, self.cold_avg, z_min)
+		self.m2.ComputeSoak(data, self.cold_avg, z_min)
+		self.m3.ComputeSoak(data, self.cold_avg, z_min)
+		self.m5.ComputeSoak(data, self.cold_avg, z_min)
+		self.m10.ComputeSoak(data, self.cold_avg, z_min)
+	def Print(self):
+		print("===Heat Soak Statistics===")
+		self.total.Print()
+		self.m1.Print()
+		self.m2.Print()
+		self.m3.Print()
+		self.m5.Print()
+		self.m10.Print()
+
+
+
 def load_data(data_file: str) -> list:
 	if not os.path.isabs(data_file):
 		data_file = os.path.normpath(os.path.join(SCRIPT_DIR, data_file))
@@ -32,33 +90,35 @@ def load_data(data_file: str) -> list:
 		return [json.loads(line) for line in f]
 
 
-def write_chart(data: list, output_file: str, chart_title: str, alt : bool):
+def write_chart(data: list, output_file: str, chart_title: str, alt : bool, soak_stats : SoakStats):
 
 	if not os.path.isabs(output_file):
 		output_file = os.path.normpath(os.path.join(SCRIPT_DIR, output_file))
 
 	min_ts = data[0]['ts']
 
+	z_min = min([x['z'] for x in data if 'z' in x])
+	
 	ztrace = pgo.Scatter(
 		x=[x['ts'] - min_ts for x in data if 'z' in x],
-		y=[x['z'] for x in data if 'z' in x],
+		y=[(x['z'] - z_min) for x in data if 'z' in x],
 		name='Z',
 		mode='lines',
 		line={'color': 'black'},
 		yaxis='y2'
 	)
+	assert ztrace is not None, "Unknown error on plotly"
+	assert ztrace.y is not None, "Unknown error on plotly"
 
-	z_low = min([x['z'] for x in data if 'z' in x])
-	z_low = (int(z_low * 10) - 1) / 10
-	z_max = max([x['z'] for x in data if 'z' in x])
-	z_hi = z_low + 0.3
+	z_max = max(ztrace.y)
+	z_hi = 0.3
 	while z_hi < z_max:
 		z_hi += 0.2
 	
-	sdy = [pstdev(ztrace.y[i-9:i+1]) * 1000 for i, ts in enumerate(ztrace.y) if i >= 9]
-	final = fmean(sdy)
-	dif = [(max(ztrace.y[i-9:i+1]) - min(ztrace.y[i-9:i+1])) for i, ts in enumerate(ztrace.y) if i >= 9]
-	dif = fmean(dif)
+	sdy_local = [pstdev(ztrace.y[i-9:i+1]) * 1000 for i, ts in enumerate(ztrace.y) if i >= 9]
+	final = fmean(sdy_local)
+	dif_local = [(max(ztrace.y[i-9:i+1]) - min(ztrace.y[i-9:i+1])) for i, ts in enumerate(ztrace.y) if i >= 9]
+	dif_local = fmean(dif_local)
 
 	zstddevtrace = pgo.Scatter(
 		x=[ts for i, ts in enumerate(ztrace.x) if i >= 4],
@@ -144,7 +204,7 @@ def write_chart(data: list, output_file: str, chart_title: str, alt : bool):
 	if alt:
 		zrange = None
 	else:
-		zrange = [z_low,z_hi]
+		zrange = [-0.1,z_hi]
 
 	fig.update_layout(
 		title=dict(
@@ -161,7 +221,7 @@ def write_chart(data: list, output_file: str, chart_title: str, alt : bool):
 			title='°C',
 		),
 		yaxis2=dict(
-			title='Z = {:.5f} (mm)'.format(dif),
+			title='Z10+ diff = {:.5f} (mm)'.format(1000.0 * soak_stats.m10.diff),
 			anchor='x',
 			overlaying='y',
 			side='right',
@@ -169,7 +229,7 @@ def write_chart(data: list, output_file: str, chart_title: str, alt : bool):
 			range=zrange
 		),
 		yaxis3=dict(
-			title='Z stddev = {:.2f} µm'.format(final),
+			title='Z10+ stddev = {:.2f} µm'.format(1000.0 * soak_stats.m10.sd),
 			rangemode='tozero',
 			anchor='free',
 			overlaying='y',
@@ -180,6 +240,36 @@ def write_chart(data: list, output_file: str, chart_title: str, alt : bool):
 	)
 
 	fig.write_image(output_file)
+
+
+def real_world_stats(data : list) -> SoakStats:
+	"Only the phase where heat-bed and hot-end are on are actually important"
+	min_ts = data[0]['ts']
+	cold_ts = min_ts + 5*60.0
+	start_found = False
+	cold = []
+	samples = []
+	for i, rec in enumerate(data):
+		if "etemp" in rec:
+			if not start_found:
+				if rec["eset"] != 0.0:
+					# Start of phase 3 with stable temp
+					if abs(rec["etemp"] - rec["eset"]) <= 1.0:
+						start_found = True
+			elif rec["eset"] == 0.0:
+				# End of phase 3
+				break
+		if "z" in rec:
+			ts = rec["ts"]
+			z = rec["z"]
+			if (ts <= cold_ts):
+				cold.append(z)
+			if start_found:
+				samples.append((ts, z))
+	z_min = min([x['z'] for x in data if 'z' in x])
+	return SoakStats(z_min, cold, samples)
+
+
 
 
 def moving_stats(col : list):
@@ -327,9 +417,14 @@ def main():
 	args = parser.parse_args()
 
 	data = load_data(args.data)
+	soak_stats = real_world_stats(data)
 
-	write_chart(data, args.out, args.title, args.alt)
+	write_chart(data, args.out, args.title, args.alt, soak_stats)
 	print_stats(data, args.title)
+
+	soak_stats.Print()
+	print()
+	print()
 
 
 if __name__ == '__main__':
